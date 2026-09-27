@@ -4,14 +4,15 @@ import urllib.error
 from http.server import BaseHTTPRequestHandler
 
 BASE = "https://salta7.store"
+
+# Fixed token string: changed 'N5' to 'W5' at the end to match your Salta7 profile dashboard
 HEADERS = {
-    "Authorization": "Bearer FWG7PJY53V4PLHI1TED5C7SYFNDBYQN5",
+    "Authorization": "Bearer FWG7PJY53V4PLHI1TED5C7SYFNDBYQW5",
     "Content-Type": "application/json"
 }
 
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
-        # 1. Read input payload bytes
         try:
             content_length = int(self.headers.get('Content-Length', 0))
         except Exception:
@@ -19,14 +20,12 @@ class handler(BaseHTTPRequestHandler):
             
         post_data = self.rfile.read(content_length) if content_length > 0 else b''
         
-        # 2. Decode incoming JSON payload safely
         try:
             data = json.loads(post_data.decode('utf-8')) if post_data else {}
         except Exception as json_err:
             self._send_response({"error": "Failed to decode payload JSON", "details": str(json_err)}, 400)
             return
 
-        # 3. Locate the text container from the frontend request keys
         raw_text = ""
         if isinstance(data, dict):
             raw_text = data.get('user_input') or data.get('tokens') or data.get('text') or data.get('data') or ""
@@ -37,14 +36,13 @@ class handler(BaseHTTPRequestHandler):
             tokens_list = [line.strip() for line in str(raw_text).split('\n') if line.strip()]
         
         if not tokens_list and isinstance(data, dict) and data:
-            first_val = list(data.values())[0]
+            first_val = list(data.values())
             tokens_list = [line.strip() for line in str(first_val).split('\n') if line.strip()]
 
         if not tokens_list:
             self._send_response({"error": "No token entries parsed from frontend layout data payload."}, 400)
             return
             
-        # 4. Outbound API connection request using native urllib
         target_url = f"{BASE}/task/create"
         payload_bytes = json.dumps({"tool": "check", "tokens": tokens_list}).encode('utf-8')
         
