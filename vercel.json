@@ -1,2 +1,13 @@
-
-```json { "rewrites": [ { "source": "/api/submit", "destination": "api/submit" }, { "source": "/api/items", "destination": "api/items" } ] }
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/items.py"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
