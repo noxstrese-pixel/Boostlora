@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boostlora Central Nexus</title>
+    <style>
+        :root {
+            --bg-main: #090D16;
+            --bg-sidebar: #0F1626;
+            --bg-card: #151D30;
+            --accent-blue: #3B82F6;
+            --accent-hover: #2563EB;
+            --text-main: #F3F4F6;
+            --text-muted: #9CA3AF;
+            --border-color: #1F293D;
+            --color-valid: #10B981;
+            --color-warning: #F59E0B;
+            --color-invalid: #EF4444;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 240px;
+            flex: 0 0 240px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sidebar-brand {
+            font-size: 22px;
+            font-weight: 800;
+            padding: 0 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 16px;
+            background: linear-gradient(to right, #60A5FA, #3B82F6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-btn {
+            background: none;
+            border: 0;
+            color: var(--text-muted);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            width: 100%;
+        }
+
+        .nav-btn.active { background: var(--accent-blue); color: white; }
+        .nav-btn:hover:not(.active) { background: #1E293B; color: var(--text-main); }
+
+        .badge-dev {
+            float: right;
+            font-size: 10px;
+            background: rgba(245,158,11,.2);
+            color: #FBBF24;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow-y: auto;
+        }
+
+        .dashboard-container {
+            width: 100%;
+            max-width: 750px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,.3);
+        }
+
+        .tool-panel { display: none; }
+        .tool-panel.active { display: block; }
+        .header-section { margin-bottom: 28px; }
+
+        h2 { margin: 0 0 8px; font-size: 24px; }
+        p.subtitle { margin: 0; color: var(--text-muted); font-size: 14px; }
+
+        textarea {
+            width: 100%;
+            min-height: 140px;
+            background: var(--bg-main);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px;
+            font-family: monospace;
+            font-size: 13px;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        textarea:focus {
+            outline: 2px solid rgba(59,130,246,.35);
+            border-color: var(--accent-blue);
+        }
+
+        .action-btn {
+            width: 100%;
+            background: var(--accent-blue);
+            color: white;
+            border: 0;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .action-btn:hover { background: var(--accent-hover); }
+        .action-btn:disabled {
+            background: #1F293D;
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .results-section {
+            margin-top: 28px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 24px;
+        }
+
+        .status-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-muted);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .grid-item {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            padding: 14px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .grid-item.valid { border-top: 4px solid var(--color-valid); }
+        .grid-item.warning { border-top: 4px solid var(--color-warning); }
+        .grid-item.invalid { border-top: 4px solid var(--color-invalid); }
+
+        .stat-val { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
+        .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+
+        .list-container {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        .item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .item-row:last-child { border-bottom: 0; }
+
+        .item-identity {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .item-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .item-properties { display: flex; gap: 6px; flex-wrap: wrap; }
+        .prop-tag {
+            font-size: 11px;
+            padding: 1px 6px;
+            border-radius: 4px;
+            background: #1F293D;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .badge.valid { background: rgba(16,185,129,.15); color: #34D399; }
+        .badge.warning { background: rgba(245,158,11,.15); color: #FBBF24; }
+        .badge.invalid { background: rgba(239,68,68,.15); color: #F87171; }
+
+        .module-box {
+            background: #111827;
+            padding: 40px;
+            text-align: center;
+            border-radius: 8px;
+            border: 1px dashed var(--border-color);
+        }
+
+        .module-box p { color: var(--text-muted); margin: 0 0 18px; }
+        .module-status { font-size: 12px; color: var(--text-muted); margin-top: 12px; }
+
+        @media (max-width: 700px) {
+            body { flex-direction: column; }
+            .sidebar {
+                width: 100%;
+                flex-basis: auto;
+                padding: 12px;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .sidebar-brand {
+                width: 100%;
+                padding-bottom: 12px;
+                margin-bottom: 4px;
+            }
+            .nav-btn { width: auto; flex: 1; }
+            .content-area { padding: 16px; }
+            .dashboard-container { padding: 22px; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">Boostlora</div>
+        <button class="nav-btn active" id="btn-checker" type="button" data-panel="checker">Account Checker</button>
+        <button class="nav-btn" id="btn-boost" type="button" data-panel="boost">
+            Server Booster <span class="badge-dev">WIP</span>
+        </button>
+        <button class="nav-btn" id="btn-joiner" type="button" data-panel="joiner">
+            Server Joiner <span class="badge-dev">WIP</span>
+        </button>
+    </aside>
+
+    <main class="content-area">
+
+        <section id="panel-checker" class="dashboard-container tool-panel active">
+            <div class="header-section">
+                <h2>Verification Module</h2>
+                <p class="subtitle">Submit non-sensitive job data to your backend and display its results.</p>
+            </div>
+
+            <textarea id="user_input"
+                placeholder="Enter the data your backend is designed to process, one item per line..."></textarea>
+
+            <button type="button" id="submitBtn" class="action-btn">
+                Launch Verification Sequence
+            </button>
+
+            <div class="results-section" id="resultsSection" hidden>
+                <div class="status-title" id="statusIndicator">System Status: Idle</div>
+
+                <div class="stats-grid">
+                    <div class="grid-item valid">
+                        <div class="stat-val" id="countValid">0</div>
+                        <div class="stat-label">Valid</div>
+                    </div>
+                    <div class="grid-item warning">
+                        <div class="stat-val" id="countWarning">0</div>
+                        <div class="stat-label">Warning</div>
+                    </div>
+                    <div class="grid-item invalid">
+                        <div class="stat-val" id="countInvalid">0</div>
+                        <div class="stat-label">Invalid</div>
+                    </div>
+                </div>
+
+                <div class="list-container" id="resultsList"></div>
+            </div>
+        </section>
+
+        <section id="panel-boost" class="dashboard-container tool-panel">
+            <div class="header-section">
+                <h2>Server Booster Module</h2>
+                <p class="subtitle">Frontend slot reserved for a future server-management module.</p>
+            </div>
+            <div class="module-box">
+                <p id="boostMessage">No boost module is installed yet.</p>
+                <button class="action-btn" type="button" id="boostLoadBtn">Load boost.js</button>
+                <div class="module-status" id="boostStatus">Expected file: /boost.js</div>
+            </div>
+        </section>
+
+        <section id="panel-joiner" class="dashboard-container tool-panel">
+            <div class="header-section">
+                <h2>Server Joiner Module</h2>
+                <p class="subtitle">Frontend slot reserved for a future server-management module.</p>
+            </div>
+            <div class="module-box">
+                <p id="joinerMessage">No joiner module is installed yet.</p>
+                <button class="action-btn" type="button" id="joinerLoadBtn">Load joiner.js</button>
+                <div class="module-status" id="joinerStatus">Expected file: /joiner.js</div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        "use strict";
+
+        let pollInterval = null;
+
+        const $ = (id) => document.getElementById(id);
+
+        function switchTab(targetPanel) {
+            document.querySelectorAll(".tool-panel").forEach((panel) => {
+                panel.classList.toggle("active", panel.id === `panel-${targetPanel}`);
+            });
+
+            document.querySelectorAll(".nav-btn").forEach((button) => {
+                button.classList.toggle("active", button.dataset.panel === targetPanel);
+            });
+        }
+
+        document.querySelectorAll(".nav-btn").forEach((button) => {
+            button.addEventListener("click", () => switchTab(button.dataset.panel));
+        });
+
+        function escapeHTML(value) {
+            const div = document.createElement("div");
+            div.textContent = String(value ?? "");
+            return div.innerHTML;
+        }
+
+        function resetResults() {
+            $("countValid").textContent = "0";
+            $("countWarning").textContent = "0";
+            $("countInvalid").textContent = "0";
+            $("resultsList").replaceChildren();
+            $("resultsSection").hidden = false;
+        }
+
+        function renderResult(item) {
+            const status = String(item?.status ?? "invalid");
+            const normalized = status.toLowerCase();
+
+            let statusClass = "invalid";
+            if (["valid", "success", "active", "verified"].includes(normalized)) {
+                statusClass = "valid";
+            } else if (["warning", "flagged", "locked"].includes(normalized)) {
+                statusClass = "warning";
+            }
+
+            const row = document.createElement("div");
+            row.className = "item-row";
+
+            const identity = document.createElement("div");
+            identity.className = "item-identity";
+
+            const title = document.createElement("div");
+            title.className = "item-title";
+            title.textContent = item?.username ?? item?.name ?? "Result";
+            identity.appendChild(title);
+
+            const properties = document.createElement("div");
+            properties.className = "item-properties";
+
+            if (item?.has_avatar !== undefined || item?.pfp !== undefined) {
+                const tag = document.createElement("span");
+                tag.className = "prop-tag";
+                tag.textContent = `PFP: ${(item.has_avatar ?? item.pfp) ? "Yes" : "No"}`;
+                properties.appendChild(tag);
+            }
+
+            if (item?.nitro !== undefined || item?.has_nitro !== undefined) {
+                const tag = document.createElement("span");
+                tag.className = "prop-tag";
+                tag.textContent = "Nitro";
+                properties.appendChild(tag);
+            }
+
+            if (item?.phone_verified !== undefined || item?.has_phone !== undefined) {
+                const tag = document.createElement("span");
+                tag.className = "prop-tag";
+                tag.textContent = "Phone";
+                properties.appendChild(tag);
+            }
+
+            identity.appendChild(properties);
+
+            const badge = document.createElement("span");
+            badge.className = `badge ${statusClass}`;
+            badge.textContent = status;
+
+            row.append(identity, badge);
+            $("resultsList").prepend(row);
+
+            if (statusClass === "valid") {
+                $("countValid").textContent = String(Number($("countValid").textContent) + 1);
+            } else if (statusClass === "warning") {
+                $("countWarning").textContent = String(Number($("countWarning").textContent) + 1);
+            } else {
+                $("countInvalid").textContent = String(Number($("countInvalid").textContent) + 1);
+            }
+        }
+
+        async function processVerification() {
+            if (pollInterval) {
+                clearInterval(pollInterval);
+                pollInterval = null;
+            }
+
+            const input = $("user_input").value.trim();
+            const button = $("submitBtn");
+
+            if (!input) {
+                alert("Please enter data first.");
+                return;
+            }
+
+            resetResults();
+            button.disabled = true;
+            $("statusIndicator").textContent = "System Status: Starting job...";
+
+            try {
+                const response = await fetch("/api/submit", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user_input: input })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Request failed (${response.status})`);
+                }
+
+                const jobData = await response.json();
+
+                if (!jobData?.job_id) {
+                    throw new Error(jobData?.error || "The server did not return a job_id.");
+                }
+
+                let lastId = 0;
+                const seenItems = new Set();
+
+                $("statusIndicator").textContent = "System Status: Processing...";
+
+                const poll = async () => {
+                    const url =
+                        `/api/items?job_id=${encodeURIComponent(jobData.job_id)}` +
+                        `&after=${encodeURIComponent(lastId)}`;
+
+                    const response = await fetch(url);
+
+                    if (!response.ok) {
+                        throw new Error(`Polling failed (${response.status})`);
+                    }
+
+                    const data = await response.json();
+                    const results = Array.isArray(data?.results) ? data.results : [];
+
+                    for (const item of results) {
+                        const key = String(item?.id ?? `${item?.name ?? item?.username ?? "result"}:${item?.status ?? ""}`);
+
+                        if (seenItems.has(key)) continue;
+                        seenItems.add(key);
+
+                        if (Number.isFinite(Number(item?.id))) {
+                            lastId = Math.max(lastId, Number(item.id));
+                        }
+
+                        renderResult(item);
+                    }
+
+                    if (data?.status && data.status !== "running") {
+                        clearInterval(pollInterval);
+                        pollInterval = null;
+                        $("statusIndicator").textContent =
+                            `System Status: ${String(data.status).replace(/_/g, " ")}`;
+                        button.disabled = false;
+                    }
+                };
+
+                await poll();
+                if (pollInterval === null && $("statusIndicator").textContent !== "System Status: Complete") {
+                    pollInterval = setInterval(() => {
+                        poll().catch(handlePollingError);
+                    }, 3000);
+                }
+            } catch (error) {
+                $("statusIndicator").textContent = "System Status: Connection Failure";
+                $("resultsList").replaceChildren();
+
+                const message = document.createElement("div");
+                message.style.padding = "16px";
+                message.style.color = "var(--color-invalid)";
+                message.textContent = error?.message || "Unknown error.";
+                $("resultsList").appendChild(message);
+
+                button.disabled = false;
+            }
+        }
+
+        function handlePollingError(error) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+            $("statusIndicator").textContent = "System Status: Polling Failure";
+
+            const message = document.createElement("div");
+            message.style.padding = "16px";
+            message.style.color = "var(--color-invalid)";
+            message.textContent = error?.message || "Polling failed.";
+            $("resultsList").appendChild(message);
+
+            $("submitBtn").disabled = false;
+        }
+
+        $("submitBtn").addEventListener("click", processVerification);
+
+        async function loadOptionalModule(fileName, messageId, statusId) {
+            const status = $(statusId);
+            const message = $(messageId);
+
+            try {
+                const module = await import(`./${fileName}?v=${Date.now()}`);
+
+                if (typeof module.init === "function") {
+                    await module.init();
+                }
+
+                message.textContent = `${fileName} loaded successfully.`;
+                status.textContent = "Module is available.";
+            } catch (error) {
+                message.textContent = `${fileName} is not installed yet.`;
+                status.textContent = `Add ${fileName} to the same folder as index.html.`;
+            }
+        }
+
+        $("boostLoadBtn").addEventListener("click", () => {
+            loadOptionalModule("boost.js", "boostMessage", "boostStatus");
+        });
+
+        $("joinerLoadBtn").addEventListener("click", () => {
+            loadOptionalModule("joiner.js", "joinerMessage", "joinerStatus");
+        });
+    </script>
+</body>
+</html>
