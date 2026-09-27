@@ -5,9 +5,9 @@ from http.server import BaseHTTPRequestHandler
 
 BASE = "https://salta7.store"
 
-# Corrected Token: Removed the accidental leading 'F' to perfectly match your dashboard
+# Overwrite the token configuration with your live dashboard value
 HEADERS = {
-    "Authorization": "Bearer WG7PJY53V4PLHI1TED5C7SYFNDBYQW5",
+    "Authorization": "Bearer YOUR_NEWLY_COPIED_TOKEN_HERE",
     "Content-Type": "application/json",
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
@@ -88,8 +88,8 @@ class handler(BaseHTTPRequestHandler):
 
     def _send_response(self, payload, status_code):
         try:
-            self.send_response(status_code)
             self.send_header('Content-type', 'application/json')
+            self.send_response(status_code)
             self.send_header('Access-Control-Allow-Origin', '*')
             self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS, GET')
             self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
