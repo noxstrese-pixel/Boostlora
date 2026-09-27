@@ -5,9 +5,9 @@ from http.server import BaseHTTPRequestHandler
 
 BASE = "https://salta7.store"
 
-# Added a standard desktop browser User-Agent header string to bypass data center firewalls
+# Corrected Token: Removed the accidental leading 'F' to perfectly match your dashboard
 HEADERS = {
-    "Authorization": "Bearer FWG7PJY53V4PLHI1TED5C7SYFNDBYQW5",
+    "Authorization": "Bearer WG7PJY53V4PLHI1TED5C7SYFNDBYQW5",
     "Content-Type": "application/json",
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
