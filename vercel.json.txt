@@ -1,2 +1,0 @@
-
-```json { "rewrites": [ { "source": "/api/submit", "destination": "api/submit" }, { "source": "/api/items", "destination": "api/items" } ] }
