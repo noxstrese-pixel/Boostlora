@@ -7,7 +7,7 @@ BASE = "https://salta7.store"
 
 # Overwrite the token configuration with your live dashboard value
 HEADERS = {
-    "Authorization": "Bearer X45LWGB11FMHVD86JAWYYSVSVB8DAC9K",
+    "Authorization": "Bearer FWG7PJY53V4PLHI1TED5C7SYFNOBYQW5",
     "Content-Type": "application/json",
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
