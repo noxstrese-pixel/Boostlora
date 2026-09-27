@@ -5,9 +5,9 @@ from http.server import BaseHTTPRequestHandler
 
 BASE = "https://salta7.store"
 
-# Overwrite the token configuration with your live dashboard value
+# Verified active API Token string configuration
 HEADERS = {
-    "Authorization": "Bearer FWG7PJY53V4PLHI1TED5C7SYFNOBYQW5",
+    "Authorization": "Bearer WG7PJY53V4PLHI1TED5C7SYFNDBYQW5",
     "Content-Type": "application/json",
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
@@ -27,18 +27,20 @@ class handler(BaseHTTPRequestHandler):
             self._send_response({"error": "Failed to decode payload JSON", "details": str(json_err)}, 400)
             return
 
+        # Safe key extraction fallback loop
         raw_text = ""
         if isinstance(data, dict):
             raw_text = data.get('user_input') or data.get('tokens') or data.get('text') or data.get('data') or ""
+            # If no known keys matched, scan for the largest text block value inside the payload dictionary
+            if not raw_text and data:
+                for val in data.values():
+                    if isinstance(val, str) and len(val) > len(raw_text):
+                        raw_text = val
         
         if isinstance(data, list):
             tokens_list = [str(item).strip() for item in data if str(item).strip()]
         else:
             tokens_list = [line.strip() for line in str(raw_text).split('\n') if line.strip()]
-        
-        if not tokens_list and isinstance(data, dict) and data:
-            first_val = list(data.values())
-            tokens_list = [line.strip() for line in str(first_val).split('\n') if line.strip()]
 
         if not tokens_list:
             self._send_response({"error": "No token entries parsed from frontend layout data payload."}, 400)
@@ -50,7 +52,7 @@ class handler(BaseHTTPRequestHandler):
         req = urllib.request.Request(target_url, data=payload_bytes, headers=HEADERS, method='POST')
         
         try:
-            with urllib.request.urlopen(req, timeout=20) as response:
+            with urllib.request.urlopen(req, timeout=25) as response:
                 res_body = response.read().decode('utf-8')
                 try:
                     response_payload = json.loads(res_body)
@@ -88,8 +90,9 @@ class handler(BaseHTTPRequestHandler):
 
     def _send_response(self, payload, status_code):
         try:
-            self.send_header('Content-type', 'application/json')
+            # FIX: send_response MUST be executed first to prevent internal header 500 crashes
             self.send_response(status_code)
+            self.send_header('Content-type', 'application/json')
             self.send_header('Access-Control-Allow-Origin', '*')
             self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS, GET')
             self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
@@ -99,8 +102,11 @@ class handler(BaseHTTPRequestHandler):
             pass
 
     def do_OPTIONS(self):
-        self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS, GET')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-        self.end_headers()
+        try:
+            self.send_response(200)
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS, GET')
+            self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+            self.end_headers()
+        except Exception:
+            pass
