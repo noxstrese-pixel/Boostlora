@@ -4,10 +4,6 @@
     {
       "source": "/api/(.*)",
       "destination": "/api/items.py"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
     }
   ]
 }
