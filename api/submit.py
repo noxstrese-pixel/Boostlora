@@ -7,24 +7,39 @@ HEADERS = {"Authorization": "Bearer FWG7PJY53V4PLHI1TED5C7SYFNDBYQN5"}
 
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
-        # 1. Read incoming data payload
-        content_length = int(self.headers.get('Content-Length', 0))
-        post_data = self.rfile.read(content_length)
+        # 1. Safely parse Content-Length header
+        try:
+            content_length = int(self.headers.get('Content-Length', 0))
+        except Exception:
+            content_length = 0
+            
+        post_data = self.rfile.read(content_length) if content_length > 0 else b''
         
+        # 2. Prevent JSON decode crashes
         try:
             data = json.loads(post_data.decode('utf-8')) if post_data else {}
-        except Exception:
-            self._send_response({"error": "Invalid JSON format received"}, 400)
+        except Exception as json_err:
+            self._send_response({"error": "Failed to decode request body JSON", "details": str(json_err)}, 400)
             return
 
-        raw_text = data.get('user_input', '')
-        tokens_list = [line.strip() for line in raw_text.split('\n') if line.strip()]
+        # 3. Handle data dictionary checks smoothly
+        raw_text = data.get('user_input', '') if isinstance(data, dict) else ''
+        
+        # Fallback helper case in case your frontend payload keys use a different name pattern
+        if not raw_text and isinstance(data, dict):
+            raw_text = data.get('tokens', '') or data.get('text', '')
+
+        # Fallback helper case if the payload was sent as a flat string list directly
+        if isinstance(data, list):
+            tokens_list = [str(item).strip() for item in data if str(item).strip()]
+        else:
+            tokens_list = [line.strip() for line in str(raw_text).split('\n') if line.strip()]
         
         if not tokens_list:
-            self._send_response({"error": "No token entries parsed."}, 400)
+            self._send_response({"error": "No token entries parsed from request payload."}, 400)
             return
             
-        # 2. Forward payload to upstream api server
+        # 4. Fire the external forward request
         try:
             r = requests.post(
                 f"{BASE}/task/create", 
@@ -33,41 +48,54 @@ class handler(BaseHTTPRequestHandler):
                 timeout=15
             )
             
+            # If salta7 returns a 4xx or 5xx, pass that code along safely instead of crashing
             if not r.ok:
+                try:
+                    upstream_details = r.json()
+                except Exception:
+                    upstream_details = r.text[:150]
+                    
                 self._send_response({
-                    "error": "Upstream service error status",
-                    "status_code": r.status_code,
-                    "details": r.text[:200]
+                    "error": "Upstream verification server rejected request",
+                    "upstream_status_code": r.status_code,
+                    "details": upstream_details
                 }, 502)
                 return
                 
-            self._send_response(r.json(), 200)
+            # If it works, try parsing the response JSON payload
+            try:
+                response_payload = r.json()
+            except Exception:
+                response_payload = {"message": "Success", "raw_response": r.text[:200]}
+                
+            self._send_response(response_payload, 200)
             
         except requests.exceptions.RequestException as network_err:
             self._send_response({
-                "error": "Failed to reach upstream server database",
+                "error": "Database/API server endpoint is unreachable",
                 "details": str(network_err)
             }, 503)
-        except Exception as e:
+        except Exception as runtime_err:
             self._send_response({
-                "error": "Internal processing crash",
-                "details": str(e)
+                "error": "Internal processor crash code exception",
+                "details": str(runtime_err)
             }, 500)
 
     def _send_response(self, payload, status_code):
-        self.send_response(status_code)
-        self.send_header('Content-type', 'application/json')
-        # Handle CORS safety checks if tablet is calling from another domain
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-        self.end_headers()
-        self.wfile.write(json.dumps(payload).encode('utf-8'))
+        try:
+            self.send_response(status_code)
+            self.send_header('Content-type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
+            self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+            self.end_headers()
+            self.wfile.write(json.dumps(payload).encode('utf-8'))
+        except Exception:
+            pass
 
     def do_OPTIONS(self):
-        # Handles automated pre-flight security requests sent by tablets/browsers
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
         self.end_headers()
