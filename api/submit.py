@@ -5,8 +5,10 @@ import urllib.error
 from http.server import BaseHTTPRequestHandler
 
 BASE = "https://salta7.store"
+
+# FIXED TOKEN: Token corrected with 'O' instead of 'D' and the leading 'F' restored
 HEADERS = {
-    "Authorization": "Bearer WG7PJY53V4PLHI1TED5C7SYFNDBYQW5",
+    "Authorization": "Bearer FWG7PJY53V4PLHI1TED5C7SYFNOBYQW5",
     "Content-Type": "application/json",
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
@@ -39,7 +41,6 @@ class handler(BaseHTTPRequestHandler):
         else:
             lines = [line.strip() for line in str(raw_text).split('\n') if line.strip()]
 
-        # The API naturally handles email:pass:token lines according to docs, so we keep lines intact
         tokens_list = [item for item in lines if item]
 
         if not tokens_list:
@@ -61,11 +62,10 @@ class handler(BaseHTTPRequestHandler):
                 self._send_response({"error": "Failed to retrieve a valid job tracker identifier"}, 502)
                 return
                 
-            # STEP 2: Background Synchronous Polling Loop Pattern
-            # Polls salta7's database engine until status is no longer 'running'
+            # STEP 2: Loop-poll until task status is completed
             completed_job_data = None
-            for attempt in range(20): # Maximum safety duration barrier
-                time.sleep(1.2) # Interval cadence as specified by documentation
+            for attempt in range(25):
+                time.sleep(1.2)
                 
                 poll_url = f"{BASE}/task/items?job_id={job_id}&after=0"
                 poll_req = urllib.request.Request(poll_url, headers=HEADERS, method='GET')
@@ -84,15 +84,14 @@ class handler(BaseHTTPRequestHandler):
                 self._send_response({"error": "Sync processing request loop interval threshold elapsed"}, 504)
                 return
 
-            # STEP 3: Map response directly to frontend expected counting models
-            # Translates counts array straight onto tablet component interfaces
+            # STEP 3: Map backend data counts cleanly into your tablet layout fields
             api_counts = completed_job_data.get("counts", {})
             
             frontend_payload = {
                 "status": "success",
                 "job_id": job_id,
                 "valid": api_counts.get("valid", 0),
-                "warning": api_counts.get("locked", 0),  # Maps locked accounts into warnings
+                "warning": api_counts.get("locked", 0),
                 "invalid": api_counts.get("invalid", 0),
                 "results": completed_job_data.get("results", [])
             }
