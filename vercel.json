@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/items.py"
+      "destination": "/api/$1.py"
     }
   ]
 }
