@@ -1,11 +1,10 @@
 import json
+import time
 import urllib.request
 import urllib.error
 from http.server import BaseHTTPRequestHandler
 
 BASE = "https://salta7.store"
-
-# Verified active API Token string configuration
 HEADERS = {
     "Authorization": "Bearer WG7PJY53V4PLHI1TED5C7SYFNDBYQW5",
     "Content-Type": "application/json",
@@ -27,70 +26,90 @@ class handler(BaseHTTPRequestHandler):
             self._send_response({"error": "Failed to decode payload JSON", "details": str(json_err)}, 400)
             return
 
-        # Safe key extraction fallback loop
         raw_text = ""
         if isinstance(data, dict):
             raw_text = data.get('user_input') or data.get('tokens') or data.get('text') or data.get('data') or ""
-            # If no known keys matched, scan for the largest text block value inside the payload dictionary
             if not raw_text and data:
                 for val in data.values():
                     if isinstance(val, str) and len(val) > len(raw_text):
                         raw_text = val
         
         if isinstance(data, list):
-            tokens_list = [str(item).strip() for item in data if str(item).strip()]
+            lines = [str(item).strip() for item in data if str(item).strip()]
         else:
-            tokens_list = [line.strip() for line in str(raw_text).split('\n') if line.strip()]
+            lines = [line.strip() for line in str(raw_text).split('\n') if line.strip()]
+
+        # The API naturally handles email:pass:token lines according to docs, so we keep lines intact
+        tokens_list = [item for item in lines if item]
 
         if not tokens_list:
-            self._send_response({"error": "No token entries parsed from frontend layout data payload."}, 400)
+            self._send_response({"error": "No lines parsed from payload"}, 400)
             return
             
-        target_url = f"{BASE}/task/create"
-        payload_bytes = json.dumps({"tool": "check", "tokens": tokens_list}).encode('utf-8')
+        # STEP 1: Launch background task creation sequence
+        create_url = f"{BASE}/task/create"
+        create_payload = json.dumps({"tool": "check", "tokens": tokens_list}).encode('utf-8')
         
-        req = urllib.request.Request(target_url, data=payload_bytes, headers=HEADERS, method='POST')
+        req = urllib.request.Request(create_url, data=create_payload, headers=HEADERS, method='POST')
         
         try:
-            with urllib.request.urlopen(req, timeout=25) as response:
-                res_body = response.read().decode('utf-8')
-                try:
-                    response_payload = json.loads(res_body)
-                except Exception:
-                    response_payload = {"status": "success", "raw_response": res_body[:200]}
+            with urllib.request.urlopen(req, timeout=20) as response:
+                create_res = json.loads(response.read().decode('utf-8'))
+                job_id = create_res.get("job_id")
                 
-                self._send_response(response_payload, 200)
+            if not job_id:
+                self._send_response({"error": "Failed to retrieve a valid job tracker identifier"}, 502)
+                return
+                
+            # STEP 2: Background Synchronous Polling Loop Pattern
+            # Polls salta7's database engine until status is no longer 'running'
+            completed_job_data = None
+            for attempt in range(20): # Maximum safety duration barrier
+                time.sleep(1.2) # Interval cadence as specified by documentation
+                
+                poll_url = f"{BASE}/task/items?job_id={job_id}&after=0"
+                poll_req = urllib.request.Request(poll_url, headers=HEADERS, method='GET')
+                
+                try:
+                    with urllib.request.urlopen(poll_req, timeout=15) as poll_res:
+                        poll_data = json.loads(poll_res.read().decode('utf-8'))
+                        
+                        if poll_data.get("status") != "running":
+                            completed_job_data = poll_data
+                            break
+                except Exception:
+                    continue
+            
+            if not completed_job_data:
+                self._send_response({"error": "Sync processing request loop interval threshold elapsed"}, 504)
+                return
+
+            # STEP 3: Map response directly to frontend expected counting models
+            # Translates counts array straight onto tablet component interfaces
+            api_counts = completed_job_data.get("counts", {})
+            
+            frontend_payload = {
+                "status": "success",
+                "job_id": job_id,
+                "valid": api_counts.get("valid", 0),
+                "warning": api_counts.get("locked", 0),  # Maps locked accounts into warnings
+                "invalid": api_counts.get("invalid", 0),
+                "results": completed_job_data.get("results", [])
+            }
+            
+            self._send_response(frontend_payload, 200)
                 
         except urllib.error.HTTPError as http_err:
             try:
-                err_details = http_err.read().decode('utf-8')
-                try:
-                    err_json = json.loads(err_details)
-                except Exception:
-                    err_json = err_details[:200]
+                err_json = json.loads(http_err.read().decode('utf-8'))
             except Exception:
-                err_json = "Could not extract error body detail metadata"
-                
-            self._send_response({
-                "error": "Upstream service error status",
-                "status_code": http_err.code,
-                "details": err_json
-            }, http_err.code if http_err.code else 502)
-            
-        except urllib.error.URLError as net_err:
-            self._send_response({
-                "error": "Failed to connect to upstream service host via urllib",
-                "details": str(net_err.reason)
-            }, 503)
+                err_json = "Handshake authorization or balance failure"
+            self._send_response({"error": "Upstream error mapping", "status": http_err.code, "details": err_json}, http_err.code)
         except Exception as e:
-            self._send_response({
-                "error": "Internal processor script runtime exception",
-                "details": str(e)
-            }, 500)
+            self._send_response({"error": "Internal processor workflow failure exception", "details": str(e)}, 500)
 
     def _send_response(self, payload, status_code):
         try:
-            # FIX: send_response MUST be executed first to prevent internal header 500 crashes
             self.send_response(status_code)
             self.send_header('Content-type', 'application/json')
             self.send_header('Access-Control-Allow-Origin', '*')
