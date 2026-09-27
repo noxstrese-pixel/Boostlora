@@ -1,101 +1,94 @@
 import json
 import requests
-from http.server import BaseHTTPRequestHandler
 
 BASE = "https://salta7.store"
 HEADERS = {"Authorization": "Bearer FWG7PJY53V4PLHI1TED5C7SYFNDBYQN5"}
 
-class handler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        # 1. Safely parse Content-Length header
-        try:
-            content_length = int(self.headers.get('Content-Length', 0))
-        except Exception:
-            content_length = 0
-            
-        post_data = self.rfile.read(content_length) if content_length > 0 else b''
-        
-        # 2. Prevent JSON decode crashes
-        try:
-            data = json.loads(post_data.decode('utf-8')) if post_data else {}
-        except Exception as json_err:
-            self._send_response({"error": "Failed to decode request body JSON", "details": str(json_err)}, 400)
-            return
-
-        # 3. Handle data dictionary checks smoothly
-        raw_text = data.get('user_input', '') if isinstance(data, dict) else ''
-        
-        # Fallback helper case in case your frontend payload keys use a different name pattern
-        if not raw_text and isinstance(data, dict):
-            raw_text = data.get('tokens', '') or data.get('text', '')
-
-        # Fallback helper case if the payload was sent as a flat string list directly
-        if isinstance(data, list):
-            tokens_list = [str(item).strip() for item in data if str(item).strip()]
+def handler(request):
+    # 1. Access the request body directly using Vercel's request parsing specifications
+    try:
+        # Handles cases where request.body might be a dictionary or a byte string
+        if hasattr(request, 'get_json'):
+            data = request.get_json() or {}
+        elif hasattr(request, 'body'):
+            if isinstance(request.body, dict):
+                data = request.body
+            else:
+                data = json.loads(request.body.decode('utf-8')) if request.body else {}
         else:
-            tokens_list = [line.strip() for line in str(raw_text).split('\n') if line.strip()]
-        
-        if not tokens_list:
-            self._send_response({"error": "No token entries parsed from request payload."}, 400)
-            return
-            
-        # 4. Fire the external forward request
-        try:
-            r = requests.post(
-                f"{BASE}/task/create", 
-                headers=HEADERS, 
-                json={"tool": "check", "tokens": tokens_list},
-                timeout=15
-            )
-            
-            # If salta7 returns a 4xx or 5xx, pass that code along safely instead of crashing
-            if not r.ok:
-                try:
-                    upstream_details = r.json()
-                except Exception:
-                    upstream_details = r.text[:150]
-                    
-                self._send_response({
-                    "error": "Upstream verification server rejected request",
-                    "upstream_status_code": r.status_code,
-                    "details": upstream_details
-                }, 502)
-                return
-                
-            # If it works, try parsing the response JSON payload
+            data = {}
+    except Exception as parse_err:
+        return {
+            "statusCode": 400,
+            "headers": {"Content-Type": "application/json"},
+            "body": json.dumps({"error": "Failed to decode JSON payload", "details": str(parse_err)})
+        }
+
+    # 2. Key Mapping Check: Try multiple variations to locate your frontend's input text fields
+    raw_text = ""
+    if isinstance(data, dict):
+        raw_text = data.get('user_input') or data.get('tokens') or data.get('text') or ""
+
+    # 3. Clean and parse strings into structured lists
+    if isinstance(data, list):
+        tokens_list = [str(item).strip() for item in data if str(item).strip()]
+    else:
+        tokens_list = [line.strip() for line in str(raw_text).split('\n') if line.strip()]
+
+    if not tokens_list:
+        return {
+            "statusCode": 400,
+            "headers": {"Content-Type": "application/json"},
+            "body": json.dumps({"error": "No token entries parsed. Check key name."})
+        }
+
+    # 4. Outbound POST to salta7.store API 
+    try:
+        r = requests.post(
+            f"{BASE}/task/create",
+            headers=HEADERS,
+            json={"tool": "check", "tokens": tokens_list},
+            timeout=15
+        )
+
+        # Catch upstream problems (like a 400, 403, or 502) and pass along safely without dropping
+        if not r.ok:
             try:
-                response_payload = r.json()
+                details = r.json()
             except Exception:
-                response_payload = {"message": "Success", "raw_response": r.text[:200]}
-                
-            self._send_response(response_payload, 200)
-            
-        except requests.exceptions.RequestException as network_err:
-            self._send_response({
-                "error": "Database/API server endpoint is unreachable",
-                "details": str(network_err)
-            }, 503)
-        except Exception as runtime_err:
-            self._send_response({
-                "error": "Internal processor crash code exception",
-                "details": str(runtime_err)
-            }, 500)
+                details = r.text[:150]
+            return {
+                "statusCode": 502,
+                "headers": {"Content-Type": "application/json"},
+                "body": json.dumps({"error": "Upstream service error status", "status_code": r.status_code, "details": details})
+            }
 
-    def _send_response(self, payload, status_code):
+        # Successful backend handshake
         try:
-            self.send_response(status_code)
-            self.send_header('Content-type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
-            self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-            self.end_headers()
-            self.wfile.write(json.dumps(payload).encode('utf-8'))
+            res_body = r.json()
         except Exception:
-            pass
+            res_body = {"status": "success", "raw_payload": r.text[:200]}
 
-    def do_OPTIONS(self):
-        self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-        self.end_headers()
+        return {
+            "statusCode": 200,
+            "headers": {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type"
+            },
+            "body": json.dumps(res_body)
+        }
+
+    except requests.exceptions.RequestException as network_err:
+        return {
+            "statusCode": 503,
+            "headers": {"Content-Type": "application/json"},
+            "body": json.dumps({"error": "Failed to establish database connection handshake", "details": str(network_err)})
+        }
+    except Exception as runtime_err:
+        return {
+            "statusCode": 500,
+            "headers": {"Content-Type": "application/json"},
+            "body": json.dumps({"error": "Crash inside handler logic execution runtime", "details": str(runtime_err)})
+        }
