@@ -7,29 +7,30 @@ app = Flask(__name__)
 BASE = "https://salta7.store"
 HEADERS = {"Authorization": "Bearer FWG7PJY53V4PLHI1TED5C7SYFNDBYQN5"}
 
-# Catch-all routing decorators prevent Vercel directory mapping issues 
-# by capturing requests sent directly to "/" or any deeper subpaths.
+# The catch-all wrapper captures both structural route path versions
 @app.route('/', defaults={'path': ''}, methods=['POST'])
 @app.route('/<path:path>', methods=['POST'])
-def handler(path):
-    data = request.get_json() or {}
+def catch_all(path):
+    # Ensure data payload safely falls back to dictionary structures
+    try:
+        data = request.get_json() or {}
+    except Exception:
+        return jsonify({"error": "Invalid JSON format received in request body"}), 400
+
     raw_text = data.get('user_input', '')
-    
     tokens_list = [line.strip() for line in raw_text.split('\n') if line.strip()]
     
     if not tokens_list:
         return jsonify({"error": "No token entries parsed."}), 400
         
     try:
-        # Submit the payload to your upstream database/api endpoint
         r = requests.post(
             f"{BASE}/task/create", 
             headers=HEADERS, 
-            json={"tool": "check", "tokens": tokens_list}
+            json={"tool": "check", "tokens": tokens_list},
+            timeout=10 # Prevents the function from timing out indefinitely
         )
         
-        # Guard clause: If salta7.store is down or returns HTML instead of JSON,
-        # handle it gracefully here instead of throwing a parsing exception.
         if not r.ok:
             return jsonify({
                 "error": "Upstream service error status",
@@ -49,3 +50,6 @@ def handler(path):
             "error": "Internal processing crash inside backend function execution",
             "details": str(e)
         }), 500
+
+# Expose 'app' object explicitly for Vercel's serverless WSGI runtime environment
+# Do not call app.run() here as it causes Vercel deployments to crash
