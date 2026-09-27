@@ -1,15 +1,8 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "api/submit.py",
-      "use": "@vercel/python"
-    }
-  ],
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "api/submit.py"
+      "source": "/api/submit",
+      "destination": "/api/submit.py"
     }
   ]
 }
