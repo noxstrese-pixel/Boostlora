@@ -5,10 +5,11 @@ from http.server import BaseHTTPRequestHandler
 
 BASE = "https://salta7.store"
 
-# Fixed token string: changed 'N5' to 'W5' at the end to match your Salta7 profile dashboard
+# Added a standard desktop browser User-Agent header string to bypass data center firewalls
 HEADERS = {
     "Authorization": "Bearer FWG7PJY53V4PLHI1TED5C7SYFNDBYQW5",
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
 
 class handler(BaseHTTPRequestHandler):
