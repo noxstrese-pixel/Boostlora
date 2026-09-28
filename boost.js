@@ -183,3 +183,76 @@
                         <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Target Invite Code Link Location</label>
                         <input type="text" class="n-input" placeholder="https://discord.gg" id="booster-lnk-input" />
                     </div>
+Deploy Configuration Allocation Bundle
+Available Resource Inventory Procurement Procurement
+
+`;
+const storeBox = document.getElementById('dom-store-box');
+STATE.storefront.forEach(item => {
+const card = document.createElement('div');
+card.className = 'store-card';
+card.innerHTML = <div> <h4 class="store-title">${item.title}</h4> <p class="store-desc">${item.description}</p> </div> <div class="store-footer"> <div class="store-price">$${item.price.toFixed(2)}</div> <button class="store-btn">Unlock Asset</button> </div>;
+card.querySelector('.store-btn').addEventListener('click', () => {
+if (STATE.user.balance >= item.price) {
+STATE.user.balance -= item.price;
+saveState();
+document.getElementById('dom-wallet-bal').innerText = $${STATE.user.balance.toFixed(2)};
+alert(Successfully added credit procurement asset line: ${item.title});
+} else {
+alert("Insufficient available system balance credits inside current profile context.");
+}
+});
+storeBox.appendChild(card);
+});
+document.getElementById('booster-exec-btn').addEventListener('click', () => {
+const txt = document.getElementById('booster-lnk-input').value;
+if (!txt) { alert("Please provide a valid server target identity string."); return; }
+alert("Allocation array tracking variables initialized cleanly.");
+});
+} else {
+view.innerHTML = <div class="header-section"> <h2>Server Joiner Module <span class="badge-dev" style="float:none; margin-left:6px;">WIP</span></h2> <p class="subtitle">System framework development sandbox layer configuration space tools.</p> </div> <div style="padding:60px; text-align:center; border: 1px dashed var(--border-color); border-radius:12px; color:var(--text-muted); font-size:13px;"> Subsystem module layer variables are currently deploying under active dev tracking profiles. </div>;
+}
+}
+function configureGatewayInteractions() {
+const modal = document.getElementById('dom-deposit-modal');
+const openBtn = document.getElementById('dom-open-deposit-btn');
+const closeBtn = document.getElementById('dom-close-modal-btn');
+const badge = document.getElementById('dom-modal-status-badge');
+const spinner = document.getElementById('dom-modal-spinner');
+const txt = document.getElementById('dom-modal-status-text');
+if (!modal || !openBtn) return;
+openBtn.addEventListener('click', () => {
+modal.style.display = 'flex';
+if (STATE.depositStatus === "idle") {
+STATE.depositStatus = "pending";
+txt.innerText = "Monitoring ledger block matrices for payment hash broadcast...";
+txTimer = setTimeout(() => {
+STATE.depositStatus = "confirmed";
+STATE.user.balance += 25.00;
+saveState();
+const balEl = document.getElementById('dom-wallet-bal');
+if (balEl) balEl.innerText = $${STATE.user.balance.toFixed(2)};
+if (badge) badge.className = "n-badge-status confirmed";
+if (spinner) spinner.style.display = "none";
+if (txt) txt.innerText = "Transaction Settled via Block Ledger (+$25.00)";
+}, 5000);
+}
+});
+function dropModal() {
+modal.style.display = 'none';
+if (STATE.depositStatus === "confirmed") {
+STATE.depositStatus = "idle";
+if (badge) badge.className = "n-badge-status";
+if (spinner) spinner.style.display = "inline-block";
+if (txt) txt.innerText = "Awaiting network payload broadcast...";
+}
+}
+closeBtn.addEventListener('click', dropModal);
+modal.addEventListener('click', (e) => { if (e.target === modal) dropModal(); });
+}
+if (document.readyState === "complete" || document.readyState === "interactive") {
+buildWorkspaceEnvironment();
+} else {
+document.addEventListener("DOMContentLoaded", buildWorkspaceEnvironment);
+}
+})();
