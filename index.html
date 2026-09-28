@@ -163,14 +163,39 @@
             </div>
         </div>
 
-        <!-- VIEW 3: DISCORD BOOST TOOL -->
+             <!-- VIEW 3: DISCORD BOOST TOOL -->
         <div id="view-booster" class="view-panel">
             <div class="card" style="max-width: 800px;">
                 <h3><i class="fa-solid fa-rocket"></i> Server Booster Tool</h3>
                 <form id="booster-form" onsubmit="handleApiAction(event, '/api/booster')">
                     <div class="form-group">
                         <label>Invite Link or Server ID</label>
-                        <input type="text" placeholder="https://discord.gg">
+                        <input type="text" placeholder="https://discord.gg" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Token Source Strategy</label>
+                        <select id="token-source" onchange="calculateBoostCost()">
+                            <option value="salta7">Use Premium Salta7 Tokens ($2.50 per Boost)</option>
+                            <option value="custom">Provide My Own Tokens ($0.02 Captcha Fee per Boost)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Amount of Boosts</label>
+                        <input id="boost-amount" type="number" value="2" min="1" oninput="calculateBoostCost()" required>
+                    </div>
+
+                    <div class="form-group" style="background: rgba(37, 99, 235, 0.1); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                        <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Estimated Cost:</span>
+                        <span id="boost-cost-display" style="font-size: 16px; font-weight: 700; color: var(--accent-green); float: right;">$5.00 USD</span>
+                    </div>
+
+                    <button type="submit" class="btn-action">Execute Boosting Pipeline</button>
+                </form>
+            </div>
+        </div>
+
                     </div>
                     <div class="form-group">
                         <label>Amount of Boosts</label>
