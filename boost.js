@@ -4,24 +4,31 @@
 console.log("Boostlora Core: Initializing dynamic framework engines...");
 
 // Tab View Router Engine
-function switchView(viewName) {
-    document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+// Tab View Router Engine (Fixed Event-Handling Protocol)
+function switchView(viewName, element) {
+    // Hide all view panels safely
+    document.querySelectorAll('.view-panel').forEach(p => {
+        p.classList.remove('active');
+    });
     
+    // Remove active glowing styles from all menu option blocks
+    document.querySelectorAll('.nav-item').forEach(i => {
+        i.classList.remove('active');
+    });
+    
+    // Reveal the chosen workspace window
     const targetView = document.getElementById(`view-${viewName}`);
-    if (targetView) targetView.classList.add('active');
+    if (targetView) {
+        targetView.classList.add('active');
+    }
     
-    if (window.event && window.event.currentTarget) {
+    // Apply the active glow indicator directly onto the clicked tab element
+    if (element) {
+        element.classList.add('active');
+    } else if (window.event && window.event.currentTarget) {
         window.event.currentTarget.classList.add('active');
     }
 }
-
-// Dynamically reveals or hides the custom tokens box based on option strategy selector
-function toggleTokenInput() {
-    const strategy = document.getElementById('token-source').value;
-    const tokensWrapper = document.getElementById('custom-tokens-wrapper');
-    const tokensField = document.getElementById('custom-tokens-field');
-    
     if (strategy === 'custom') {
         tokensWrapper.style.display = 'block';
         tokensField.setAttribute('required', 'true');
