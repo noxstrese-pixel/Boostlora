@@ -196,7 +196,6 @@
                 <div class="results-section">
                     <div class="status-title">Ecosystem Performance Logging</div>
                     <div class="stats-grid">
-Use code with caution.
 0Verified Valid
 0Flagged Flag
 0Rejected Bad
