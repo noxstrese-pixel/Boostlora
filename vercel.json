@@ -1,25 +1,27 @@
 {
   "version": 2,
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/submit",
-      "destination": "/api/submit.py"
+      "src": "index.html",
+      "use": "@vercel/static"
     },
     {
-      "source": "/api/items",
-      "destination": "/api/items.py"
+      "src": "boost.js",
+      "use": "@vercel/static"
     },
     {
-      "source": "/api/booster",
-      "destination": "/api/booster.py"
+      "src": "api/*.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "api/$1.py"
     },
     {
-      "source": "/api/booster_status",
-      "destination": "/api/booster_status.py"
-    },
-    {
-      "source": "/boost.js",
-      "destination": "/boost.js"
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
