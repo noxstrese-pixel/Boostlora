@@ -159,7 +159,7 @@
             </div>
         </div>
 
-        <!-- VIEW 2: TOKEN CHECKER TOOL -->
+              <!-- VIEW 2: TOKEN CHECKER TOOL -->
         <div id="view-checker" class="view-panel">
             <div class="card" style="max-width: 800px;">
                 <h3><i class="fa-solid fa-shield-halved"></i> Automated Token Checker</h3>
@@ -170,7 +170,6 @@
                     </div>
                     <button type="submit" class="btn-action">Start Verification Scan</button>
                 </form>
-                           </form>
             </div>
         </div>
 
@@ -363,26 +362,3 @@
         }
 
         // Clerk Auth Manager Initialization Loop
-        window.addEventListener('load', async function() {
-            const script = document.getElementById('clerk-script');
-            if (!script) return;
-
-            script.addEventListener('load', async function() {
-                if (!window.Clerk) return;
-                await window.Clerk.load();
-                
-                const authButtons = document.getElementById('auth-buttons');
-                const profileSlot = document.getElementById('user-profile-slot');
-                const signInBtn = document.getElementById('sign-in-btn');
-
-                if (window.Clerk.user) {
-window.Clerk.mountUserButton(profileSlot, { appearance: { baseTheme: 'dark' } });
-if (authButtons) authButtons.style.display = 'none';
-} else {
-if (authButtons) authButtons.style.display = 'block';
-if (signInBtn) {
-signInBtn.addEventListener('click', () => { window.Clerk.openSignIn(); });
-}
-}
-});
-});
