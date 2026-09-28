@@ -1,12 +1,10 @@
 import json
-import time
 import urllib.request
 import urllib.error
 from http.server import BaseHTTPRequestHandler
 
 BASE = "https://salta7.store"
 
-# FIXED TOKEN: Token corrected with 'O' instead of 'D' and the leading 'F' restored
 HEADERS = {
     "Authorization": "Bearer FWG7PJY53V4PLHI1TED5C7SYFNOBYQW5",
     "Content-Type": "application/json",
@@ -47,56 +45,18 @@ class handler(BaseHTTPRequestHandler):
             self._send_response({"error": "No lines parsed from payload"}, 400)
             return
             
-        # STEP 1: Launch background task creation sequence
+        # Send task creation request directly to Salta7 Store
         create_url = f"{BASE}/task/create"
         create_payload = json.dumps({"tool": "check", "tokens": tokens_list}).encode('utf-8')
         
         req = urllib.request.Request(create_url, data=create_payload, headers=HEADERS, method='POST')
         
         try:
-            with urllib.request.urlopen(req, timeout=20) as response:
+            with urllib.request.urlopen(req, timeout=15) as response:
                 create_res = json.loads(response.read().decode('utf-8'))
-                job_id = create_res.get("job_id")
                 
-            if not job_id:
-                self._send_response({"error": "Failed to retrieve a valid job tracker identifier"}, 502)
-                return
-                
-            # STEP 2: Loop-poll until task status is completed
-            completed_job_data = None
-            for attempt in range(25):
-                time.sleep(1.2)
-                
-                poll_url = f"{BASE}/task/items?job_id={job_id}&after=0"
-                poll_req = urllib.request.Request(poll_url, headers=HEADERS, method='GET')
-                
-                try:
-                    with urllib.request.urlopen(poll_req, timeout=15) as poll_res:
-                        poll_data = json.loads(poll_res.read().decode('utf-8'))
-                        
-                        if poll_data.get("status") != "running":
-                            completed_job_data = poll_data
-                            break
-                except Exception:
-                    continue
-            
-            if not completed_job_data:
-                self._send_response({"error": "Sync processing request loop interval threshold elapsed"}, 504)
-                return
-
-            # STEP 3: Map backend data counts cleanly into your tablet layout fields
-            api_counts = completed_job_data.get("counts", {})
-            
-            frontend_payload = {
-                "status": "success",
-                "job_id": job_id,
-                "valid": api_counts.get("valid", 0),
-                "warning": api_counts.get("locked", 0),
-                "invalid": api_counts.get("invalid", 0),
-                "results": completed_job_data.get("results", [])
-            }
-            
-            self._send_response(frontend_payload, 200)
+            # Deliver the job payload directly back to your front-end layout instantly
+            self._send_response(create_res, 200)
                 
         except urllib.error.HTTPError as http_err:
             try:
