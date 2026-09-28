@@ -3,17 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BoostLora | Premium Hub</title>
-    
-    <!-- Core Icons -->
+    <title>BoostLora Hub</title>
     <link rel="stylesheet" href="https://cloudflare.com">
     
-    <!-- Clerk Authentication SDK (Vanilla JS Setup) -->
-    <!-- REPLACE 'your-clerk-publishable-key' with the actual key from ://clerk.com -->
+    <!-- Clerk Authentication Engine (Swap out key in your dashboard) -->
     <script async crossorigin="anonymous" src="https://jsdelivr.net" 
             data-clerk-publishable-key="your-clerk-publishable-key" id="clerk-script"></script>
 
-    <!-- Fail-Safe Premium Dark Dashboard Styling -->
     <style>
         :root {
             --bg-base: #060b13;
@@ -23,378 +19,156 @@
             --text-main: #f8fafc;
             --text-muted: #64748b;
             --accent-blue: #2563eb;
-            --accent-hover: #3b82f6;
             --accent-green: #10b981;
         }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--bg-base); color: var(--text-main); min-height: 100vh; display: flex; }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-base);
-            color: var(--text-main);
-            min-h: 100vh;
-            padding: 16px;
-        }
-
-        /* Top Navigation Header bar matches salta7 */
-        header {
+        /* Sidebar Panel Layout */
+        .sidebar {
+            width: 260px;
             background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 12px 20px;
+            border-right: 1px solid var(--border-color);
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
+            flex-direction: column;
+            padding: 24px 16px;
+            position: fixed;
+            height: 100vh;
         }
-
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 700;
-            font-size: 1.1rem;
+        .brand-section { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.2rem; margin-bottom: 32px; }
+        .brand-icon { color: var(--accent-blue); }
+        .status-dot { background-color: var(--accent-green); width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        
+        .nav-menu { display: flex; flex-direction: column; gap: 6px; flex-grow: 1; }
+        .nav-item {
+            display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px;
+            color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s;
         }
+        .nav-item:hover, .nav-item.active { background-color: #111a30; color: var(--text-main); }
+        .nav-item i { width: 18px; text-align: center; }
 
-        .logo-icon {
-            color: var(--accent-blue);
+        /* Main Workspace Container */
+        .main-content { margin-left: 260px; flex-grow: 1; padding: 32px; display: flex; flex-direction: column; gap: 24px; }
+        
+        /* Top Utility Navbar */
+        .top-navbar {
+            background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;
+            padding: 12px 24px; display: flex; justify-content: flex-end; align-items: center; gap: 12px;
         }
+        .user-balance { background-color: #16223f; border: 1px solid var(--border-color); font-size: 13px; padding: 8px 14px; border-radius: 8px; display: flex; align-items: center; gap: 6px; }
 
-        /* Quick Action Sub-Nav Buttons */
-        .nav-actions {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
+        /* App View Components */
+        .view-panel { display: none; }
+        .view-panel.active { display: block; }
+        
+        .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+        .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; height: max-content; }
+        .card h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        
+        /* Form Components */
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; }
+        input, select, textarea { width: 100%; background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; color: var(--text-main); font-size: 14px; outline: none; transition: border-color 0.2s; }
+        input:focus, select:focus, textarea:focus { border-color: var(--accent-blue); }
+        textarea { resize: vertical; min-height: 120px; font-family: monospace; }
+        
+        .btn-action { width: 100%; background-color: var(--accent-blue); color: white; border: none; border-radius: 8px; padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: background 0.2s; }
+        .btn-action:hover { background-color: #3b82f6; }
 
-        .btn-nav {
-            background-color: #16223f;
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-        }
+        /* Tools Service Grid Layout */
+        .service-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .service-item { background: linear-gradient(135deg, #0f1930 0%, #0a1122 100%); border: 1px solid var(--border-color); border-radius: 10px; padding: 20px; text-align: center; }
+        .price-tag { color: var(--accent-green); font-weight: 700; margin: 6px 0 16px 0; font-size: 15px; }
 
-        .btn-nav:hover {
-            background-color: var(--border-color);
-        }
-
-        .btn-deposit {
-            background-color: rgba(16, 185, 129, 0.1);
-            border-color: rgba(16, 185, 129, 0.3);
-            color: var(--accent-green);
-        }
-
-        .btn-deposit:hover {
-            background-color: rgba(16, 185, 129, 0.2);
-        }
-
-        .status-badge {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--accent-green);
-            font-size: 11px;
-            padding: 4px 8px;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-
-        /* Responsive Dashboard Grid Layout */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-        }
-
-        @media (min-width: 768px) {
-            .dashboard-grid {
-                grid-template-columns: 2fr 1fr;
-            }
-        }
-
-        /* Cards Styling matching the visual style */
-        .card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px;
-        }
-
-        .card-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .card-subtitle {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 20px;
-        }
-
-        /* Product/Booster Options Grid */
-        .booster-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-            margin-top: 16px;
-        }
-
-        @media (min-width: 480px) {
-            .booster-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        .product-item {
-            background: linear-gradient(135deg, #0f1930 0%, #0a1122 100%);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .product-name {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .product-meta {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 16px;
-        }
-
-        .product-meta span {
-            color: var(--accent-green);
-        }
-
-        /* Inputs & Interactive Buttons */
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        label {
-            display: block;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-
-        input {
-            width: 100%;
-            background-color: var(--bg-input);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 12px;
-            color: var(--text-main);
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        input:focus {
-            border-color: var(--accent-blue);
-        }
-
-        .btn-primary {
-            width: 100%;
-            background-color: var(--accent-blue);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--accent-hover);
-        }
-
-        /* Crypto Payment Grid Layout */
-        .crypto-selector {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
-        .crypto-badge {
-            background-color: var(--bg-input);
-            border: 1px solid var(--border-color);
-            padding: 12px 4px;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-muted);
-            cursor: pointer;
-        }
-
-        .crypto-badge i {
-            display: block;
-            font-size: 18px;
-            margin-bottom: 4px;
-        }
-
-        .crypto-badge.btc:hover { border-color: #f59e0b; color: #f59e0b; }
-        .crypto-badge.ltc:hover { border-color: #cbd5e1; color: #cbd5e1; }
-        .crypto-badge.doge:hover { border-color: #eab308; color: #eab308; }
-        .crypto-badge.sol:hover { border-color: #14b8a6; color: #14b8a6; }
-
-        /* Statistics Footer Strip mimicking salta7 values */
-        .stats-footer {
-            margin-top: 40px;
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            flex-wrap: wrap;
-            text-align: center;
-            border-top: 1px solid var(--border-color);
-            padding-top: 24px;
-        }
-
-        .stat-val {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .stat-lbl {
-            font-size: 11px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            letter-spacing: 0.5px;
-            margin-top: 4px;
-        }
+        /* Payment Selector Row */
+        .crypto-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
+        .crypto-box { background-color: var(--bg-input); border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; text-align: center; font-size: 11px; font-weight: 600; color: var(--text-muted); }
+        .crypto-box i { display: block; font-size: 16px; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
-    <!-- Main Navigation Bar Wrapper -->
-    <header>
-        <div class="logo-area">
-            <i class="fa-solid fa-bolt logo-icon"></i>
+    <!-- Left Navigation Bar Panel -->
+    <div class="sidebar">
+        <div class="brand-section">
+            <i class="fa-solid fa-bolt brand-icon"></i>
             <span>BoostLora Hub</span>
-            <span class="status-badge">• Online</span>
+            <span class="status-dot"></span>
         </div>
-        
-        <div class="nav-actions">
-            <!-- User Balance Indicator Box -->
-            <div class="btn-nav"><i class="fa-solid fa-wallet"></i> 0 USD</div>
-            <div class="btn-nav btn-deposit"><i class="fa-solid fa-plus"></i> Deposit</div>
-            
-            <!-- Auth Anchors controlled by script below -->
+        <div class="nav-menu">
+            <div class="nav-item active" onclick="switchView('dashboard')"><i class="fa-solid fa-chart-pie"></i>Dashboard</div>
+            <div class="nav-item" onclick="switchView('checker')"><i class="fa-solid fa-shield-halved"></i>Token Checker</div>
+            <div class="nav-item" onclick="switchView('booster')"><i class="fa-solid fa-rocket"></i>Boost Tool</div>
+            <div class="nav-item" onclick="switchView('joiner')"><i class="fa-solid fa-right-to-bracket"></i>Server Joiner</div>
+        </div>
+    </div>
+
+    <!-- Main Workspace Area Layout -->
+    <div class="main-content">
+        <div class="top-navbar">
+            <div class="user-balance"><i class="fa-solid fa-wallet"></i> 0.00 USD</div>
             <div id="auth-buttons">
-                <button id="sign-in-btn" class="btn-nav"><i class="fa-solid fa-user"></i> Connect</button>
+                <button id="sign-in-btn" class="nav-item" style="padding: 8px 14px; background: #16223f;"><i class="fa-solid fa-user"></i>Connect</button>
             </div>
             <div id="user-profile-slot"></div>
         </div>
-    </header>
 
-    <!-- Two-Column Layout Grid -->
-    <div class="dashboard-grid">
-        
-        <!-- Left Side Dashboard Configuration -->
-        <div style="display: flex; flex-direction: column; gap: 20px;">
-            <div class="card">
-                <div class="card-title">Welcome to your Operations Control Panel</div>
-                <div class="card-subtitle">Deploy pipelines, configure target objects, and inject assets directly into running processes safely.</div>
-                
-                <form id="booster-form">
-                    <div class="form-group">
-                        <label>Target Entry Identifier</label>
-                        <input type="text" placeholder="Enter target string parameters...">
+        <!-- VIEW 1: MAIN DASHBOARD & DEPOSITS -->
+        <div id="view-dashboard" class="view-panel active">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>Active Infrastructure Modules</h3>
+                    <div class="service-grid">
+                        <div class="service-item">
+                            <h4>Discord Boost Module</h4>
+                            <div class="price-tag">$2.50 / boost</div>
+                            <button class="btn-action" style="padding: 8px;" onclick="switchView('booster')">Open Tool</button>
+                        </div>
+                        <div class="service-item">
+                            <h4>Automated Server Joiner</h4>
+                            <div class="price-tag">$4.00 / 100 members</div>
+                            <button class="btn-action" style="padding: 8px;" onclick="switchView('joiner')">Open Tool</button>
+                        </div>
                     </div>
-                    <button type="submit" class="btn-primary">
-                        <span>Initialize Execution Modules</span>
-Active Booster Modules
-Select an automated worker routine from your running nodes list below.
-Standard Module (FA)
-0.04 USD / Active
-Deploy Automation
+                </div>
 
+                <div class="card">
+                    <h3><i class="fa-solid fa-wallet" style="color: var(--accent-blue);"></i> Add Funds</h3>
+                    <div class="crypto-row">
+                        <div class="crypto-box"><i class="fa-brands fa-btc" style="color:#f59e0b"></i>BTC</div>
+                        <div class="crypto-box"><i class="fa-solid fa-coins" style="color:#cbd5e1"></i>LTC</div>
+                        <div class="crypto-box"><i class="fa-solid fa-paw" style="color:#eab308"></i>DOGE</div>
+                        <div class="crypto-box"><i class="fa-solid fa-circle-nodes" style="color:#14b8a6"></i>SOL</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount ($ USD)</label>
+                        <input id="deposit-amount" type="number" value="25" min="5">
+                    </div>
+                    <button onclick="triggerPayment()" class="btn-action" style="background:#fff; color:#000;">Generate Invoice</button>
+                </div>
+            </div>
+        </div>
 
-Premium Module (Aged)
-0.07 USD / Active
-Deploy Automation
+        <!-- VIEW 2: TOKEN CHECKER TOOL -->
+        <div id="view-checker" class="view-panel">
+            <div class="card" style="max-width: 800px;">
+                <h3><i class="fa-solid fa-shield-halved"></i> Automated Token Checker</h3>
+                <form id="checker-form" onsubmit="handleApiAction(event, '/api/items')">
+                    <div class="form-group">
+                        <label>Input Auth Tokens (One per line)</label>
+                        <textarea placeholder="Paste accounts/tokens here..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-action">Start Verification Scan</button>
+                </form>
+            </div>
+        </div>
 
-
-
- Account Refill
-Top up your balance profile. All assets settle directly inside secure automated vaults.
-BTC
-LTC
-DOGE
-SOL
-Deposit Load Target Amount ($ USD)
-
-Generate Secure Invoice
-
-
-511,686
-Tasks Handled
-
-
-1,168
-Global Clients
-
-
-2,995,344
-Successful Injections
-
-function triggerPayment() {
-const amount = document.getElementById('deposit-amount').value;
-if (window.Clerk && !window.Clerk.user) {
-alert("Please log in first to safely assign crypto keys directly to your account profile ID block.");
-window.Clerk.openSignIn();
-return;
-}
-const userEmail = window.Clerk.user.primaryEmailAddress.emailAddress;
-const userId = window.Clerk.user.id;
-// Swap YOUR_CHECKOUT_ID out with your Coinbase Commerce setting key dashboard values
-const commerceUrl = https://coinbase.com{amount}&custom=${userId}&email=${userEmail};
-window.open(commerceUrl, '_blank', 'width=500,height=700,status=yes,resizable=yes');
-}
-window.addEventListener('load', async function() {
-const script = document.getElementById('clerk-script');
-script.addEventListener('load', async function() {
-if (!window.Clerk) return;
-await window.Clerk.load();
-const authButtons = document.getElementById('auth-buttons');
-const profileSlot = document.getElementById('user-profile-slot');
-const signInBtn = document.getElementById('sign-in-btn');
-if (window.Clerk.user) {
-window.Clerk.mountUserButton(profileSlot, { appearance: { baseTheme: 'dark' } });
-authButtons.style.display = 'none';
-} else {
-authButtons.style.display = 'block';
-signInBtn.addEventListener('click', () => { window.Clerk.openSignIn(); });
-}
-});
-});
+        <!-- VIEW 3: DISCORD BOOST TOOL -->
+        <div id="view-booster" class="view-panel">
+            <div class="card" style="max-width: 800px;">
+                <h3><i class="fa-solid fa-rocket"></i> Server Booster Tool</h3>
+                <form id="booster-form" onsubmit="handleApiAction(event, '/api/booster')">
+                    <div class="form-group">
+                        <label>Invite Link or Server ID</label>
+                        <input type="text" placeholder="https://discord.gg">
+                    </div>
