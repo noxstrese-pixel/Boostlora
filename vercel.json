@@ -7,6 +7,14 @@
     {
       "source": "/api/items",
       "destination": "/api/items.py"
+    },
+    {
+      "source": "/api/booster",
+      "destination": "/api/booster.py"
+    },
+    {
+      "source": "/api/booster_status",
+      "destination": "/api/booster_status.py"
     }
   ]
 }
