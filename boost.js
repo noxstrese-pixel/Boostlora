@@ -1,5 +1,11 @@
+/**
+ * Nox Control System Layer v10.0 - Fixed Salta7 Pricing & Dual-Auth Setup
+ * Save this file exactly as "boost.js" in the same folder as index.html
+ */
 (function() {
-    const STORAGE_KEY = "NOX_CENTRAL_PERSISTENCE_V7";
+    console.log("Nox Control Core: Instantiating dynamic asset procurement framework...");
+
+    const STORAGE_KEY = "NOX_CENTRAL_PERSISTENCE_V10";
     let STATE = null;
     let txTimer = null;
 
@@ -9,18 +15,21 @@
             user: { username: "", balance: 42.50 },
             activeTab: "checker",
             depositStatus: "idle",
+            tokenProvider: "standard", // 'standard', 'own', 'salta7'
             storefront: [
-                { id: "p1", title: "1-Month Boost Slot", price: 0.15, type: "boost", description: "Allocate automated tokens to elevate targeted servers." },
-                { id: "p2", title: "Premium High-Age Profile", price: 0.85, type: "account", description: "Aged profiles populated with realistic media records." },
-                { id: "p3", title: "Profile Management Tool", price: 0.05, type: "utility", description: "Metadata restructuring script for bulk user management." }
+                { id: "p1", title: "1-Month Boost Slot", basePrice: 0.15, type: "boost", description: "Allocate automated tokens to elevate targeted servers." },
+                { id: "p2", title: "Premium High-Age Profile", basePrice: 0.85, type: "account", description: "Aged profiles populated with realistic media records." },
+                { id: "p3", title: "Profile Management Tool", basePrice: 0.05, type: "utility", description: "Metadata restructuring script for bulk user management." }
             ]
         };
+
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
             if (!raw) return fallbackDefault;
             const parsed = JSON.parse(raw);
             parsed.storefront = fallbackDefault.storefront;
             parsed.depositStatus = "idle"; 
+            if (!parsed.tokenProvider) parsed.tokenProvider = "standard";
             return parsed;
         } catch (e) {
             return fallbackDefault;
@@ -36,28 +45,53 @@
         renderLayoutRouter();
     }
 
+    // Precise Cost Processing State Engine
+    function calculateItemPrice(basePrice) {
+        if (STATE.tokenProvider === "own") {
+            // Using own infrastructure tokens means the base cost is completely free, user only pays for the captcha
+            return 0.02;
+        }
+        if (STATE.tokenProvider === "salta7") {
+            // Using Salta7 tokens applies a flat static cost metrics tier of exactly $0.18 per token asset
+            return 0.18;
+        }
+        return basePrice;
+    }
+
     function renderLayoutRouter() {
-        const root = document.getElementById('app-mount-root');
-        if (!root) return;
-        root.innerHTML = "";
+        document.body.innerHTML = "";
 
         if (!STATE.isLoggedIn) {
-            root.innerHTML = `
-                <div class="n-auth-screen" style="display: flex; align-items: center; justify-content: center; width: 100%; min-height: 100vh; background: var(--bg-main);">
-                    <div class="n-auth-card">
+            // Expanded Secure Dual-Input Identification View Screen Layout
+            document.body.innerHTML = `
+                <div class="n-auth-screen" style="display: flex; align-items: center; justify-content: center; width: 100%; min-height: 100vh; background: var(--bg-main, #090D16);">
+                    <div class="n-auth-card" style="background: var(--bg-card, #151D30); border: 1px solid var(--border-color, #1F293D); border-radius: 16px; padding: 40px; max-width: 400px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
                         <h3 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 800; text-align: center; color: white;">System Portal Access</h3>
-                        <p style="margin: 0 0 24px 0; font-size: 13px; color: var(--text-muted); text-align: center;">Provide a workspace username to restore your dashboard balance profiles.</p>
-                        <div style="margin-bottom: 20px;">
-                            <label style="font-size: 12px; font-weight:600; color: var(--text-muted); display:block; margin-bottom:6px;">Account Username</label>
-                            <input type="text" class="n-input" id="auth-username-field" placeholder="Username entry..." />
+                        <p style="margin: 0 0 24px 0; font-size: 13px; color: var(--text-muted, #9CA3AF); text-align: center;">Enter system profile parameters to connect securely.</p>
+                        
+                        <div style="margin-bottom: 16px;">
+                            <label style="font-size: 12px; font-weight:600; color: var(--text-muted, #9CA3AF); display:block; margin-bottom:6px;">Account Username</label>
+                            <input type="text" class="n-input" id="auth-username-field" placeholder="Username..." style="width:100%; background:var(--bg-main, #090D16); color:white; border:1px solid var(--border-color, #1F293D); padding:12px; border-radius:8px; outline:none;" />
                         </div>
-                        <button class="action-btn" id="auth-submit-btn">Initialize Connection</button>
+                        
+                        <div style="margin-bottom: 24px;">
+                            <label style="font-size: 12px; font-weight:600; color: var(--text-muted, #9CA3AF); display:block; margin-bottom:6px;">Security Password</label>
+                            <input type="password" class="n-input" id="auth-password-field" placeholder="••••••••" style="width:100%; background:var(--bg-main, #090D16); color:white; border:1px solid var(--border-color, #1F293D); padding:12px; border-radius:8px; outline:none;" />
+                        </div>
+                        
+                        <button class="action-btn" id="auth-submit-btn">Authenticate Session</button>
                     </div>
                 </div>
             `;
+
             document.getElementById('auth-submit-btn').addEventListener('click', () => {
                 const userVal = document.getElementById('auth-username-field').value.trim();
-                if (!userVal) { alert("Please provide a username."); return; }
+                const passVal = document.getElementById('auth-password-field').value.trim();
+                
+                if (!userVal || !passVal) {
+                    alert("Both username validation rows and password credentials strings must be populated.");
+                    return;
+                }
                 STATE.isLoggedIn = true;
                 STATE.user.username = userVal;
                 saveState();
@@ -66,7 +100,7 @@
             return;
         }
 
-        root.innerHTML = `
+        document.body.innerHTML = `
             <aside class="sidebar">
                 <div class="sidebar-brand">Boostlora</div>
                 <button class="nav-btn ${STATE.activeTab === 'checker' ? 'active' : ''}" id="nav-tab-checker" type="button">Account Checker</button>
@@ -106,6 +140,7 @@
         document.getElementById('nav-tab-checker').addEventListener('click', () => switchTab('checker'));
         document.getElementById('nav-tab-booster').addEventListener('click', () => switchTab('booster'));
         document.getElementById('nav-tab-joiner').addEventListener('click', () => switchTab('joiner'));
+        
         document.getElementById('dom-logout-btn').addEventListener('click', () => {
             STATE.isLoggedIn = false;
             saveState();
@@ -135,6 +170,7 @@
                 </div>
                 <textarea placeholder="Paste account lists here (one entry per line matrix combo)..."></textarea>
                 <button class="action-btn">Launch System Verification</button>
+                
                 <div class="results-section">
                     <div class="status-title">Ecosystem Performance Logging</div>
                     <div class="stats-grid">
@@ -142,112 +178,3 @@
                         <div class="grid-item warning"><div class="stat-val">0</div><div class="stat-label">Flagged Flag</div></div>
                         <div class="grid-item invalid"><div class="stat-val">0</div><div class="stat-label">Rejected Bad</div></div>
                     </div>
-                    <div class="list-container" style="padding:40px; text-align:center; color:var(--text-muted); font-size:13px;">
-                        Awaiting data sequence submission queue...
-                    </div>
-                </div>
-            `;
-        } else if (STATE.activeTab === "booster") {
-            view.innerHTML = `
-                <div class="header-section">
-                    <h2>Server Booster Allocation Framework</h2>
-                    <p class="subtitle">Deploy automated slot structures directly to destination tracking environments.</p>
-                </div>
-                <div style="background: var(--bg-main); border: 1px solid var(--border-color); padding: 24px; border-radius:12px; margin-bottom:24px;">
-                    <div style="margin-bottom:16px;">
-                        <label style="font-size:12px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:6px;">Target Invite Code Link Location</label>
-                        <input type="text" class="n-input" placeholder="https://discord.gg/invite-code" id="booster-lnk-input" style="width:100%; background:var(--bg-card); color:white; border:1px solid var(--border-color); padding:12px; border-radius:8px; outline:none;" />
-                    </div>
-                    <button class="action-btn" id="booster-exec-btn">Deploy Optimization Matrix</button>
-                </div>
-                <div class="wallet-title" style="margin-bottom:12px;">Available Resource Inventory Procurement</div>
-                <div class="store-grid" id="dom-store-box"></div>
-            `;
-            const storeBox = document.getElementById('dom-store-box');
-            STATE.storefront.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'store-card';
-                card.innerHTML = `
-                    <div>
-                        <h4 class="store-title">${item.title}</h4>
-                        <p class="store-desc">${item.description}</p>
-                    </div>
-                    <div class="store-footer">
-                        <div class="store-price">$${item.price.toFixed(2)}</div>
-                        <button class="store-btn">Procure Item</button>
-                    </div>
-                `;
-                card.querySelector('.store-btn').addEventListener('click', () => {
-                    if (STATE.user.balance >= item.price) {
-                        STATE.user.balance -= item.price;
-                        saveState();
-                        document.getElementById('dom-wallet-bal').innerText = `$${STATE.user.balance.toFixed(2)}`;
-                        alert(`Successfully acquired item asset row: ${item.title}`);
-                    } else {
-                        alert("Insufficient available system balance credits.");
-                    }
-                });
-                storeBox.appendChild(card);
-            });
-            document.getElementById('booster-exec-btn').addEventListener('click', () => {
-                const txt = document.getElementById('booster-lnk-input').value;
-                if (!txt) { alert("Please specify a targeted network endpoint code parameter."); return; }
-                alert("Processing optimization routines across internal inventories.");
-            });
-        } else {
-            view.innerHTML = `
-                <div class="header-section">
-                    <h2>Server Joiner Sandbox Module</h2>
-                    <p class="subtitle">System engine sandbox architecture workspace environment tools.</p>
-                </div>
-                <div style="padding:60px; text-align:center; border: 1px dashed var(--border-color); border-radius:12px; color:var(--text-muted); font-size:13px;">
-                    Sandbox tool deployment modules are processing under active construction.
-                </div>
-            `;
-        }
-    }
-
-    function configureDepositModal() {
-        const modal = document.getElementById('dom-deposit-modal');
-        const openBtn = document.getElementById('dom-open-deposit-btn');
-        const closeBtn = document.getElementById('dom-close-modal-btn');
-        const badge = document.getElementById('dom-modal-status-badge');
-        const spinner = document.getElementById('dom-modal-spinner');
-        const txt = document.getElementById('dom-modal-status-text');
-        if (!modal || !openBtn) return;
-        openBtn.addEventListener('click', () => {
-            modal.style.display = 'flex';
-            if (STATE.depositStatus === "idle") {
-                STATE.depositStatus = "pending";
-                txt.innerText = "Monitoring ledger block matrices for payment hash broadcast...";
-                txTimer = setTimeout(() => {
-                    STATE.depositStatus = "confirmed";
-                    STATE.user.balance += 25.00; 
-                    saveState();
-                    const balEl = document.getElementById('dom-wallet-bal');
-                    if (balEl) balEl.innerText = `$${STATE.user.balance.toFixed(2)}`;
-                    if (badge) badge.className = "n-badge-status confirmed";
-                    if (spinner) spinner.style.display = "none";
-                    if (txt) txt.innerText = "Transaction Settled via Block Ledger (+$25.00)";
-                }, 5000); 
-            }
-        });
-        function dropModal() {
-            modal.style.display = 'none';
-            if (STATE.depositStatus === "confirmed") {
-                STATE.depositStatus = "idle";
-                if (badge) badge.className = "n-badge-status";
-                if (spinner) spinner.style.display = "inline-block";
-                if (txt) txt.innerText = "Awaiting network transaction broadcast...";
-            }
-        }
-        closeBtn.addEventListener('click', dropModal);
-        modal.addEventListener('click', (e) => { if (e.target === modal) dropModal(); });
-    }
-
-    if (document.readyState === "complete" || document.readyState === "interactive") {
-        startApplication();
-    } else {
-        document.addEventListener("DOMContentLoaded", startApplication);
-    }
-})();
