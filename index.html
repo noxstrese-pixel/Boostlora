@@ -31,7 +31,6 @@
             display: flex;
         }
 
-        /* Mount Master Node Wrap Container */
         #app-mount-root {
             display: flex;
             width: 100%;
@@ -141,7 +140,6 @@
 
         .action-btn:hover { background: var(--accent-hover); }
 
-        /* Wallet Core Component Box Structures */
         .sidebar-wallet {
             margin-top: auto;
             background: var(--bg-main);
@@ -158,11 +156,9 @@
         .wallet-btn-logout { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); width: 100%; font-size: 11px; padding: 6px; border-radius: 6px; cursor: pointer; }
         .wallet-btn-logout:hover { background: var(--color-invalid); color: #fff; border-color: var(--color-invalid); }
 
-        /* Authentication View Screen Matrix */
         .n-auth-screen { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 100vh; background: var(--bg-main); }
         .n-auth-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 40px; max-width: 400px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         
-        /* Modal Layer Blueprint */
         .n-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(4, 7, 12, 0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center; z-index: 99999; }
         .n-modal-box { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 24px; padding: 32px; max-width: 460px; width: 100%; text-align: center; position: relative; }
         .n-modal-close { position: absolute; top: 20px; right: 20px; background: none; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; }
@@ -172,7 +168,6 @@
         .spinner { width: 14px; height: 14px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Store Catalog Grid Styling Module */
         .store-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-top: 24px; }
         .store-card { background: var(--bg-main); border: 1px solid var(--border-color); padding: 16px; border-radius: 10px; display: flex; flex-direction: column; justify-content: space-between; }
         .store-title { font-size: 14px; font-weight: 700; margin: 0 0 6px 0; color: #fff; }
@@ -193,15 +188,7 @@
     </style>
 </head>
 <body>
-
-    <!-- Native Mount Root Block Grid -->
-    <div id="app-mount-root">
-        <div style="padding: 40px; text-align: center; width: 100%; color: var(--text-muted);">
-            Connecting to application subsystem vectors...
-        </div>
-    </div>
-
-    <!-- Standalone System Runtime Script Logic Asset -->
+    <div id="app-mount-root"></div>
     <script src="boost.js"></script>
 </body>
 </html>
