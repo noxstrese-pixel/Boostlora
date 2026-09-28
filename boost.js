@@ -165,4 +165,44 @@
         document.getElementById('status-detail-text').innerText = "Connecting to backend function layer...";
 
         try {
-            const res = await fetch('/api/booster', {
+            const res = await fetch('/api/booster', {method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify(bodyData)
+});
+const data = await res.json();
+if (!res.ok || data.error) {
+statusPanel.className = 'status-box failed';
+document.getElementById('status-title-text').innerText = Error (${res.status});
+document.getElementById('status-detail-text').innerText = data.error || data.details || "Request execution dropped.";
+return;
+}
+// Capture tracking ID from initialization receipt response payload
+const jobId = data.job_id;
+document.getElementById('status-title-text').innerText = "Status: Job Running...";
+document.getElementById('status-detail-text').innerText = Tracking ID: ${jobId};
+// Initialize dynamic browser-side polling loops interval
+pollingInterval = setInterval(async () => {
+try {
+const pollRes = await fetch(/api/booster_status?job_id=${jobId});
+const job = await pollRes.json();
+if (!pollRes.ok || job.status === 'completed' || job.status === 'failed') {
+clearInterval(pollingInterval);
+statusPanel.className = job.status === 'completed' ? 'status-box completed' : 'status-box failed';
+document.getElementById('status-title-text').innerText = Status: ${job.status || 'Finished'};
+}
+// Map counters instantly onto card slot targets
+document.getElementById('cnt-delivered').innerText = job.boosts_delivered !== undefined ? job.boosts_delivered : 0;
+document.getElementById('cnt-requested').innerText = job.boosts_requested !== undefined ? job.boosts_requested : 0;
+document.getElementById('cnt-failed').innerText = job.failed_count !== undefined ? job.failed_count : 0;
+} catch (pollErr) {
+console.error("Polling instance tick dropped:", pollErr);
+}
+}, 8000); // Polling latency pace rule constraint mapping alignment
+} catch (err) {
+statusPanel.className = 'status-box failed';
+document.getElementById('status-title-text').innerText = "Connection Failed";
+document.getElementById('status-detail-text').innerText = err.message || "Failed to make handshakes.";
+}
+});
+})();
+
