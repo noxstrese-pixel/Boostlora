@@ -1,103 +1,60 @@
 import json
-import urllib.request
-import urllib.error
-from http.server import BaseHTTPRequestHandler
+import time
+from flask import Flask, request, Response
 
-BASE = "https://salta7.store"
-HEADERS = {
-    "Authorization": "Bearer FWG7PJY53V4PLHI1TED5C7SYFNOBYQW5",
-    "Content-Type": "application/json",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-}
+app = Flask(__name__)
 
-class handler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        try:
-            content_length = int(self.headers.get('Content-Length', 0))
-        except Exception:
-            content_length = 0
-            
-        post_data = self.rfile.read(content_length) if content_length > 0 else b''
-        
-        try:
-            data = json.loads(post_data.decode('utf-8')) if post_data else {}
-        except Exception as json_err:
-            self._send_response({"error": "Failed to decode payload JSON", "details": str(json_err)}, 400)
-            return
+def execute_boosting_pipeline(invite_link, amount, strategy):
+    """
+    Background generator loop that handles your discord token network logic 
+    and yields real-time terminal event lines back down to the user's dashboard view.
+    """
+    try:
+        yield f"[System] Initializing boost queue for {amount} nodes using strategy: '{strategy}'\n"
+        time.sleep(1)
 
-        # 1. Grab base parameters required always
-        mode = data.get('mode', 'stock') # 'stock' or 'byot'
-        invite_code = data.get('invite', '')
+        # Mock array representing how your token database sets/reads custom inputs
+        # Swap this out with your actual database queries or token loading arrays!
+        tokens_to_process = [f"Token_MTAx{i}..." for i in range(1, int(amount) + 1)]
 
-        if not invite_code:
-            self._send_response({"error": "A server invite code or link is strictly required."}, 400)
-            return
+        for index, token in enumerate(tokens_to_process, 1):
+            yield f"<span style='color:#64748b;'>[Node {index}]</span> Authenticating token credentials...\n"
+            time.sleep(1.2)
 
-        # 2. Build the exact API outbound body based on chosen mode
-        api_payload = {
-            "tool": "boost",
-            "mode": mode,
-            "invite": invite_code
+            # --- SIMULATE TOKEN STATUS VALIDATION CHECK ---
+            if index == 3: # Example showing what happens when a token fails
+                yield f"<span style='color:#ef4444;'>❌ [Invalid Token]</span> {token} failed authorization header tests. Skipping...\n"
+                continue
+
+            # --- SIMULATE CAPTCHA ENGINE CHALLENGES ---
+            yield f"<span style='color:#f59e0b;'>🧩 [Captcha Triggered]</span> Anti-bot challenge detected. Routing payload to solver API...\n"
+            time.sleep(2.5) # Simulate time taken by cap solver APIs (Capsolver/2Captcha)
+            yield f"<span style='color:#10b981;'>✅ [Captcha Solved]</span> Token bypass generated in 2.5s. Simulating room join protocols...\n"
+            time.sleep(1.0)
+
+            # --- SUCCESSFUL JOIN & BOOST EVENT ---
+            yield f"<span style='color:#10b981; font-weight:bold;'>🚀 [Success]</span> Joined guild server cleanly and dispatched booster payload! ({index}/{amount})\n"
+            time.sleep(0.8)
+
+    except Exception as e:
+        yield f"<span style='color:#ef4444;'>[Fatal Error] Pipeline crashed: {str(e)}</span>\n"
+
+@app.route('/api/booster', methods=['POST'])
+def handle_booster():
+    # Parse the JSON parameters sent over from handleApiAction in index.html
+    data = request.get_json() or {}
+    
+    invite_link = data.get('input', '')
+    amount = data.get('amount', 2)
+    strategy = data.get('strategy', 'salta7')
+
+    # Launch the live text event stream response container channel
+    return Response(
+        execute_boosting_pipeline(invite_link, amount, strategy),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no' # Forces Vercel/Cloudflare networks to stream data instantly instead of buffering chunks
         }
-
-        if mode == 'stock':
-            # Stock mode uses shop inventory counts
-            api_payload["boosts"] = int(data.get('boosts', 2))
-            if data.get('product'):
-                api_payload["product"] = data.get('product')
-        else:
-            # BYOT mode accepts user pasted tokens directly
-            raw_text = data.get('user_tokens_input', '')
-            lines = [line.strip() for line in str(raw_text).split('\n') if line.strip()]
-            
-            if not lines:
-                self._send_response({"error": "No tokens were pasted in the input area."}, 400)
-                return
-                
-            api_payload["tokens"] = lines
-            api_payload["boosts_needed"] = int(data.get('boosts_needed', 0))
-
-        # Optional Profile Humanizer addition
-        if data.get('humanize'):
-            api_payload["humanize"] = data.get('humanize')
-
-        # 3. Fire request to Salta7 task execution system
-        target_url = f"{BASE}/task/create"
-        payload_bytes = json.dumps(api_payload).encode('utf-8')
-        req = urllib.request.Request(target_url, data=payload_bytes, headers=HEADERS, method='POST')
-        
-        try:
-            with urllib.request.urlopen(req, timeout=20) as response:
-                res_body = response.read().decode('utf-8')
-                self._send_response(json.loads(res_body), 200)
-                
-        except urllib.error.HTTPError as http_err:
-            try:
-                err_json = json.loads(http_err.read().decode('utf-8'))
-            except Exception:
-                err_json = "Insufficent wallet store balance or invalid request inputs"
-            self._send_response({"error": "Upstream booster system error", "status": http_err.code, "details": err_json}, http_err.code)
-        except Exception as e:
-            self._send_response({"error": "Internal booster gateway handler error", "details": str(e)}, 500)
-
-    def _send_response(self, payload, status_code):
-        try:
-            self.send_response(status_code)
-            self.send_header('Content-type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS, GET')
-            self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-            self.end_headers()
-            self.wfile.write(json.dumps(payload).encode('utf-8'))
-        except Exception:
-            pass
-
-    def do_OPTIONS(self):
-        try:
-            self.send_response(200)
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS, GET')
-            self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-            self.end_headers()
-        except Exception:
-            pass
+    )
