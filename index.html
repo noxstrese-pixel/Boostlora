@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BoostLora Hub</title>
+    <title>Boostlora Hub</title>
     <link rel="stylesheet" href="https://cloudflare.com">
     
     <!-- Clerk Authentication Engine -->
@@ -73,7 +73,7 @@
         
         /* Form Components */
         .form-group { margin-bottom: 16px; }
-        .hidden-group { display: none; } /* Used for toggling custom token textarea */
+        #custom-tokens-wrapper { display: none; } /* Managed dynamically by toggleTokenInput */
         
         label { display: block; font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; }
         input, select, textarea { width: 100%; background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; color: var(--text-main); font-size: 14px; outline: none; transition: border-color 0.2s; }
@@ -106,10 +106,10 @@
             <span class="status-dot"></span>
         </div>
         <div class="nav-menu">
-            <div class="nav-item active" onclick="switchView('dashboard')"><i class="fa-solid fa-chart-pie"></i>Dashboard</div>
-            <div class="nav-item" onclick="switchView('checker')"><i class="fa-solid fa-shield-halved"></i>Token Checker</div>
-            <div class="nav-item" onclick="switchView('booster')"><i class="fa-solid fa-rocket"></i>Boost Tool</div>
-            <div class="nav-item" onclick="switchView('joiner')"><i class="fa-solid fa-right-to-bracket"></i>Server Joiner</div>
+            <div class="nav-item active" onclick="switchView('dashboard', this)"><i class="fa-solid fa-chart-pie"></i>Dashboard</div>
+            <div class="nav-item" onclick="switchView('checker', this)"><i class="fa-solid fa-shield-halved"></i>Token Checker</div>
+            <div class="nav-item" onclick="switchView('booster', this)"><i class="fa-solid fa-rocket"></i>Boost Tool</div>
+            <div class="nav-item" onclick="switchView('joiner', this)"><i class="fa-solid fa-right-to-bracket"></i>Server Joiner</div>
         </div>
     </div>
 
@@ -131,13 +131,13 @@
                     <div class="service-grid">
                         <div class="service-item">
                             <h4>Discord Boost Module</h4>
-                            <div class="price-tag">$2.50 / boost</div>
-                            <button class="btn-action" style="padding: 8px;" onclick="switchView('booster')">Open Tool</button>
+                            <div class="price-tag">$0.18 / boost</div>
+                            <button class="btn-action" style="padding: 8px;" onclick="switchView('booster', document.querySelectorAll('.nav-item')[2])">Open Tool</button>
                         </div>
                         <div class="service-item">
                             <h4>Automated Server Joiner</h4>
-                            <div class="price-tag">$4.00 / 100 members</div>
-                            <button class="btn-action" style="padding: 8px;" onclick="switchView('joiner')">Open Tool</button>
+                            <div class="price-tag">$0.05 / join</div>
+                            <button class="btn-action" style="padding: 8px;" onclick="switchView('joiner', document.querySelectorAll('.nav-item')[3])">Open Tool</button>
                         </div>
                     </div>
                 </div>
@@ -173,6 +173,3 @@
             </div>
         </div>
 
-        <!-- VIEW 3: DISCORD BOOST TOOL -->
-        <div id="view-booster" class="view-panel">
-            <div class="card" style="max-width: 800px;">
