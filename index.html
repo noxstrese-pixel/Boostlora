@@ -170,128 +170,212 @@
                     </div>
                     <button type="submit" class="btn-action">Start Verification Scan</button>
                 </form>
-            console.log("Boostlora Core: Operational engine loaded.");
-// Tab View Router Engine (100% Fail-Safe)
-function switchView(viewName, element) {
-// Hide all view panels safely
-document.querySelectorAll('.view-panel').forEach(p => {
-p.classList.remove('active');
-});
-// Remove active highlighting from sidebar links
-document.querySelectorAll('.nav-item').forEach(i => {
-i.classList.remove('active');
-});
-// Reveal target section
-const targetView = document.getElementById(view-${viewName});
-if (targetView) {
-targetView.classList.add('active');
-}
-// Apply highlight style
-if (element) {
-element.classList.add('active');
-}
-}
-// Bridge helper for shortcut links inside the cards
-function navigateToTab(tabName) {
-const sidebarBtn = document.getElementById(tab-${tabName});
-switchView(tabName, sidebarBtn);
-}
-// Reveals or hides the custom user token text area
-function toggleTokenInput() {
-const strategy = document.getElementById('token-source').value;
-const wrapper = document.getElementById('custom-tokens-wrapper');
-const field = document.getElementById('custom-tokens-field');
-if (strategy === 'custom') {
-wrapper.style.display = 'block';
-field.setAttribute('required', 'true');
-} else {
-wrapper.style.display = 'none';
-field.removeAttribute('required');
-}
-}
-// Dynamic Cost Calculator
-function calculateBoostCost() {
-const strategy = document.getElementById('token-source').value;
-const amount = parseInt(document.getElementById('boost-amount').value) || 0;
-let totalCost = 0;
-if (strategy === 'salta7') {
-totalCost = amount * 0.18;
-} else if (strategy === 'custom') {
-totalCost = amount * 0.02;
-}
-document.getElementById('boost-cost-display').innerText = $${totalCost.toFixed(2)} USD;
-}
-// Backend Serverless Streaming API Handler
-async function handleApiAction(event, endpoint) {
-event.preventDefault();
-const currentForm = event.target;
-const inputData = currentForm.querySelector('input[type="text"]')?.value || currentForm.querySelector('textarea')?.value || "";
-const amountData = currentForm.querySelector('input[type="number"]')?.value || "";
-const strategyData = document.getElementById('token-source')?.value || "salta7";
-const customTokensData = document.getElementById('custom-tokens-field')?.value || "";
-let loggerBox = currentForm.querySelector('.live-logger-terminal');
-if (!loggerBox) {
-loggerBox = document.createElement('div');
-loggerBox.className = 'live-logger-terminal';
-loggerBox.style = "background:#020408; border:1px solid #1a2642; border-radius:8px; padding:12px; margin-top:16px; font-family:monospace; font-size:12px; color:#38bdf8; max-height:200px; overflow-y:auto; text-align:left; line-height:1.6;";
-currentForm.appendChild(loggerBox);
-}
-loggerBox.innerHTML = "[System] Initializing connection to Vercel API runner...";
-try {
-const response = await fetch(endpoint, {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({
-input: inputData,
-amount: amountData,
-strategy: strategyData,
-custom_tokens: customTokensData,
-trigger: "active"
-})
-});
-const reader = response.body.getReader();
-const decoder = new TextDecoder();
-while (true) {
-const { value, done } = await reader.read();
-if (done) break;
-const chunk = decoder.decode(value);
-loggerBox.innerHTML += <div>${chunk}</div>;
-loggerBox.scrollTop = loggerBox.scrollHeight;
-}
-loggerBox.innerHTML += "[Finished] All pipeline tasks handled completely.";
-} catch (err) {
-console.error("API Error: ", err);
-loggerBox.innerHTML += "[Error] Connection failed to parse backend stream.";
-}
-}
-// Crypto Invoice Launcher with a Strict $1 Minimum Bound
-function triggerPayment() {
-const amount = parseFloat(document.getElementById('deposit-amount').value) || 0;
-if (isNaN(amount) || amount < 1.00) {
-alert("Invoice Generation Failed: The minimum deposit requirement threshold is $1.00 USD.");
-return;
-}
-if (window.Clerk && !window.Clerk.user) {
-alert("Please connect an account profile to log this invoice securely.");
-window.Clerk.openSignIn();
-return;
-}
-const userId = window.Clerk.user ? window.Clerk.user.id : "guest_session";
-const userEmail = window.Clerk.user ? window.Clerk.user.primaryEmailAddress.emailAddress : "no_email";
-const commerceUrl = https://coinbase.com{amount}&custom=${userId}&email=${userEmail};
-window.open(commerceUrl, '_blank', 'width=500,height=700,status=yes,resizable=yes');
-}
-// Clerk Auth Manager Initialization Loop
-window.addEventListener('load', async function() {
-const script = document.getElementById('clerk-script');
-if (!script) return;
-script.addEventListener('load', async function() {
-if (!window.Clerk) return;
-await window.Clerk.load();
-const authButtons = document.getElementById('auth-buttons');
-const profileSlot = document.getElementById('user-profile-slot');
-const signInBtn = document.getElementById('sign-in-btn');
-if (window.Clerk.user) {
+                           </form>
+            </div>
+        </div>
+
+        <!-- VIEW 3: DISCORD BOOST TOOL -->
+        <div id="view-booster" class="view-panel">
+            <div class="card" style="max-width: 800px;">
+                <h3><i class="fa-solid fa-rocket"></i> Server Booster Tool</h3>
+                <form id="booster-form" onsubmit="handleApiAction(event, '/api/booster')">
+                    <div class="form-group">
+                        <label>Invite Link or Server ID</label>
+                        <input type="text" placeholder="https://discord.gg" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Token Source Strategy</label>
+                        <select id="token-source" onchange="toggleTokenInput(); calculateBoostCost();">
+                            <option value="salta7">Use Premium Auto-Tokens ($0.18 per Boost)</option>
+                            <option value="custom">Provide My Own Tokens ($0.02 Captcha Fee per Boost)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="custom-tokens-wrapper">
+                        <label>Input User Tokens (One per line)</label>
+                        <textarea id="custom-tokens-field" placeholder="Paste your custom user tokens here..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Amount of Boosts</label>
+                        <input id="boost-amount" type="number" value="2" min="1" oninput="calculateBoostCost()" required>
+                    </div>
+
+                    <div class="form-group" style="background: rgba(37, 99, 235, 0.1); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                        <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Estimated Cost:</span>
+                        <span id="boost-cost-display" style="font-size: 16px; font-weight: 700; color: var(--accent-green); float: right;">$0.36 USD</span>
+                    </div>
+
+                    <button type="submit" class="btn-action">Execute Boosting Pipeline</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- VIEW 4: AUTOMATED MEMBER JOINER -->
+        <div id="view-joiner" class="view-panel">
+            <div class="card" style="max-width: 800px;">
+                <h3><i class="fa-solid fa-right-to-bracket"></i> Automated Member Joiner</h3>
+                <form id="joiner-form" onsubmit="handleApiAction(event, '/api/submit')">
+                    <div class="form-group">
+                        <label>Target Invite Code</label>
+                        <input type="text" placeholder="discord.gg/your-code" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount to Join</label>
+                        <input type="number" value="50" step="10" required>
+                    </div>
+                    <button type="submit" class="btn-action">Inject Automation Workers</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Dynamic Layout Scripts -->
+    <script>
+        console.log("Boostlora Core: Operational engine loaded.");
+
+        // Tab View Router Engine (100% Fail-Safe)
+        function switchView(viewName, element) {
+            document.querySelectorAll('.view-panel').forEach(p => {
+                p.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-item').forEach(i => {
+                i.classList.remove('active');
+            });
+            const targetView = document.getElementById(`view-${viewName}`);
+            if (targetView) {
+                targetView.classList.add('active');
+            }
+            if (element) {
+                element.classList.add('active');
+            }
+        }
+
+        // Bridge helper for shortcut links inside cards
+        function navigateToTab(tabName) {
+            const sidebarBtn = document.getElementById(`tab-${tabName}`);
+            switchView(tabName, sidebarBtn);
+        }
+
+        // Reveals or hides the custom user token text area
+        function toggleTokenInput() {
+            const strategy = document.getElementById('token-source').value;
+            const wrapper = document.getElementById('custom-tokens-wrapper');
+            const field = document.getElementById('custom-tokens-field');
+            
+            if (strategy === 'custom') {
+                wrapper.style.display = 'block';
+                field.setAttribute('required', 'true');
+            } else {
+                wrapper.style.display = 'none';
+                field.removeAttribute('required');
+            }
+        }
+
+        // Dynamic Cost Calculator
+        function calculateBoostCost() {
+            const strategy = document.getElementById('token-source').value;
+            const amount = parseInt(document.getElementById('boost-amount').value) || 0;
+            let totalCost = 0;
+
+            if (strategy === 'salta7') {
+                totalCost = amount * 0.18;
+            } else if (strategy === 'custom') {
+                totalCost = amount * 0.02;
+            }
+
+            document.getElementById('boost-cost-display').innerText = `$${totalCost.toFixed(2)} USD`;
+        }
+
+        // Backend Serverless Streaming API Handler
+        async function handleApiAction(event, endpoint) {
+            event.preventDefault();
+            
+            const currentForm = event.target;
+            const inputData = currentForm.querySelector('input[type="text"]')?.value || currentForm.querySelector('textarea')?.value || "";
+            const amountData = currentForm.querySelector('input[type="number"]')?.value || "";
+            const strategyData = document.getElementById('token-source')?.value || "salta7";
+            const customTokensData = document.getElementById('custom-tokens-field')?.value || "";
+
+            let loggerBox = currentForm.querySelector('.live-logger-terminal');
+            if (!loggerBox) {
+                loggerBox = document.createElement('div');
+                loggerBox.className = 'live-logger-terminal';
+                loggerBox.style = "background:#020408; border:1px solid #1a2642; border-radius:8px; padding:12px; margin-top:16px; font-family:monospace; font-size:12px; color:#38bdf8; max-height:200px; overflow-y:auto; text-align:left; line-height:1.6;";
+                currentForm.appendChild(loggerBox);
+            }
+            
+            loggerBox.innerHTML = "<div style='color:#64748b;'>[System] Initializing connection to Vercel API runner...</div>";
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        input: inputData,
+                        amount: amountData,
+                        strategy: strategyData,
+                        custom_tokens: customTokensData,
+                        trigger: "active" 
+                    })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    loggerBox.innerHTML += `<div>${chunk}</div>`;
+                    loggerBox.scrollTop = loggerBox.scrollHeight;
+                }
+                
+                loggerBox.innerHTML += "<div style='color:#10b981; font-weight:bold; margin-top:6px;'>[Finished] All pipeline tasks handled completely.</div>";
+            } catch (err) {
+                console.error("API Error: ", err);
+                loggerBox.innerHTML += "<div style='color:#ef4444;'>[Error] Connection failed to parse backend stream.</div>";
+            }
+        }
+
+        // Crypto Invoice Launcher with a Strict $1 Minimum Bound
+        function triggerPayment() {
+            const amount = parseFloat(document.getElementById('deposit-amount').value) || 0;
+
+            if (isNaN(amount) || amount < 1.00) {
+                alert("Invoice Generation Failed: The minimum deposit requirement threshold is $1.00 USD.");
+                return;
+            }
+
+            if (window.Clerk && !window.Clerk.user) {
+                alert("Please connect an account profile to log this invoice securely.");
+                window.Clerk.openSignIn();
+                return;
+            }
+            
+            const userId = window.Clerk.user ? window.Clerk.user.id : "guest_session";
+            const userEmail = window.Clerk.user ? window.Clerk.user.primaryEmailAddress.emailAddress : "no_email";
+            
+            const commerceUrl = `https://coinbase.com{amount}&custom=${userId}&email=${userEmail}`;
+            window.open(commerceUrl, '_blank', 'width=500,height=700,status=yes,resizable=yes');
+        }
+
+        // Clerk Auth Manager Initialization Loop
+        window.addEventListener('load', async function() {
+            const script = document.getElementById('clerk-script');
+            if (!script) return;
+
+            script.addEventListener('load', async function() {
+                if (!window.Clerk) return;
+                await window.Clerk.load();
+                
+                const authButtons = document.getElementById('auth-buttons');
+                const profileSlot = document.getElementById('user-profile-slot');
+                const signInBtn = document.getElementById('sign-in-btn');
+
+                if (window.Clerk.user) {
 window.Clerk.mountUserButton(profileSlot, { appearance: { baseTheme: 'dark' } });
 if (authButtons) authButtons.style.display = 'none';
 } else {
