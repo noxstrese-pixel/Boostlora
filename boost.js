@@ -1,35 +1,33 @@
 /**
- * Boostlora Dashboard Control Engine v16.1
- * Core management layer for tracking layout tabs, cost systems,
- * and routing secure blockchain payloads to API gateways.
+ * Boostlora Dashboard Control Engine v16.2
  */
-console.log("Boostlora Core: Initializing dynamic framework engines...");
+console.log("Boostlora Core: Initializing dashboard systems...");
 
-// Tab View Router Engine (Fixed Scope Validation)
+// Tab View Router Engine (Unblocked Mouse Interactions)
 function switchView(viewName, element) {
-    // Hide all view panels safely
+    // Hide all panels
     document.querySelectorAll('.view-panel').forEach(p => {
         p.classList.remove('active');
     });
     
-    // Remove active glowing styles from all menu option blocks
+    // Clear active highlight styles from all menu blocks
     document.querySelectorAll('.nav-item').forEach(i => {
         i.classList.remove('active');
     });
     
-    // Reveal the chosen workspace window panel
+    // Mount the target workspace module window
     const targetView = document.getElementById(`view-${viewName}`);
     if (targetView) {
         targetView.classList.add('active');
     }
     
-    // Lock active visual parameters onto the clicked button element
+    // Attach current highlight accent onto active menu node
     if (element) {
         element.classList.add('active');
     }
 }
 
-// Dynamically reveals or hides the custom user token textarea box
+// Controls visibility state for custom token text fields
 function toggleTokenInput() {
     const strategyElement = document.getElementById('token-source');
     const tokensWrapper = document.getElementById('custom-tokens-wrapper');
@@ -46,7 +44,7 @@ function toggleTokenInput() {
     }
 }
 
-// Dynamic Cost Calculator Engine for Server Booster Grid
+// Live Cost Calculator for Order Invoicing
 function calculateBoostCost() {
     const strategyElement = document.getElementById('token-source');
     const amountElement = document.getElementById('boost-amount');
@@ -59,9 +57,9 @@ function calculateBoostCost() {
     let totalCost = 0;
 
     if (strategy === 'salta7') {
-        totalCost = amount * 0.18; // Reseller price metric
+        totalCost = amount * 0.18; // Reseller profit tier metric (\$0.18)
     } else if (strategy === 'custom') {
-        totalCost = amount * 0.02; // Captcha fee processing rate
+        totalCost = amount * 0.02; // Custom tokens processing rate (\$0.02)
     }
 
     displayElement.innerText = `$${totalCost.toFixed(2)} USD`;
@@ -119,14 +117,14 @@ async function handleApiAction(event, endpoint) {
     }
 }
 
-// Crypto Invoicing Launcher Engine with Safe Minimum Verification
+// Crypto Invoicing Launcher Engine with Strict Minimum Bound Metrics
 function triggerPayment() {
     const amountElement = document.getElementById('deposit-amount');
     const amount = amountElement ? parseFloat(amountElement.value) : 0;
 
-    // RULE ENFORCEMENT: Enforce the strict \$1.00 minimum boundary limit
+    // Strict validation safety catch limit layer rule
     if (isNaN(amount) || amount < 1.00) {
-        alert("Invoice Generation Failed: The minimum deposit requirement threshold is \$1.00 USD.");
+        alert("Invoice Generation Canceled: The minimum deposit required on Boostlora is \$1.00 USD.");
         return;
     }
 
@@ -139,7 +137,7 @@ function triggerPayment() {
     const userId = window.Clerk.user ? window.Clerk.user.id : "guest_session";
     const userEmail = window.Clerk.user ? window.Clerk.user.primaryEmailAddress.emailAddress : "no_email";
     
-    // Swap out YOUR_CHECKOUT_ID inside your Coinbase Commerce setting panel values
+    // Once you generate your unique Checkout ID key in Coinbase Commerce, drop it here!
     const commerceUrl = `https://coinbase.com{amount}&custom=${userId}&email=${userEmail}`;
     window.open(commerceUrl, '_blank', 'width=500,height=700,status=yes,resizable=yes');
 }
