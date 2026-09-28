@@ -172,15 +172,34 @@
                         <label>Invite Link or Server ID</label>
                         <input type="text" placeholder="https://discord.gg">
                     </div>
-Amount of Boosts
-Execute Boosting Pipeline
+                    <div class="form-group">
+                        <label>Amount of Boosts</label>
+                        <input type="number" value="2" min="1">
+                    </div>
+                    <button type="submit" class="btn-action">Execute Boosting Pipeline</button>
+                </form>
+            </div>
+        </div>
 
+        <!-- VIEW 4: AUTOMATED MEMBER JOINER -->
+        <div id="view-joiner" class="view-panel">
+            <div class="card" style="max-width: 800px;">
+                <h3><i class="fa-solid fa-right-to-bracket"></i> Automated Member Joiner</h3>
+                <form id="joiner-form" onsubmit="handleApiAction(event, '/api/submit')">
+                    <div class="form-group">
+                        <label>Target Invite Code</label>
+                        <input type="text" placeholder="discord.gg/your-code">
+                    </div>
+                    <div class="form-group">
+                        <label>Amount to Join</label>
+                        <input type="number" value="50" step="10">
+                    </div>
+                    <button type="submit" class="btn-action">Inject Automation Workers</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
- Automated Member Joiner
-
-Target Invite Code
-Amount to Join
-Inject Automation Workers
     <script>
         // Tab View Router Engine
         function switchView(viewName) {
@@ -195,14 +214,12 @@ Inject Automation Workers
         async function handleApiAction(event, endpoint) {
             event.preventDefault();
             
-            // Extract text from the active form's textarea or input fields
             const currentForm = event.target;
             const inputData = currentForm.querySelector('textarea, input[type="text"]')?.value || "";
             const amountData = currentForm.querySelector('input[type="number"]')?.value || "";
 
             alert(`Sending execution script signals down directly to your Vercel API backend: ${endpoint}`);
             
-            // This reads your Python backend scripts securely inside the /api/ folder
             try {
                 const response = await fetch(endpoint, {
                     method: 'POST',
