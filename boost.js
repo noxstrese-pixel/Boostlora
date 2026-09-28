@@ -1,13 +1,34 @@
 /**
- * Nox Control System Layer v15.0 - Master Core
+ * Nox Control System Layer v16.0 - Universal Security & Fail-Safe Core
  * Save this file exactly as "boost.js" in the same folder as index.html
  */
 (function() {
-    console.log("Nox Control Core: Loading engine state layers...");
+    console.log("Nox Control Core: Initializing fail-safe configuration engines...");
 
-    const STORAGE_KEY = "NOX_SYSTEM_DATA_V15";
+    const STORAGE_KEY = "NOX_SYSTEM_DATA_V16";
     let STATE = null;
     let txTimer = null;
+
+    // VIRTUALIZED FALLBACK STORAGE MATRIX
+    // Prevents cross-origin runtime exceptions if localStorage is blocked by the browser
+    const StorageDriver = {
+        memoryCache: {},
+        getItem: function(key) {
+            try {
+                return localStorage.getItem(key);
+            } catch (e) {
+                console.warn("Storage Warning: LocalStorage restricted. Utilizing virtualized memory context instead.");
+                return this.memoryCache[key] || null;
+            }
+        },
+        setItem: function(key, value) {
+            try {
+                localStorage.setItem(key, value);
+            } catch (e) {
+                this.memoryCache[key] = String(value);
+            }
+        }
+    };
 
     function loadPersistedState() {
         const fallbackDefault = {
@@ -24,7 +45,7 @@
         };
 
         try {
-            const raw = localStorage.getItem(STORAGE_KEY);
+            const raw = StorageDriver.getItem(STORAGE_KEY);
             if (!raw) return fallbackDefault;
             const parsed = JSON.parse(raw);
             parsed.storefront = fallbackDefault.storefront;
@@ -37,7 +58,7 @@
     }
 
     function saveState() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
+        StorageDriver.setItem(STORAGE_KEY, JSON.stringify(STATE));
     }
 
     function calculateItemPrice(basePrice) {
@@ -53,7 +74,13 @@
     function runEngineBoot() {
         const mount = document.getElementById('app-root');
         if (!mount) {
-            console.error("Mount target #app-root missing.");
+            console.error("Mount target #app-root missing. Retrying via body node fallback...");
+            // Fail-safe wrapper if index.html DOM parsing hasn't fully finished
+            const fallbackMount = document.createElement('div');
+            fallbackMount.id = 'app-root';
+            document.body.appendChild(fallbackMount);
+            STATE = loadPersistedState();
+            renderLayoutRouter(fallbackMount);
             return;
         }
         STATE = loadPersistedState();
@@ -72,12 +99,12 @@
                         
                         <div style="margin-bottom: 16px;">
                             <label style="font-size: 12px; font-weight:600; color: var(--text-muted); display:block; margin-bottom:6px;">Account Username</label>
-                            <input type="text" class="n-input" id="auth-username-field" placeholder="Username..." />
+                            <input type="text" class="n-input" id="auth-username-field" placeholder="Username..." autocomplete="off" />
                         </div>
                         
                         <div style="margin-bottom: 24px;">
                             <label style="font-size: 12px; font-weight:600; color: var(--text-muted); display:block; margin-bottom:6px;">Security Password</label>
-                            <input type="password" class="n-input" id="auth-password-field" placeholder="••••••••" />
+                            <input type="password" class="n-input" id="auth-password-field" placeholder="••••••••" autocomplete="off" />
                         </div>
                         
                         <button class="action-btn" id="auth-submit-btn">Authenticate Session</button>
@@ -169,23 +196,19 @@
                 <div class="results-section">
                     <div class="status-title">Ecosystem Performance Logging</div>
                     <div class="stats-grid">
-                        <div class="grid-item valid"><div class="stat-val">0</div><div class="stat-label">Verified Valid</div></div>
-                        <div class="grid-item warning"><div class="stat-val">0</div><div class="stat-label">Flagged Flag</div></div>
-                        <div class="grid-item invalid"><div class="stat-val">0</div><div class="stat-label">Rejected Bad</div></div>
-                    </div>
-                    <div class="list-container" style="padding:40px; text-align:center; color:var(--text-muted); font-size:13px;">
-                        Awaiting data sequence submission queue...
-                    </div>
-                </div>
-            `;
-        } else if (STATE.activeTab === "booster") {
-            view.innerHTML = `
-                <div class="header-section">
-                    <h2>Server Booster Allocation Framework</h2>
-                    <p class="subtitle">Deploy automated slot structures directly to destination tracking environments.</p>
-                </div>
-                
-                <div style="background: var(--bg-main); border: 1px solid var(--border-color); padding: 18px; border-radius:12px; margin-bottom:20px; display:flex; gap:24px; align-items:center;">
+Use code with caution.
+0Verified Valid
+0Flagged Flag
+0Rejected Bad
+
+
+Awaiting data sequence submission queue...
+
+
+; } else if (STATE.activeTab === "booster") { view.innerHTML = 
+
+Server Booster Allocation Framework
+Deploy automated slot structures directly to destination tracking environments.
 Infrastructure Provider:
 Standard System
 Own Infrastructure ($0.02 Captcha Fee)
@@ -267,6 +290,7 @@ if (txt) txt.innerText = "Awaiting network transaction broadcast...";
 closeBtn.addEventListener('click', dropModal);
 modal.addEventListener('click', (e) => { if (e.target === modal) dropModal(); });
 }
+// Double-layer browser load-guard setup
 if (document.readyState === "complete" || document.readyState === "interactive") {
 runEngineBoot();
 } else {
