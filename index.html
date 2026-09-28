@@ -73,7 +73,7 @@
         
         /* Form Components */
         .form-group { margin-bottom: 16px; }
-        #custom-tokens-wrapper { display: none; } /* Managed dynamically by toggleTokenInput */
+        #custom-tokens-wrapper { display: none; }
         
         label { display: block; font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; }
         input, select, textarea { width: 100%; background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; color: var(--text-main); font-size: 14px; outline: none; transition: border-color 0.2s; }
@@ -152,7 +152,7 @@
                     </div>
                     <div class="form-group">
                         <label>Amount ($ USD)</label>
-                        <input id="deposit-amount" type="number" value="25" min="5">
+                        <input id="deposit-amount" type="number" value="25" min="1" step="1">
                     </div>
                     <button onclick="triggerPayment()" class="btn-action" style="background:#fff; color:#000;">Generate Invoice</button>
                 </div>
@@ -173,3 +173,4 @@
             </div>
         </div>
 
+        <!-- VIEW 3: DISCORD BOOST TOOL -->
