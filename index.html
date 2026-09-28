@@ -1,197 +1,159 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark bg-slate-950 text-slate-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boostlora Central Nexus</title>
-    <style>
-        :root {
-            --bg-main: #090D16;
-            --bg-sidebar: #0F1626;
-            --bg-card: #151D30;
-            --bg-input: #0b1220;
-            --accent-blue: #3B82F6;
-            --accent-hover: #2563EB;
-            --text-main: #F3F4F6;
-            --text-muted: #9CA3AF;
-            --border-color: #1F293D;
-            --color-valid: #10B981;
-            --color-warning: #F59E0B;
-            --color-invalid: #EF4444;
+    <title>BoostLora | Premium Hub</title>
+    
+    <!-- Modern Styling Engine & Icons -->
+    <script src="https://tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cloudflare.com">
+    
+    <!-- Clerk Authentication SDK (Vanilla JS Setup) -->
+    <!-- REPLACE 'your-clerk-publishable-key' with the actual key from ://clerk.com -->
+    <script async crossorigin="anonymous" src="https://jsdelivr.net" 
+            data-clerk-publishable-key="your-clerk-publishable-key" id="clerk-script"></script>
+
+    <script>
+        // Custom Tailwind dark/glow configuration
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            purple: '#8B5CF6',
+                            blue: '#3B82F6',
+                            dark: '#0B0F19'
+                        }
+                    }
+                }
+            }
         }
-
-        * { box-sizing: border-box; }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: var(--bg-main);
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-        }
-
-        #app-root {
-            display: flex;
-            width: 100%;
-            min-height: 100vh;
-        }
-
-        .sidebar {
-            width: 240px;
-            flex: 0 0 240px;
-            background: var(--bg-sidebar);
-            border-right: 1px solid var(--border-color);
-            padding: 24px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .sidebar-brand {
-            font-size: 22px;
-            font-weight: 800;
-            padding: 0 12px 20px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 16px;
-            background: linear-gradient(to right, #60A5FA, #3B82F6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .nav-btn {
-            background: none;
-            border: 0;
-            color: var(--text-muted);
-            padding: 12px;
-            border-radius: 8px;
-            text-align: left;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all .2s;
-            width: 100%;
-            outline: none;
-        }
-
-        .nav-btn.active { background: var(--accent-blue); color: white; }
-        .nav-btn:hover:not(.active) { background: #1E293B; color: var(--text-main); }
-
-        .badge-dev {
-            float: right;
-            font-size: 10px;
-            background: rgba(245,158,11,.2);
-            color: #FBBF24;
-            padding: 2px 6px;
-            border-radius: 4px;
-            text-transform: uppercase;
-        }
-
-        .content-area {
-            flex: 1;
-            padding: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            overflow-y: auto;
-        }
-
-        .dashboard-container {
-            width: 100%;
-            max-width: 750px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 32px;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,.3);
-        }
-
-        h2 { margin: 0 0 8px; font-size: 24px; }
-        p.subtitle { margin: 0; color: var(--text-muted); font-size: 14px; }
-
-        textarea, .n-input {
-            width: 100%;
-            background: var(--bg-main);
-            color: var(--text-main);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 14px;
-            font-size: 14px;
-            outline: none;
-            box-sizing: border-box;
-        }
-        textarea { min-height: 140px; font-family: monospace; resize: vertical; margin-bottom: 15px; }
-        textarea:focus, .n-input:focus { border-color: var(--accent-blue); }
-
-        .action-btn {
-            width: 100%;
-            background: var(--accent-blue);
-            color: white;
-            border: 0;
-            border-radius: 8px;
-            padding: 14px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background .2s;
-        }
-        .action-btn:hover { background: var(--accent-hover); }
-
-        .sidebar-wallet {
-            margin-top: auto;
-            background: var(--bg-main);
-            border: 1px solid var(--border-color);
-            padding: 16px;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .wallet-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700; }
-        .wallet-amount { font-size: 20px; font-weight: 700; color: var(--color-valid); }
-        .wallet-btn { width: 100%; background: var(--accent-blue); color: #fff; font-size: 12px; font-weight: 600; padding: 10px; border: 0; border-radius: 6px; cursor: pointer; }
-        .wallet-btn-logout { background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); width: 100%; font-size: 11px; padding: 6px; border-radius: 6px; cursor: pointer; }
-        .wallet-btn-logout:hover { background: var(--color-invalid); color: #fff; border-color: var(--color-invalid); }
-
-        .n-auth-screen { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 100vh; background: var(--bg-main); }
-        .n-auth-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 40px; max-width: 400px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        
-        .n-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(4, 7, 12, 0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center; z-index: 99999; }
-        .n-modal-box { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 24px; padding: 32px; max-width: 460px; width: 100%; text-align: center; position: relative; }
-        .n-modal-close { position: absolute; top: 20px; right: 20px; background: none; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; }
-        .n-address-container { background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 8px; font-family: monospace; font-size: 12px; padding: 14px; margin: 16px 0; color: var(--text-muted); word-break: break-all; text-align: center; }
-        .n-badge-status { display: inline-flex; align-items: center; gap: 8px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); color: var(--color-warning); padding: 8px 20px; border-radius: 9999px; font-size: 13px; font-weight: 600; }
-        .n-badge-status.confirmed { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: var(--color-valid); }
-        .spinner { width: 14px; height: 14px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .store-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-top: 24px; }
-        .store-card { background: var(--bg-main); border: 1px solid var(--border-color); padding: 16px; border-radius: 10px; display: flex; flex-direction: column; justify-content: space-between; }
-        .store-title { font-size: 14px; font-weight: 700; margin: 0 0 6px 0; color: #fff; }
-        .store-desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; margin: 0 0 12px 0; }
-        .store-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 10px; }
-        .store-price { font-size: 14px; font-weight: 700; color: var(--color-valid); }
-        .store-btn { background: var(--bg-sidebar); border: 1px solid var(--border-color); color: #fff; font-size: 11px; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; }
-        .store-btn:hover { background: var(--accent-blue); border-color: var(--accent-blue); }
-
-        .results-section { margin-top: 28px; border-top: 1px solid var(--border-color); padding-top: 24px; }
-        .status-title { font-size: 14px; font-weight: 600; margin-bottom: 15px; color: var(--text-muted); }
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
-        .grid-item { background: var(--bg-main); border: 1px solid var(--border-color); padding: 14px; border-radius: 8px; text-align: center; }
-        .grid-item.valid { border-top: 4px solid var(--color-valid); }
-        .grid-item.warning { border-top: 4px solid var(--color-warning); }
-        .grid-item.invalid { border-top: 4px solid var(--color-invalid); }
-        .stat-val { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
-        .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
-        .list-container { background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 8px; max-height: 320px; overflow-y: auto; }
-    </style>
+    </script>
 </head>
-<body>
+<body class="min-h-screen flex flex-col font-sans selection:bg-purple-500/30 selection:text-purple-200">
 
-    <!-- Target Node Frame Container Anchor for boost.js to hook into -->
-    <div id="app-root"></div>
+    <!-- Global Glassmorphism Navigation Bar -->
+    <header class="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/70 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-purple-600 to-blue-500 p-2 rounded-xl shadow-lg shadow-purple-500/20">
+                    <i class="fa-solid fa-rocket text-xl text-white"></i>
+                </div>
+                <span class="text-xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">BoostLora</span>
+            </div>
+            
+            <nav class="flex items-center space-x-4">
+                <!-- Clerk UI Anchor Slots -->
+                <div id="auth-buttons" class="hidden">
+                    <button id="sign-in-btn" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-sm font-medium px-4 py-2 rounded-xl transition-all duration-200">Sign In</button>
+                </div>
+                <div id="user-profile-slot"></div>
+            </nav>
+        </div>
+    </header>
 
+    <!-- Main Dynamic Application Layout -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left 2 Columns: Main Actions / Booster Interface -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="relative bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 overflow-hidden">
+                <div class="absolute -top-24 -left-24 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl"></div>
+                <div class="relative">
+                    <h2 class="text-2xl font-bold text-white mb-2">Welcome to your Dashboard</h2>
+                    <p class="text-slate-400 text-sm">Deploy triggers, monitor running pipelines, and utilize your booster infrastructure directly from one panel.</p>
+                </div>
+            </div>
+
+            <!-- Custom Interface Trigger Point for boost.js -->
+            <div class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6">
+                <h3 class="text-lg font-semibold text-white mb-4"><i class="fa-solid fa-sliders text-purple-400 mr-2"></i>Configure Booster Module</h3>
+                <form id="booster-form" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Target Identifier</label>
+                        <input type="text" placeholder="Enter target parameters..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-slate-200">
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white text-sm font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg shadow-purple-600/10 hover:shadow-purple-500/20 flex items-center justify-center space-x-2">
+                        <span>Initialize Execution</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right 1 Column: Crypto Processing & Deposit System -->
+        <div class="space-y-6">
+            <div class="bg-slate-900/50 border border-slate-800/90 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                <div class="absolute -bottom-16 -right-16 w-36 h-36 bg-blue-500/5 rounded-full blur-2xl"></div>
+                
+                <h3 class="text-lg font-bold text-white mb-1"><i class="fa-solid fa-wallet text-blue-400 mr-2"></i>Instant Crypto Deposit</h3>
+                <p class="text-xs text-slate-400 mb-6">Fund your account balance immediately. Secure payments processed instantly on-chain.</p>
+
+                <!-- Supported Currencies Badges Grid -->
+                <div class="grid grid-cols-4 gap-2 mb-6">
+                    <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-center group hover:border-amber-500/40 transition-colors">
+                        <i class="fa-brands fa-btc text-lg text-amber-500 group-hover:scale-110 transition-transform"></i>
+                        <span class="block text-[10px] text-slate-500 font-medium mt-1">BTC</span>
+                    </div>
+                    <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-center group hover:border-slate-400/40 transition-colors">
+                        <i class="fa-solid fa-coins text-lg text-slate-400 group-hover:scale-110 transition-transform"></i>
+                        <span class="block text-[10px] text-slate-500 font-medium mt-1">LTC</span>
+                    </div>
+                    <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-center group hover:border-yellow-500/40 transition-colors">
+                        <i class="fa-solid fa-paw text-lg text-yellow-500 group-hover:scale-110 transition-transform"></i>
+                        <span class="block text-[10px] text-slate-500 font-medium mt-1">DOGE</span>
+                    </div>
+                    <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-center group hover:border-teal-400/40 transition-colors">
+                        <i class="fa-solid fa-circle-nodes text-lg text-teal-400 group-hover:scale-110 transition-transform"></i>
+                        <span class="block text-[10px] text-slate-500 font-medium mt-1">SOL</span>
+                    </div>
+                </div>
+
+                <!-- Interactive Amount Controls -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Deposit Balance ($ USD)</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-3 text-slate-500 font-medium text-sm">$</span>
+                            <input id="deposit-amount" type="number" value="25" min="5" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-4 py-2.5 text-sm font-semibold focus:outline-none focus:border-blue-500 text-slate-200">
+                        </div>
+                    </div>
+                    
+                    <!-- Direct Action Link Trigger to your Hosted Merchant Form -->
+                    <button id="checkout-button" onclick="triggerPayment()" class="w-full bg-slate-100 hover:bg-white text-slate-950 text-sm font-bold py-3 px-4 rounded-xl transition-all duration-100 flex items-center justify-center space-x-2 shadow-lg shadow-white/5">
+                        <i class="fa-solid fa-bolt text-xs"></i>
+                        <span>Generate Payment Invoice</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- App State Management logic (Bridges Auth & Payment UI) -->
     <script src="boost.js"></script>
-</body>
-</html>
+    <script>
+        // Interactive Payment Launcher Configuration
+        function triggerPayment() {
+            const amount = document.getElementById('deposit-amount').value;
+            
+            // SECURITY PRE-CHECK: Ensure the customer is logged in before allowing deposits
+            if (window.Clerk && !window.Clerk.user) {
+                alert("Please sign in to generate a secure deposit wallet credited to your account profile.");
+                window.Clerk.openSignIn();
+                return;
+            }
+
+            const userEmail = window.Clerk.user.primaryEmailAddress.emailAddress;
+            const userId = window.Clerk.user.id;
+
+            // REDIRECT ROUTING: Change this URL to your specific Coinbase Commerce checkout/payment page setup.
+            // Passing query metadata parameters preserves account identities safely down to your backend webhook systems.
+            const commerceUrl = `https://coinbase.com{amount}&custom=${userId}&email=${userEmail}`;
+            
+            // Open payment link elegantly in clean popup window overlay
+            window.open(commerceUrl, '_blank', 'width=500,height=700,status=yes,resizable=yes');
+        }
+
+        // Automatic Clerk Initializer Sequence
+        window.addEventListener('load', async function() {
