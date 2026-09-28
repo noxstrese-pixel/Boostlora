@@ -6,7 +6,7 @@
     <title>BoostLora Hub</title>
     <link rel="stylesheet" href="https://cloudflare.com">
     
-    <!-- Clerk Authentication Engine (Swap out key in your dashboard) -->
+    <!-- Clerk Authentication Engine -->
     <script async crossorigin="anonymous" src="https://jsdelivr.net" 
             data-clerk-publishable-key="your-clerk-publishable-key" id="clerk-script"></script>
 
@@ -22,7 +22,7 @@
             --accent-green: #10b981;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-        body { background-color: var(--bg-base); color: var(--text-main); min-height: 100vh; display: flex; }
+        body { background-color: var(--bg-base); color: var(--text-main); min-height: 100vh; display: flex; overflow-x: hidden; }
 
         /* Sidebar Panel Layout */
         .sidebar {
@@ -34,6 +34,7 @@
             padding: 24px 16px;
             position: fixed;
             height: 100vh;
+            z-index: 100;
         }
         .brand-section { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.2rem; margin-bottom: 32px; }
         .brand-icon { color: var(--accent-blue); }
@@ -48,7 +49,7 @@
         .nav-item i { width: 18px; text-align: center; }
 
         /* Main Workspace Container */
-        .main-content { margin-left: 260px; flex-grow: 1; padding: 32px; display: flex; flex-direction: column; gap: 24px; }
+        .main-content { margin-left: 260px; flex-grow: 1; padding: 32px; display: flex; flex-direction: column; gap: 24px; width: calc(100% - 260px); }
         
         /* Top Utility Navbar */
         .top-navbar {
@@ -58,25 +59,34 @@
         .user-balance { background-color: #16223f; border: 1px solid var(--border-color); font-size: 13px; padding: 8px 14px; border-radius: 8px; display: flex; align-items: center; gap: 6px; }
 
         /* App View Components */
-        .view-panel { display: none; }
+        .view-panel { display: none; width: 100%; }
         .view-panel.active { display: block; }
         
-        .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
-        .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; height: max-content; }
+        /* Fixed Grid Layout Container */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 24px; width: 100%; }
+        @media (min-width: 1024px) {
+            .dashboard-grid { grid-template-columns: 2fr 1fr; }
+        }
+
+        .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; height: max-content; width: 100%; }
         .card h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
         
         /* Form Components */
         .form-group { margin-bottom: 16px; }
+        .hidden-group { display: none; } /* Used for toggling custom token textarea */
+        
         label { display: block; font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; }
         input, select, textarea { width: 100%; background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; color: var(--text-main); font-size: 14px; outline: none; transition: border-color 0.2s; }
         input:focus, select:focus, textarea:focus { border-color: var(--accent-blue); }
-        textarea { resize: vertical; min-height: 120px; font-family: monospace; }
+        textarea { resize: vertical; min-height: 100px; font-family: monospace; }
         
         .btn-action { width: 100%; background-color: var(--accent-blue); color: white; border: none; border-radius: 8px; padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: background 0.2s; }
         .btn-action:hover { background-color: #3b82f6; }
 
         /* Tools Service Grid Layout */
-        .service-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .service-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        @media (min-width: 480px) { .service-grid { grid-template-columns: 1fr 1fr; } }
+        
         .service-item { background: linear-gradient(135deg, #0f1930 0%, #0a1122 100%); border: 1px solid var(--border-color); border-radius: 10px; padding: 20px; text-align: center; }
         .price-tag { color: var(--accent-green); font-weight: 700; margin: 6px 0 16px 0; font-size: 15px; }
 
@@ -92,7 +102,7 @@
     <div class="sidebar">
         <div class="brand-section">
             <i class="fa-solid fa-bolt brand-icon"></i>
-            <span>BoostLora Hub</span>
+            <span>Boostlora Hub</span>
             <span class="status-dot"></span>
         </div>
         <div class="nav-menu">
@@ -156,150 +166,13 @@
                 <form id="checker-form" onsubmit="handleApiAction(event, '/api/items')">
                     <div class="form-group">
                         <label>Input Auth Tokens (One per line)</label>
-                        <textarea placeholder="Paste accounts/tokens here..."></textarea>
+                        <textarea placeholder="Paste accounts/tokens here..." required></textarea>
                     </div>
                     <button type="submit" class="btn-action">Start Verification Scan</button>
                 </form>
             </div>
         </div>
 
-             <!-- VIEW 3: DISCORD BOOST TOOL -->
+        <!-- VIEW 3: DISCORD BOOST TOOL -->
         <div id="view-booster" class="view-panel">
             <div class="card" style="max-width: 800px;">
-                <h3><i class="fa-solid fa-rocket"></i> Server Booster Tool</h3>
-                <form id="booster-form" onsubmit="handleApiAction(event, '/api/booster')">
-                    <div class="form-group">
-                        <label>Invite Link or Server ID</label>
-                        <input type="text" placeholder="https://discord.gg" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Token Source Strategy</label>
-                        <select id="token-source" onchange="calculateBoostCost()">
-                            <option value="salta7">Use Premium Salta7 Tokens ($2.50 per Boost)</option>
-                            <option value="custom">Provide My Own Tokens ($0.02 Captcha Fee per Boost)</option>
-                        </select>
-                    </div>
-
-                                      <div class="form-group">
-                        <label>Amount of Boosts</label>
-                        <input id="boost-amount" type="number" value="2" min="1" oninput="calculateBoostCost()" required>
-                    </div>
-
-                    <div class="form-group" style="background: rgba(37, 99, 235, 0.1); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; margin-bottom: 20px;">
-                        <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Estimated Cost:</span>
-                        <span id="boost-cost-display" style="font-size: 16px; font-weight: 700; color: var(--accent-green); float: right;">$5.00 USD</span>
-                    </div>
-
-                    <button type="submit" class="btn-action">Execute Boosting Pipeline</button>
-                </form>
-            </div>
-        </div>
-
-                    </div>
-                    <div class="form-group">
-                        <label>Amount of Boosts</label>
-                        <input type="number" value="2" min="1">
-                    </div>
-                    <button type="submit" class="btn-action">Execute Boosting Pipeline</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- VIEW 4: AUTOMATED MEMBER JOINER -->
-        <div id="view-joiner" class="view-panel">
-            <div class="card" style="max-width: 800px;">
-                <h3><i class="fa-solid fa-right-to-bracket"></i> Automated Member Joiner</h3>
-                <form id="joiner-form" onsubmit="handleApiAction(event, '/api/submit')">
-                    <div class="form-group">
-                        <label>Target Invite Code</label>
-                        <input type="text" placeholder="discord.gg/your-code">
-                    </div>
-                    <div class="form-group">
-                        <label>Amount to Join</label>
-                        <input type="number" value="50" step="10">
-                    </div>
-                    <button type="submit" class="btn-action">Inject Automation Workers</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Tab View Router Engine
-        function switchView(viewName) {
-            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            
-            document.getElementById(`view-${viewName}`).classList.add('active');
-            event.currentTarget.classList.add('active');
-        }
-
-        // Clean Vercel Backend API Connection Handler
-        async function handleApiAction(event, endpoint) {
-            event.preventDefault();
-            
-            const currentForm = event.target;
-            const inputData = currentForm.querySelector('textarea, input[type="text"]')?.value || "";
-            const amountData = currentForm.querySelector('input[type="number"]')?.value || "";
-
-            alert(`Sending execution script signals down directly to your Vercel API backend: ${endpoint}`);
-            
-            try {
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        input: inputData,
-                        amount: amountData,
-                        trigger: "active" 
-                    })
-                });
-                const data = await response.json();
-                console.log("Backend response received: ", data);
-                alert("Task sent successfully to backend!");
-            } catch (err) {
-                console.error("API Pipeline Error: ", err);
-                alert("Failed to communicate with API backend.");
-            }
-        }
-
-        // Crypto Invoicing Launcher Engine
-        function triggerPayment() {
-            const amount = document.getElementById('deposit-amount').value;
-            if (window.Clerk && !window.Clerk.user) {
-                alert("Please connect an account profile to log this invoice securely.");
-                window.Clerk.openSignIn();
-                return;
-            }
-            const userId = window.Clerk.user.id;
-            const userEmail = window.Clerk.user.primaryEmailAddress.emailAddress;
-            
-            // Swap YOUR_CHECKOUT_ID out inside your Coinbase Commerce setting panel values
-            const commerceUrl = `https://coinbase.com{amount}&custom=${userId}&email=${userEmail}`;
-            window.open(commerceUrl, '_blank', 'width=500,height=700,status=yes,resizable=yes');
-        }
-
-        // Authentication Loader Initialization Loop
-        window.addEventListener('load', async function() {
-            const script = document.getElementById('clerk-script');
-            script.addEventListener('load', async function() {
-                if (!window.Clerk) return;
-                await window.Clerk.load();
-                
-                const authButtons = document.getElementById('auth-buttons');
-                const profileSlot = document.getElementById('user-profile-slot');
-                const signInBtn = document.getElementById('sign-in-btn');
-
-                if (window.Clerk.user) {
-                    window.Clerk.mountUserButton(profileSlot, { appearance: { baseTheme: 'dark' } });
-                    authButtons.style.display = 'none';
-                } else {
-                    authButtons.style.display = 'block';
-                    signInBtn.addEventListener('click', () => { window.Clerk.openSignIn(); });
-                }
-            });
-        });
-    </script>
-</body>
-</html>
