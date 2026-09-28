@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" class="dark bg-slate-950 text-slate-100">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BoostLora | Premium Hub</title>
     
-    <!-- Modern Styling Engine & Icons -->
-    <script src="https://tailwindcss.com"></script>
+    <!-- Core Icons -->
     <link rel="stylesheet" href="https://cloudflare.com">
     
     <!-- Clerk Authentication SDK (Vanilla JS Setup) -->
@@ -14,149 +13,375 @@
     <script async crossorigin="anonymous" src="https://jsdelivr.net" 
             data-clerk-publishable-key="your-clerk-publishable-key" id="clerk-script"></script>
 
-    <script>
-        // Custom Tailwind dark/glow configuration
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            purple: '#8B5CF6',
-                            blue: '#3B82F6',
-                            dark: '#0B0F19'
-                        }
-                    }
-                }
+    <!-- Fail-Safe Premium Dark Dashboard Styling -->
+    <style>
+        :root {
+            --bg-base: #060b13;
+            --bg-card: #0d1527;
+            --bg-input: #050811;
+            --border-color: #1a2642;
+            --text-main: #f8fafc;
+            --text-muted: #64748b;
+            --accent-blue: #2563eb;
+            --accent-hover: #3b82f6;
+            --accent-green: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-h: 100vh;
+            padding: 16px;
+        }
+
+        /* Top Navigation Header bar matches salta7 */
+        header {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .logo-icon {
+            color: var(--accent-blue);
+        }
+
+        /* Quick Action Sub-Nav Buttons */
+        .nav-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn-nav {
+            background-color: #16223f;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-nav:hover {
+            background-color: var(--border-color);
+        }
+
+        .btn-deposit {
+            background-color: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: var(--accent-green);
+        }
+
+        .btn-deposit:hover {
+            background-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .status-badge {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--accent-green);
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        /* Responsive Dashboard Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 2fr 1fr;
             }
         }
-    </script>
-</head>
-<body class="min-h-screen flex flex-col font-sans selection:bg-purple-500/30 selection:text-purple-200">
 
-    <!-- Global Glassmorphism Navigation Bar -->
-    <header class="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/70 backdrop-blur-xl">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="bg-gradient-to-tr from-purple-600 to-blue-500 p-2 rounded-xl shadow-lg shadow-purple-500/20">
-                    <i class="fa-solid fa-rocket text-xl text-white"></i>
-                </div>
-                <span class="text-xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">BoostLora</span>
-            </div>
+        /* Cards Styling matching the visual style */
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        /* Product/Booster Options Grid */
+        .booster-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        @media (min-width: 480px) {
+            .booster-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .product-item {
+            background: linear-gradient(135deg, #0f1930 0%, #0a1122 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .product-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .product-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .product-meta span {
+            color: var(--accent-green);
+        }
+
+        /* Inputs & Interactive Buttons */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--text-main);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--accent-blue);
+        }
+
+        .btn-primary {
+            width: 100%;
+            background-color: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        /* Crypto Payment Grid Layout */
+        .crypto-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .crypto-badge {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 12px 4px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .crypto-badge i {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .crypto-badge.btc:hover { border-color: #f59e0b; color: #f59e0b; }
+        .crypto-badge.ltc:hover { border-color: #cbd5e1; color: #cbd5e1; }
+        .crypto-badge.doge:hover { border-color: #eab308; color: #eab308; }
+        .crypto-badge.sol:hover { border-color: #14b8a6; color: #14b8a6; }
+
+        /* Statistics Footer Strip mimicking salta7 values */
+        .stats-footer {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            padding-top: 24px;
+        }
+
+        .stat-val {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .stat-lbl {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Navigation Bar Wrapper -->
+    <header>
+        <div class="logo-area">
+            <i class="fa-solid fa-bolt logo-icon"></i>
+            <span>BoostLora Hub</span>
+            <span class="status-badge">• Online</span>
+        </div>
+        
+        <div class="nav-actions">
+            <!-- User Balance Indicator Box -->
+            <div class="btn-nav"><i class="fa-solid fa-wallet"></i> 0 USD</div>
+            <div class="btn-nav btn-deposit"><i class="fa-solid fa-plus"></i> Deposit</div>
             
-            <nav class="flex items-center space-x-4">
-                <!-- Clerk UI Anchor Slots -->
-                <div id="auth-buttons" class="hidden">
-                    <button id="sign-in-btn" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-sm font-medium px-4 py-2 rounded-xl transition-all duration-200">Sign In</button>
-                </div>
-                <div id="user-profile-slot"></div>
-            </nav>
+            <!-- Auth Anchors controlled by script below -->
+            <div id="auth-buttons">
+                <button id="sign-in-btn" class="btn-nav"><i class="fa-solid fa-user"></i> Connect</button>
+            </div>
+            <div id="user-profile-slot"></div>
         </div>
     </header>
 
-    <!-- Main Dynamic Application Layout -->
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Two-Column Layout Grid -->
+    <div class="dashboard-grid">
         
-        <!-- Left 2 Columns: Main Actions / Booster Interface -->
-        <div class="lg:col-span-2 space-y-6">
-            <div class="relative bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 overflow-hidden">
-                <div class="absolute -top-24 -left-24 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl"></div>
-                <div class="relative">
-                    <h2 class="text-2xl font-bold text-white mb-2">Welcome to your Dashboard</h2>
-                    <p class="text-slate-400 text-sm">Deploy triggers, monitor running pipelines, and utilize your booster infrastructure directly from one panel.</p>
-                </div>
-            </div>
-
-            <!-- Custom Interface Trigger Point for boost.js -->
-            <div class="bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6">
-                <h3 class="text-lg font-semibold text-white mb-4"><i class="fa-solid fa-sliders text-purple-400 mr-2"></i>Configure Booster Module</h3>
-                <form id="booster-form" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Target Identifier</label>
-                        <input type="text" placeholder="Enter target parameters..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-slate-200">
-                    </div>
-                    <button type="submit" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white text-sm font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg shadow-purple-600/10 hover:shadow-purple-500/20 flex items-center justify-center space-x-2">
-                        <span>Initialize Execution</span>
-                        <i class="fa-solid fa-arrow-right text-xs"></i>
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Right 1 Column: Crypto Processing & Deposit System -->
-        <div class="space-y-6">
-            <div class="bg-slate-900/50 border border-slate-800/90 rounded-2xl p-6 shadow-xl relative overflow-hidden">
-                <div class="absolute -bottom-16 -right-16 w-36 h-36 bg-blue-500/5 rounded-full blur-2xl"></div>
+        <!-- Left Side Dashboard Configuration -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="card">
+                <div class="card-title">Welcome to your Operations Control Panel</div>
+                <div class="card-subtitle">Deploy pipelines, configure target objects, and inject assets directly into running processes safely.</div>
                 
-                <h3 class="text-lg font-bold text-white mb-1"><i class="fa-solid fa-wallet text-blue-400 mr-2"></i>Instant Crypto Deposit</h3>
-                <p class="text-xs text-slate-400 mb-6">Fund your account balance immediately. Secure payments processed instantly on-chain.</p>
-
-                <!-- Supported Currencies Badges Grid -->
-                <div class="grid grid-cols-4 gap-2 mb-6">
-                    <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-center group hover:border-amber-500/40 transition-colors">
-                        <i class="fa-brands fa-btc text-lg text-amber-500 group-hover:scale-110 transition-transform"></i>
-                        <span class="block text-[10px] text-slate-500 font-medium mt-1">BTC</span>
+                <form id="booster-form">
+                    <div class="form-group">
+                        <label>Target Entry Identifier</label>
+                        <input type="text" placeholder="Enter target string parameters...">
                     </div>
-                    <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-center group hover:border-slate-400/40 transition-colors">
-                        <i class="fa-solid fa-coins text-lg text-slate-400 group-hover:scale-110 transition-transform"></i>
-                        <span class="block text-[10px] text-slate-500 font-medium mt-1">LTC</span>
-                    </div>
-                    <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-center group hover:border-yellow-500/40 transition-colors">
-                        <i class="fa-solid fa-paw text-lg text-yellow-500 group-hover:scale-110 transition-transform"></i>
-                        <span class="block text-[10px] text-slate-500 font-medium mt-1">DOGE</span>
-                    </div>
-                    <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-center group hover:border-teal-400/40 transition-colors">
-                        <i class="fa-solid fa-circle-nodes text-lg text-teal-400 group-hover:scale-110 transition-transform"></i>
-                        <span class="block text-[10px] text-slate-500 font-medium mt-1">SOL</span>
-                    </div>
-                </div>
+                    <button type="submit" class="btn-primary">
+                        <span>Initialize Execution Modules</span>
+Active Booster Modules
+Select an automated worker routine from your running nodes list below.
+Standard Module (FA)
+0.04 USD / Active
+Deploy Automation
 
-                <!-- Interactive Amount Controls -->
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Deposit Balance ($ USD)</label>
-                        <div class="relative">
-                            <span class="absolute left-4 top-3 text-slate-500 font-medium text-sm">$</span>
-                            <input id="deposit-amount" type="number" value="25" min="5" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-4 py-2.5 text-sm font-semibold focus:outline-none focus:border-blue-500 text-slate-200">
-                        </div>
-                    </div>
-                    
-                    <!-- Direct Action Link Trigger to your Hosted Merchant Form -->
-                    <button id="checkout-button" onclick="triggerPayment()" class="w-full bg-slate-100 hover:bg-white text-slate-950 text-sm font-bold py-3 px-4 rounded-xl transition-all duration-100 flex items-center justify-center space-x-2 shadow-lg shadow-white/5">
-                        <i class="fa-solid fa-bolt text-xs"></i>
-                        <span>Generate Payment Invoice</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </main>
 
-    <!-- App State Management logic (Bridges Auth & Payment UI) -->
-    <script src="boost.js"></script>
-    <script>
-        // Interactive Payment Launcher Configuration
-        function triggerPayment() {
-            const amount = document.getElementById('deposit-amount').value;
-            
-            // SECURITY PRE-CHECK: Ensure the customer is logged in before allowing deposits
-            if (window.Clerk && !window.Clerk.user) {
-                alert("Please sign in to generate a secure deposit wallet credited to your account profile.");
-                window.Clerk.openSignIn();
-                return;
-            }
+Premium Module (Aged)
+0.07 USD / Active
+Deploy Automation
 
-            const userEmail = window.Clerk.user.primaryEmailAddress.emailAddress;
-            const userId = window.Clerk.user.id;
 
-            // REDIRECT ROUTING: Change this URL to your specific Coinbase Commerce checkout/payment page setup.
-            // Passing query metadata parameters preserves account identities safely down to your backend webhook systems.
-            const commerceUrl = `https://coinbase.com{amount}&custom=${userId}&email=${userEmail}`;
-            
-            // Open payment link elegantly in clean popup window overlay
-            window.open(commerceUrl, '_blank', 'width=500,height=700,status=yes,resizable=yes');
-        }
 
-        // Automatic Clerk Initializer Sequence
-        window.addEventListener('load', async function() {
+ Account Refill
+Top up your balance profile. All assets settle directly inside secure automated vaults.
+BTC
+LTC
+DOGE
+SOL
+Deposit Load Target Amount ($ USD)
+
+Generate Secure Invoice
+
+
+511,686
+Tasks Handled
+
+
+1,168
+Global Clients
+
+
+2,995,344
+Successful Injections
+
+function triggerPayment() {
+const amount = document.getElementById('deposit-amount').value;
+if (window.Clerk && !window.Clerk.user) {
+alert("Please log in first to safely assign crypto keys directly to your account profile ID block.");
+window.Clerk.openSignIn();
+return;
+}
+const userEmail = window.Clerk.user.primaryEmailAddress.emailAddress;
+const userId = window.Clerk.user.id;
+// Swap YOUR_CHECKOUT_ID out with your Coinbase Commerce setting key dashboard values
+const commerceUrl = https://coinbase.com{amount}&custom=${userId}&email=${userEmail};
+window.open(commerceUrl, '_blank', 'width=500,height=700,status=yes,resizable=yes');
+}
+window.addEventListener('load', async function() {
 const script = document.getElementById('clerk-script');
 script.addEventListener('load', async function() {
 if (!window.Clerk) return;
@@ -165,18 +390,11 @@ const authButtons = document.getElementById('auth-buttons');
 const profileSlot = document.getElementById('user-profile-slot');
 const signInBtn = document.getElementById('sign-in-btn');
 if (window.Clerk.user) {
-// Inject Clerk's custom profile settings popup module smoothly
-window.Clerk.mountUserButton(profileSlot, {
-appearance: {
-baseTheme: 'dark'
-}
-});
-authButtons.classList.add('hidden');
+window.Clerk.mountUserButton(profileSlot, { appearance: { baseTheme: 'dark' } });
+authButtons.style.display = 'none';
 } else {
-authButtons.classList.remove('hidden');
-signInBtn.addEventListener('click', () => {
-window.Clerk.openSignIn();
-});
+authButtons.style.display = 'block';
+signInBtn.addEventListener('click', () => { window.Clerk.openSignIn(); });
 }
 });
 });
