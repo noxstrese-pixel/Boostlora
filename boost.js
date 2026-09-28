@@ -126,4 +126,92 @@
                     <div class="c-status" id="lbl-payment-state">
                         <span id="lbl-payment-text">Awaiting Mempool Broadcast...</span>
                     </div>
-                    
+Cancel Billing Request
+
+
+`;
+// Render Application Sidebar Elements Array Lists
+const menuContainer = document.getElementById('sidebar-menu-list');
+// Add dynamic main store tab option control header entry link
+const storeLink = document.createElement('div');
+storeLink.className = "p-menu-item active";
+storeLink.innerHTML = <span>🏪</span> Store Marketplace;
+storeLink.addEventListener('click', () => switchView('store', storeLink));
+menuContainer.appendChild(storeLink);
+PLATFORM_DATABASE.tools.forEach(tool => {
+const item = document.createElement('div');
+item.className = "p-menu-item";
+item.innerHTML = <span>${tool.icon}</span> ${tool.name};
+if(tool.status === 'WIP') { item.innerHTML += <span class="wip-badge">WIP</span>; }
+item.addEventListener('click', () => switchView(tool.id, item));
+menuContainer.appendChild(item);
+});
+// Interface Navigation Router Switch Logic Matrix Mapping
+function switchView(viewId, elementClicked) {
+document.querySelectorAll('.p-menu-item').forEach(el => el.classList.remove('active'));
+elementClicked.classList.add('active');
+const title = document.getElementById('lbl-workspace-title');
+const panel = document.getElementById('workspace-view-panel');
+panel.innerHTML = "";
+if(viewId === 'store') {
+title.innerText = "Platform Storefront";
+panel.innerHTML = <div class="store-grid" id="store-catalog-target"></div>;
+renderStoreCatalog();
+} else if(viewId === 'booster') {
+title.innerText = "Server Booster Engine";
+panel.innerHTML = <div class="tool-box-wrapper"> <div class="input-box"><label class="input-label">Invite Link</label><input type="text" class="input-ctrl" id="b-invite" placeholder="discord.gg/abc"></div> <div class="input-box"><label class="input-label">Quantity</label><input type="number" class="input-ctrl" id="b-count" value="2"></div> <button class="action-btn" id="b-submit">Initialize Stock Boost Pipeline</button> </div>;
+document.getElementById('b-submit').addEventListener('click', () => alert("Connecting booster task parameters..."));
+} else {
+title.innerText = ${viewId.toUpperCase()} Workspace;
+panel.innerHTML = <div style="background:#0f172a; border:1px dashed #1e293b; padding:40px; text-align:center; border-radius:12px; color:#4b5563; font-size:14px;">Module view layer structure slot ready for custom script implementation blocks.</div>;
+}
+}
+// Render Dynamic Catalog Storefront Product Cards Layout
+function renderStoreCatalog() {
+const target = document.getElementById('store-catalog-target');
+if(!target) return;
+PLATFORM_DATABASE.storefront.forEach(prod => {
+const card = document.createElement('div');
+card.className = "store-card";
+card.innerHTML = <div> <div class="store-tag">${prod.type}</div> <h4 class="store-title">${prod.title}</h4> <p class="store-desc">${prod.description}</p> </div> <div class="store-footer"> <span class="store-price">$${prod.price.toFixed(2)} <span style="font-size:11px; color:#4b5563; font-weight:normal;">/ unit</span></span> <button class="store-btn" data-id="${prod.id}">Purchase</button> </div>;
+target.appendChild(card);
+});
+}
+// Blockchain Transaction Mempool Monitoring Simulation Engine
+document.getElementById('btn-open-deposit').addEventListener('click', () => {
+const modal = document.getElementById('p-payment-modal');
+const stateText = document.getElementById('lbl-payment-text');
+const statePill = document.getElementById('lbl-payment-state');
+modal.style.display = "flex";
+statePill.className = "c-status";
+stateText.innerText = "Awaiting Blockchain Network Broadcast...";
+// Simulation Step 1: Detect transaction inside decentralized nodes
+setTimeout(() => {
+if(modal.style.display === 'flex') {
+stateText.innerText = "Mempool Unconfirmed Hash Detected: Confirming (0/1)...";
+}
+}, 4000);
+// Simulation Step 2: Confirm block execution ledger write and dispatch balance tokens
+setTimeout(() => {
+if(modal.style.display === 'flex') {
+statePill.className = "c-status confirmed";
+stateText.innerText = "Ledger Confirmed! Credit Balance Synchronized.";
+PLATFORM_DATABASE.user.balance += 10.00;
+document.getElementById('lbl-sidebar-bal').innerText = $${PLATFORM_DATABASE.user.balance.toFixed(2)};
+setTimeout(() => { modal.style.display = "none"; }, 1500);
+}
+}, 9500);
+});
+document.getElementById('btn-close-payment').addEventListener('click', () => {
+document.getElementById('p-payment-modal').style.display = "none";
+});
+// Initialize First View State Layout Content Card Rendering Automatically
+switchView('store', storeLink);
+return true;
+}
+if (!renderPlatformLayout()) {
+window.addEventListener('DOMContentLoaded', renderPlatformLayout);
+setTimeout(renderPlatformLayout, 400);
+setTimeout(renderPlatformLayout, 2500);
+}
+})();
