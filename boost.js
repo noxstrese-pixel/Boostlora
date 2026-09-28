@@ -1,10 +1,11 @@
 /**
- * Boostlora Dashboard Control Engine v16.0
+ * Boostlora Dashboard Control Engine v16.1
+ * Core management layer for tracking layout tabs, cost systems,
+ * and routing secure blockchain payloads to API gateways.
  */
 console.log("Boostlora Core: Initializing dynamic framework engines...");
 
-// Tab View Router Engine
-// Tab View Router Engine (Fixed Event-Handling Protocol)
+// Tab View Router Engine (Fixed Scope Validation)
 function switchView(viewName, element) {
     // Hide all view panels safely
     document.querySelectorAll('.view-panel').forEach(p => {
@@ -16,20 +17,27 @@ function switchView(viewName, element) {
         i.classList.remove('active');
     });
     
-    // Reveal the chosen workspace window
+    // Reveal the chosen workspace window panel
     const targetView = document.getElementById(`view-${viewName}`);
     if (targetView) {
         targetView.classList.add('active');
     }
     
-    // Apply the active glow indicator directly onto the clicked tab element
+    // Lock active visual parameters onto the clicked button element
     if (element) {
         element.classList.add('active');
-    } else if (window.event && window.event.currentTarget) {
-        window.event.currentTarget.classList.add('active');
     }
 }
-    if (strategy === 'custom') {
+
+// Dynamically reveals or hides the custom user token textarea box
+function toggleTokenInput() {
+    const strategyElement = document.getElementById('token-source');
+    const tokensWrapper = document.getElementById('custom-tokens-wrapper');
+    const tokensField = document.getElementById('custom-tokens-field');
+    
+    if (!strategyElement || !tokensWrapper || !tokensField) return;
+
+    if (strategyElement.value === 'custom') {
         tokensWrapper.style.display = 'block';
         tokensField.setAttribute('required', 'true');
     } else {
@@ -51,9 +59,9 @@ function calculateBoostCost() {
     let totalCost = 0;
 
     if (strategy === 'salta7') {
-        totalCost = amount * 2.50; // White-labeled premium price marker
+        totalCost = amount * 0.18; // Reseller price metric
     } else if (strategy === 'custom') {
-        totalCost = amount * 0.02; // Captcha network processing fee rate
+        totalCost = amount * 0.02; // Captcha fee processing rate
     }
 
     displayElement.innerText = `$${totalCost.toFixed(2)} USD`;
@@ -87,7 +95,7 @@ async function handleApiAction(event, endpoint) {
                 input: inputData,
                 amount: amountData,
                 strategy: strategyData,
-                custom_tokens: customTokensData, // Safely forwards their tokens to your api
+                custom_tokens: customTokensData,
                 trigger: "active" 
             })
         });
@@ -111,10 +119,16 @@ async function handleApiAction(event, endpoint) {
     }
 }
 
-// Crypto Invoicing Launcher Engine
+// Crypto Invoicing Launcher Engine with Safe Minimum Verification
 function triggerPayment() {
     const amountElement = document.getElementById('deposit-amount');
-    const amount = amountElement ? amountElement.value : "25";
+    const amount = amountElement ? parseFloat(amountElement.value) : 0;
+
+    // RULE ENFORCEMENT: Enforce the strict \$1.00 minimum boundary limit
+    if (isNaN(amount) || amount < 1.00) {
+        alert("Invoice Generation Failed: The minimum deposit requirement threshold is \$1.00 USD.");
+        return;
+    }
 
     if (window.Clerk && !window.Clerk.user) {
         alert("Please connect an account profile to log this invoice securely.");
@@ -122,9 +136,10 @@ function triggerPayment() {
         return;
     }
     
-    const userId = window.Clerk.user.id;
-    const userEmail = window.Clerk.user.primaryEmailAddress.emailAddress;
+    const userId = window.Clerk.user ? window.Clerk.user.id : "guest_session";
+    const userEmail = window.Clerk.user ? window.Clerk.user.primaryEmailAddress.emailAddress : "no_email";
     
+    // Swap out YOUR_CHECKOUT_ID inside your Coinbase Commerce setting panel values
     const commerceUrl = `https://coinbase.com{amount}&custom=${userId}&email=${userEmail}`;
     window.open(commerceUrl, '_blank', 'width=500,height=700,status=yes,resizable=yes');
 }
