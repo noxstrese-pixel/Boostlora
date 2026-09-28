@@ -157,3 +157,26 @@
 
         // Automatic Clerk Initializer Sequence
         window.addEventListener('load', async function() {
+const script = document.getElementById('clerk-script');
+script.addEventListener('load', async function() {
+if (!window.Clerk) return;
+await window.Clerk.load();
+const authButtons = document.getElementById('auth-buttons');
+const profileSlot = document.getElementById('user-profile-slot');
+const signInBtn = document.getElementById('sign-in-btn');
+if (window.Clerk.user) {
+// Inject Clerk's custom profile settings popup module smoothly
+window.Clerk.mountUserButton(profileSlot, {
+appearance: {
+baseTheme: 'dark'
+}
+});
+authButtons.classList.add('hidden');
+} else {
+authButtons.classList.remove('hidden');
+signInBtn.addEventListener('click', () => {
+window.Clerk.openSignIn();
+});
+}
+});
+});
