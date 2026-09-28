@@ -362,3 +362,23 @@
         }
 
         // Clerk Auth Manager Initialization Loop
+window.addEventListener('load', async function() {
+const script = document.getElementById('clerk-script');
+if (!script) return;
+script.addEventListener('load', async function() {
+if (!window.Clerk) return;
+await window.Clerk.load();
+const authButtons = document.getElementById('auth-buttons');
+const profileSlot = document.getElementById('user-profile-slot');
+const signInBtn = document.getElementById('sign-in-btn');
+if (window.Clerk.user) {
+window.Clerk.mountUserButton(profileSlot, { appearance: { baseTheme: 'dark' } });
+if (authButtons) authButtons.style.display = 'none';
+} else {
+if (authButtons) authButtons.style.display = 'block';
+if (signInBtn) {
+signInBtn.addEventListener('click', () => { window.Clerk.openSignIn(); });
+}
+}
+});
+});
