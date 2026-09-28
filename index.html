@@ -45,7 +45,7 @@
             display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px;
             color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s;
         }
-        .nav-item:hover, .nav-item.active { background-color: #111a30; color: var(--text-main); }
+        .nav-item:hover, .nav-item.active { background-color: #111a30; color: var(--text-main); border-left: 3px solid var(--accent-blue); }
         .nav-item i { width: 18px; text-align: center; }
 
         /* Main Workspace Container */
@@ -73,7 +73,7 @@
         
         /* Form Components */
         .form-group { margin-bottom: 16px; }
-        #custom-tokens-wrapper { display: none; }
+        #custom-tokens-wrapper { display: none; margin-bottom: 16px; }
         
         label { display: block; font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; }
         input, select, textarea { width: 100%; background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; color: var(--text-main); font-size: 14px; outline: none; transition: border-color 0.2s; pointer-events: auto !important; }
@@ -106,10 +106,10 @@
             <span class="status-dot"></span>
         </div>
         <div class="nav-menu">
-            <div class="nav-item active" onclick="switchView('dashboard', this)"><i class="fa-solid fa-chart-pie"></i>Dashboard</div>
-            <div class="nav-item" onclick="switchView('checker', this)"><i class="fa-solid fa-shield-halved"></i>Token Checker</div>
-            <div class="nav-item" onclick="switchView('booster', this)"><i class="fa-solid fa-rocket"></i>Boost Tool</div>
-            <div class="nav-item" onclick="switchView('joiner', this)"><i class="fa-solid fa-right-to-bracket"></i>Server Joiner</div>
+            <div id="tab-dashboard" class="nav-item active" onclick="switchView('dashboard', this)"><i class="fa-solid fa-chart-pie"></i>Dashboard</div>
+            <div id="tab-checker" class="nav-item" onclick="switchView('checker', this)"><i class="fa-solid fa-shield-halved"></i>Token Checker</div>
+            <div id="tab-booster" class="nav-item" onclick="switchView('booster', this)"><i class="fa-solid fa-rocket"></i>Boost Tool</div>
+            <div id="tab-joiner" class="nav-item" onclick="switchView('joiner', this)"><i class="fa-solid fa-right-to-bracket"></i>Server Joiner</div>
         </div>
     </div>
 
@@ -118,7 +118,7 @@
         <div class="top-navbar">
             <div class="user-balance"><i class="fa-solid fa-wallet"></i> 0.00 USD</div>
             <div id="auth-buttons">
-                <button id="sign-in-btn" class="nav-item" style="padding: 8px 14px; background: #16223f;"><i class="fa-solid fa-user"></i>Connect</button>
+                <button id="sign-in-btn" class="nav-item" style="padding: 8px 14px; background: #16223f; border: none; cursor: pointer;"><i class="fa-solid fa-user"></i>Connect</button>
             </div>
             <div id="user-profile-slot"></div>
         </div>
@@ -132,12 +132,12 @@
                         <div class="service-item">
                             <h4>Discord Boost Module</h4>
                             <div class="price-tag">$0.18 / boost</div>
-                            <button class="btn-action" style="padding: 8px;" onclick="switchView('booster', document.querySelectorAll('.nav-item')[2])">Open Tool</button>
+                            <button class="btn-action" style="padding: 8px;" onclick="navigateToTab('booster')">Open Tool</button>
                         </div>
                         <div class="service-item">
                             <h4>Automated Server Joiner</h4>
                             <div class="price-tag">$0.05 / join</div>
-                            <button class="btn-action" style="padding: 8px;" onclick="switchView('joiner', document.querySelectorAll('.nav-item')[3])">Open Tool</button>
+                            <button class="btn-action" style="padding: 8px;" onclick="navigateToTab('joiner')">Open Tool</button>
                         </div>
                     </div>
                 </div>
@@ -152,8 +152,7 @@
                     </div>
                     <div class="form-group">
                         <label>Amount ($ USD)</label>
-                        <!-- Ensured min value is exactly 1 and interactive values are unblocked -->
-                        <input id="deposit-amount" type="number" value="25" min="1" step="1" style="position: relative; z-index: 1000; pointer-events: auto;">
+                        <input id="deposit-amount" type="number" value="25" min="1" step="1">
                     </div>
                     <button onclick="triggerPayment()" class="btn-action" style="background:#fff; color:#000;">Generate Invoice</button>
                 </div>
@@ -169,3 +168,137 @@
                         <label>Input Auth Tokens (One per line)</label>
                         <textarea placeholder="Paste accounts/tokens here..." required></textarea>
                     </div>
+                    <button type="submit" class="btn-action">Start Verification Scan</button>
+                </form>
+            console.log("Boostlora Core: Operational engine loaded.");
+// Tab View Router Engine (100% Fail-Safe)
+function switchView(viewName, element) {
+// Hide all view panels safely
+document.querySelectorAll('.view-panel').forEach(p => {
+p.classList.remove('active');
+});
+// Remove active highlighting from sidebar links
+document.querySelectorAll('.nav-item').forEach(i => {
+i.classList.remove('active');
+});
+// Reveal target section
+const targetView = document.getElementById(view-${viewName});
+if (targetView) {
+targetView.classList.add('active');
+}
+// Apply highlight style
+if (element) {
+element.classList.add('active');
+}
+}
+// Bridge helper for shortcut links inside the cards
+function navigateToTab(tabName) {
+const sidebarBtn = document.getElementById(tab-${tabName});
+switchView(tabName, sidebarBtn);
+}
+// Reveals or hides the custom user token text area
+function toggleTokenInput() {
+const strategy = document.getElementById('token-source').value;
+const wrapper = document.getElementById('custom-tokens-wrapper');
+const field = document.getElementById('custom-tokens-field');
+if (strategy === 'custom') {
+wrapper.style.display = 'block';
+field.setAttribute('required', 'true');
+} else {
+wrapper.style.display = 'none';
+field.removeAttribute('required');
+}
+}
+// Dynamic Cost Calculator
+function calculateBoostCost() {
+const strategy = document.getElementById('token-source').value;
+const amount = parseInt(document.getElementById('boost-amount').value) || 0;
+let totalCost = 0;
+if (strategy === 'salta7') {
+totalCost = amount * 0.18;
+} else if (strategy === 'custom') {
+totalCost = amount * 0.02;
+}
+document.getElementById('boost-cost-display').innerText = $${totalCost.toFixed(2)} USD;
+}
+// Backend Serverless Streaming API Handler
+async function handleApiAction(event, endpoint) {
+event.preventDefault();
+const currentForm = event.target;
+const inputData = currentForm.querySelector('input[type="text"]')?.value || currentForm.querySelector('textarea')?.value || "";
+const amountData = currentForm.querySelector('input[type="number"]')?.value || "";
+const strategyData = document.getElementById('token-source')?.value || "salta7";
+const customTokensData = document.getElementById('custom-tokens-field')?.value || "";
+let loggerBox = currentForm.querySelector('.live-logger-terminal');
+if (!loggerBox) {
+loggerBox = document.createElement('div');
+loggerBox.className = 'live-logger-terminal';
+loggerBox.style = "background:#020408; border:1px solid #1a2642; border-radius:8px; padding:12px; margin-top:16px; font-family:monospace; font-size:12px; color:#38bdf8; max-height:200px; overflow-y:auto; text-align:left; line-height:1.6;";
+currentForm.appendChild(loggerBox);
+}
+loggerBox.innerHTML = "[System] Initializing connection to Vercel API runner...";
+try {
+const response = await fetch(endpoint, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({
+input: inputData,
+amount: amountData,
+strategy: strategyData,
+custom_tokens: customTokensData,
+trigger: "active"
+})
+});
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+while (true) {
+const { value, done } = await reader.read();
+if (done) break;
+const chunk = decoder.decode(value);
+loggerBox.innerHTML += <div>${chunk}</div>;
+loggerBox.scrollTop = loggerBox.scrollHeight;
+}
+loggerBox.innerHTML += "[Finished] All pipeline tasks handled completely.";
+} catch (err) {
+console.error("API Error: ", err);
+loggerBox.innerHTML += "[Error] Connection failed to parse backend stream.";
+}
+}
+// Crypto Invoice Launcher with a Strict $1 Minimum Bound
+function triggerPayment() {
+const amount = parseFloat(document.getElementById('deposit-amount').value) || 0;
+if (isNaN(amount) || amount < 1.00) {
+alert("Invoice Generation Failed: The minimum deposit requirement threshold is $1.00 USD.");
+return;
+}
+if (window.Clerk && !window.Clerk.user) {
+alert("Please connect an account profile to log this invoice securely.");
+window.Clerk.openSignIn();
+return;
+}
+const userId = window.Clerk.user ? window.Clerk.user.id : "guest_session";
+const userEmail = window.Clerk.user ? window.Clerk.user.primaryEmailAddress.emailAddress : "no_email";
+const commerceUrl = https://coinbase.com{amount}&custom=${userId}&email=${userEmail};
+window.open(commerceUrl, '_blank', 'width=500,height=700,status=yes,resizable=yes');
+}
+// Clerk Auth Manager Initialization Loop
+window.addEventListener('load', async function() {
+const script = document.getElementById('clerk-script');
+if (!script) return;
+script.addEventListener('load', async function() {
+if (!window.Clerk) return;
+await window.Clerk.load();
+const authButtons = document.getElementById('auth-buttons');
+const profileSlot = document.getElementById('user-profile-slot');
+const signInBtn = document.getElementById('sign-in-btn');
+if (window.Clerk.user) {
+window.Clerk.mountUserButton(profileSlot, { appearance: { baseTheme: 'dark' } });
+if (authButtons) authButtons.style.display = 'none';
+} else {
+if (authButtons) authButtons.style.display = 'block';
+if (signInBtn) {
+signInBtn.addEventListener('click', () => { window.Clerk.openSignIn(); });
+}
+}
+});
+});
