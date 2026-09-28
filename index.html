@@ -76,7 +76,7 @@
         #custom-tokens-wrapper { display: none; }
         
         label { display: block; font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; }
-        input, select, textarea { width: 100%; background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; color: var(--text-main); font-size: 14px; outline: none; transition: border-color 0.2s; }
+        input, select, textarea { width: 100%; background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; color: var(--text-main); font-size: 14px; outline: none; transition: border-color 0.2s; pointer-events: auto !important; }
         input:focus, select:focus, textarea:focus { border-color: var(--accent-blue); }
         textarea { resize: vertical; min-height: 100px; font-family: monospace; }
         
@@ -152,7 +152,8 @@
                     </div>
                     <div class="form-group">
                         <label>Amount ($ USD)</label>
-                        <input id="deposit-amount" type="number" value="25" min="1" step="1">
+                        <!-- Ensured min value is exactly 1 and interactive values are unblocked -->
+                        <input id="deposit-amount" type="number" value="25" min="1" step="1" style="position: relative; z-index: 1000; pointer-events: auto;">
                     </div>
                     <button onclick="triggerPayment()" class="btn-action" style="background:#fff; color:#000;">Generate Invoice</button>
                 </div>
@@ -168,9 +169,3 @@
                         <label>Input Auth Tokens (One per line)</label>
                         <textarea placeholder="Paste accounts/tokens here..." required></textarea>
                     </div>
-                    <button type="submit" class="btn-action">Start Verification Scan</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- VIEW 3: DISCORD BOOST TOOL -->
