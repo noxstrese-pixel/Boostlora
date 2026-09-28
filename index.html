@@ -27,11 +27,12 @@
             background: var(--bg-main);
             color: var(--text-main);
             margin: 0;
+            padding: 0;
             min-height: 100vh;
             display: flex;
         }
 
-        #app-mount-root {
+        #app-root {
             display: flex;
             width: 100%;
             min-height: 100vh;
@@ -71,6 +72,7 @@
             cursor: pointer;
             transition: all .2s;
             width: 100%;
+            outline: none;
         }
 
         .nav-btn.active { background: var(--accent-blue); color: white; }
@@ -105,10 +107,6 @@
             box-shadow: 0 10px 25px -5px rgba(0,0,0,.3);
         }
 
-        .tool-panel { display: none; }
-        .tool-panel.active { display: block; }
-        .header-section { margin-bottom: 28px; }
-
         h2 { margin: 0 0 8px; font-size: 24px; }
         p.subtitle { margin: 0; color: var(--text-muted); font-size: 14px; }
 
@@ -121,6 +119,7 @@
             padding: 14px;
             font-size: 14px;
             outline: none;
+            box-sizing: border-box;
         }
         textarea { min-height: 140px; font-family: monospace; resize: vertical; margin-bottom: 15px; }
         textarea:focus, .n-input:focus { border-color: var(--accent-blue); }
@@ -137,7 +136,6 @@
             cursor: pointer;
             transition: background .2s;
         }
-
         .action-btn:hover { background: var(--accent-hover); }
 
         .sidebar-wallet {
@@ -162,7 +160,7 @@
         .n-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(4, 7, 12, 0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center; z-index: 99999; }
         .n-modal-box { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 24px; padding: 32px; max-width: 460px; width: 100%; text-align: center; position: relative; }
         .n-modal-close { position: absolute; top: 20px; right: 20px; background: none; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; }
-        .n-address-container { background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 8px; font-family: monospace; font-size: 12px; padding: 14px; margin: 16px 0; color: var(--text-muted); word-break: break-all; user-select: all; text-align: center; }
+        .n-address-container { background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 8px; font-family: monospace; font-size: 12px; padding: 14px; margin: 16px 0; color: var(--text-muted); word-break: break-all; text-align: center; }
         .n-badge-status { display: inline-flex; align-items: center; gap: 8px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); color: var(--color-warning); padding: 8px 20px; border-radius: 9999px; font-size: 13px; font-weight: 600; }
         .n-badge-status.confirmed { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: var(--color-valid); }
         .spinner { width: 14px; height: 14px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
@@ -177,18 +175,23 @@
         .store-btn { background: var(--bg-sidebar); border: 1px solid var(--border-color); color: #fff; font-size: 11px; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; }
         .store-btn:hover { background: var(--accent-blue); border-color: var(--accent-blue); }
 
-        @media (max-width: 700px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; flex-basis: auto; padding: 12px; flex-direction: row; flex-wrap: wrap; }
-            .sidebar-brand { width: 100%; padding-bottom: 12px; margin-bottom: 4px; }
-            .content-area { padding: 16px; }
-            .dashboard-container { padding: 22px; }
-            .sidebar-wallet { width: 100%; margin-top: 10px; }
-        }
+        .results-section { margin-top: 28px; border-top: 1px solid var(--border-color); padding-top: 24px; }
+        .status-title { font-size: 14px; font-weight: 600; margin-bottom: 15px; color: var(--text-muted); }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+        .grid-item { background: var(--bg-main); border: 1px solid var(--border-color); padding: 14px; border-radius: 8px; text-align: center; }
+        .grid-item.valid { border-top: 4px solid var(--color-valid); }
+        .grid-item.warning { border-top: 4px solid var(--color-warning); }
+        .grid-item.invalid { border-top: 4px solid var(--color-invalid); }
+        .stat-val { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
+        .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+        .list-container { background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 8px; max-height: 320px; overflow-y: auto; }
     </style>
 </head>
 <body>
-    <div id="app-mount-root"></div>
+
+    <!-- Target Node Frame Container Anchor for boost.js to hook into -->
+    <div id="app-root"></div>
+
     <script src="boost.js"></script>
 </body>
 </html>
