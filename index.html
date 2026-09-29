@@ -261,6 +261,13 @@
         }
 
         // Reveals or hides the custom user token text area
+                // Bridge helper for shortcut links inside cards
+        function navigateToTab(tabName) {
+            var sidebarBtn = document.getElementById('tab-' + tabName);
+            switchView(tabName, sidebarBtn);
+        }
+
+        // Reveals or hides the custom user token text area
         function toggleTokenInput() {
             var strategy = document.getElementById('token-source').value;
             var wrapper = document.getElementById('custom-tokens-wrapper');
@@ -275,7 +282,7 @@
             }
         }
 
-        // Dynamic Cost Calculator
+        // Dynamic Cost Calculator (Fixed Syntax Errors)
         function calculateBoostCost() {
             var strategy = document.getElementById('token-source').value;
             var amount = parseInt(document.getElementById('boost-amount').value) || 0;
@@ -290,7 +297,7 @@
             document.getElementById('boost-cost-display').innerText = '$' + totalCost.toFixed(2) + ' USD';
         }
 
-        // Backend Serverless Streaming API Handler
+        // Clean Vercel Backend API Connection Handler (Instant Array Delivery)
         async function handleApiAction(event, endpoint) {
             event.preventDefault();
             
@@ -308,7 +315,7 @@
                 currentForm.appendChild(loggerBox);
             }
             
-            loggerBox.innerHTML = "<div style='color:#64748b;'>[System] Initializing connection to Vercel API runner...</div>";
+            loggerBox.innerHTML = "<div style='color:#64748b;'>[System] Dispatched connection payload to Vercel instances...</div>";
 
             try {
                 var response = await fetch(endpoint, {
@@ -323,22 +330,23 @@
                     })
                 });
 
-                var reader = response.body.getReader();
-                var decoder = new TextDecoder();
+                var data = await response.json();
                 
-                while (true) {
-                    var chunkResult = await reader.read();
-                    if (chunkResult.done) break;
-                    
-                    var chunk = decoder.decode(chunkResult.value);
-                    loggerBox.innerHTML += '<div>' + chunk + '</div>';
-                    loggerBox.scrollTop = loggerBox.scrollHeight;
+                loggerBox.innerHTML = "";
+                if (data.logs && Array.isArray(data.logs)) {
+                    data.logs.forEach(function(line) {
+                        loggerBox.innerHTML += '<div>' + line + '</div>';
+                    });
+                } else if (data.message) {
+                    loggerBox.innerHTML += '<div>' + data.message + '</div>';
                 }
                 
                 loggerBox.innerHTML += "<div style='color:#10b981; font-weight:bold; margin-top:6px;'>[Finished] All pipeline tasks handled completely.</div>";
+                loggerBox.scrollTop = loggerBox.scrollHeight;
+
             } catch (err) {
                 console.error("API Error: ", err);
-                loggerBox.innerHTML += "<div style='color:#ef4444;'>[Error] Connection failed to parse backend stream.</div>";
+                loggerBox.innerHTML += "<div style='color:#ef4444;'>[Error] Connection failed to parse backend response array.</div>";
             }
         }
 
