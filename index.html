@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boostlora Hub</title>
+
     <style>
         :root {
             --bg-base: #060b13;
@@ -22,49 +23,57 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: system-ui, -apple-system, sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
 
         body {
             background: var(--bg-base);
             color: var(--text-main);
             min-height: 100vh;
-            display: flex;
             overflow-x: hidden;
+        }
+
+        button,
+        input,
+        textarea,
+        select {
+            font: inherit;
         }
 
         .sidebar {
             width: 260px;
-            background: var(--bg-card);
-            border-right: 1px solid var(--border-color);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 10;
+            padding: 24px 16px;
             display: flex;
             flex-direction: column;
-            padding: 24px 16px;
-            position: fixed;
-            height: 100vh;
-            z-index: 100;
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-color);
         }
 
         .brand-section {
             display: flex;
             align-items: center;
             gap: 10px;
-            font-weight: 700;
-            font-size: 1.2rem;
             margin-bottom: 32px;
+            font-size: 1.2rem;
+            font-weight: 700;
         }
 
         .brand-icon {
             color: var(--accent-blue);
-            font-size: 20px;
+            font-size: 22px;
         }
 
         .status-dot {
-            background: var(--accent-green);
             width: 8px;
             height: 8px;
-            border-radius: 50%;
             display: inline-block;
+            border-radius: 50%;
+            background: var(--accent-green);
             box-shadow: 0 0 8px rgba(16, 185, 129, .6);
         }
 
@@ -72,57 +81,62 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
-            flex-grow: 1;
         }
 
         .nav-item {
+            width: 100%;
             display: flex;
             align-items: center;
             gap: 12px;
             padding: 12px;
+            border: 0;
             border-radius: 8px;
             color: var(--text-muted);
-            text-decoration: none;
+            background: transparent;
+            text-align: left;
             font-size: 14px;
-            font-weight: 500;
             cursor: pointer;
-            transition: all .2s;
+            transition: .2s ease;
         }
 
         .nav-item:hover,
         .nav-item.active {
-            background: #111a30;
             color: var(--text-main);
+            background: #111a30;
             border-left: 3px solid var(--accent-blue);
         }
 
         .main-content {
-            margin-left: 260px;
-            flex-grow: 1;
-            padding: 32px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
             width: calc(100% - 260px);
+            min-height: 100vh;
+            margin-left: 260px;
+            padding: 32px;
         }
 
         .top-navbar {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 12px 24px;
             display: flex;
             justify-content: flex-end;
             align-items: center;
             gap: 12px;
+            padding: 12px 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-card);
         }
 
         .user-balance {
-            background: #16223f;
-            border: 1px solid var(--border-color);
-            font-size: 13px;
             padding: 8px 14px;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
+            background: #16223f;
+            font-size: 13px;
+        }
+
+        .connect-button {
+            width: auto;
+            padding: 8px 14px;
+            background: #16223f;
         }
 
         .view-panel {
@@ -136,65 +150,82 @@
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: 2fr 1fr;
             gap: 24px;
-            width: 100%;
-        }
-
-        @media (min-width: 1024px) {
-            .dashboard-grid {
-                grid-template-columns: 2fr 1fr;
-            }
         }
 
         .card {
-            background: var(--bg-card);
+            width: 100%;
+            height: max-content;
+            padding: 24px;
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 24px;
-            height: max-content;
-            width: 100%;
+            background: var(--bg-card);
         }
 
         .card h3 {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 16px;
             display: flex;
             align-items: center;
             gap: 8px;
+            margin-bottom: 16px;
+            font-size: 17px;
+        }
+
+        .card-subtitle {
+            margin-bottom: 18px;
+            color: var(--text-muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .service-item {
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: linear-gradient(135deg, #0f1930, #0a1122);
+            text-align: center;
+        }
+
+        .service-item h4 {
+            margin-bottom: 8px;
+        }
+
+        .price-tag {
+            margin: 6px 0 16px;
+            color: var(--accent-green);
+            font-weight: 700;
         }
 
         .form-group {
             margin-bottom: 16px;
         }
 
-        #custom-tokens-wrapper {
-            display: none;
-            margin-bottom: 16px;
-        }
-
         label {
             display: block;
-            font-size: 11px;
-            text-transform: uppercase;
-            color: var(--text-muted);
             margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 11px;
             font-weight: 600;
+            text-transform: uppercase;
         }
 
         input,
         select,
         textarea {
             width: 100%;
-            background: var(--bg-input);
+            padding: 12px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 12px;
-            color: var(--text-main);
-            font-size: 14px;
             outline: none;
-            transition: border-color .2s;
+            color: var(--text-main);
+            background: var(--bg-input);
+            font-size: 14px;
         }
 
         input:focus,
@@ -204,53 +235,30 @@
         }
 
         textarea {
+            min-height: 130px;
             resize: vertical;
-            min-height: 100px;
             font-family: monospace;
         }
 
         .btn-action {
             width: 100%;
-            background: var(--accent-blue);
-            color: white;
-            border: none;
-            border-radius: 8px;
             padding: 12px;
-            font-size: 14px;
-            font-weight: 600;
+            border: 0;
+            border-radius: 8px;
+            color: white;
+            background: var(--accent-blue);
+            font-weight: 700;
             cursor: pointer;
-            transition: background .2s;
+            transition: .2s ease;
         }
 
         .btn-action:hover {
             background: #3b82f6;
         }
 
-        .service-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-        }
-
-        @media (min-width: 480px) {
-            .service-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        .service-item {
-            background: linear-gradient(135deg, #0f1930, #0a1122);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .price-tag {
-            color: var(--accent-green);
-            font-weight: 700;
-            margin: 6px 0 16px;
-            font-size: 15px;
+        .btn-light {
+            color: #000;
+            background: #fff;
         }
 
         .crypto-row {
@@ -261,14 +269,14 @@
         }
 
         .crypto-box {
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
             padding: 10px;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
+            color: var(--text-muted);
+            background: var(--bg-input);
             text-align: center;
             font-size: 11px;
-            font-weight: 600;
-            color: var(--text-muted);
+            font-weight: 700;
             cursor: pointer;
         }
 
@@ -280,138 +288,135 @@
 
         .stats-counter-strip {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        @media (min-width: 640px) {
-            .stats-counter-strip {
-                grid-template-columns: repeat(6, 1fr);
-            }
+            margin: 24px 0 20px;
         }
 
         .stat-box {
-            background: var(--bg-input);
+            padding: 12px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 12px;
+            background: var(--bg-input);
             text-align: center;
         }
 
         .stat-box-val {
+            color: #fff;
             font-size: 20px;
             font-weight: 700;
-            color: #fff;
         }
 
         .stat-box-lbl {
-            font-size: 10px;
-            text-transform: uppercase;
-            color: var(--text-muted);
             margin-top: 4px;
+            color: var(--text-muted);
+            font-size: 10px;
             font-weight: 600;
             letter-spacing: .5px;
+            text-transform: uppercase;
         }
 
         .accounts-grid {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
             margin-top: 20px;
         }
 
-        @media (min-width: 768px) {
-            .accounts-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
         .account-card {
-            background: linear-gradient(135deg, #0e1629, #060b14);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 14px;
             display: flex;
             align-items: center;
             gap: 14px;
-            position: relative;
-        }
-
-        .account-card.card-valid {
-            border-left: 3px solid var(--accent-green);
-        }
-
-        .account-card.card-invalid {
-            border-left: 3px solid var(--accent-red);
-            opacity: .6;
-        }
-
-        .account-card.card-locked {
-            border-left: 3px solid var(--accent-yellow);
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--accent-blue);
+            border-radius: 10px;
+            background: linear-gradient(135deg, #0e1629, #060b14);
         }
 
         .account-avatar {
             width: 44px;
             height: 44px;
-            border-radius: 50%;
-            background: #16223f;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
             border: 1px solid var(--border-color);
+            border-radius: 50%;
+            background: #16223f;
+            color: var(--accent-blue);
+            font-weight: 700;
         }
 
         .account-info {
-            flex-grow: 1;
+            min-width: 0;
         }
 
         .account-username {
+            overflow: hidden;
+            margin-bottom: 4px;
+            color: #fff;
             font-size: 14px;
             font-weight: 700;
-            color: #fff;
-            margin-bottom: 4px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .account-meta-row {
             display: flex;
-            gap: 8px;
             flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .badge-status,
+        .badge-feature {
+            font-size: 11px;
         }
 
         .badge-status {
-            font-size: 10px;
-            font-weight: 700;
             padding: 2px 6px;
             border-radius: 4px;
+            background: rgba(37, 99, 235, .15);
+            color: #60a5fa;
+            font-weight: 700;
             text-transform: uppercase;
         }
 
-        .badge-status.b-valid {
-            background: rgba(16, 185, 129, .15);
-            color: var(--accent-green);
-        }
-
-        .badge-status.b-invalid {
-            background: rgba(239, 68, 68, .15);
-            color: var(--accent-red);
-        }
-
-        .badge-status.b-locked {
-            background: rgba(251, 191, 36, .15);
-            color: var(--accent-yellow);
-        }
-
         .badge-feature {
-            font-size: 11px;
             color: var(--text-muted);
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
         }
 
-        .badge-feature.has-feature {
-            color: #c084fc;
+        .live-message {
+            margin-top: 16px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: #38bdf8;
+            background: #020408;
+            font-family: monospace;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .notice {
+            margin-bottom: 18px;
+            padding: 12px;
+            border: 1px solid rgba(251, 191, 36, .35);
+            border-radius: 8px;
+            color: #fbbf24;
+            background: rgba(251, 191, 36, .08);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-counter-strip {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
 
         @media (max-width: 720px) {
@@ -425,61 +430,99 @@
                 display: none;
             }
 
+            .brand-section,
             .nav-item {
                 justify-content: center;
             }
 
             .main-content {
-                margin-left: 76px;
                 width: calc(100% - 76px);
+                margin-left: 76px;
                 padding: 16px;
+            }
+
+            .service-grid,
+            .accounts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .top-navbar {
+                padding: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .crypto-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stats-counter-strip {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
 </head>
+
 <body>
-    <div class="sidebar">
+    <aside class="sidebar">
         <div class="brand-section">
             <span class="brand-icon">⚡</span>
             <span>Boostlora Hub</span>
             <span class="status-dot"></span>
         </div>
 
-        <div class="nav-menu">
-            <div id="tab-dashboard" class="nav-item active" onclick="switchView('dashboard', this)">▦ <span>Dashboard</span></div>
-            <div id="tab-checker" class="nav-item" onclick="switchView('checker', this)">◈ <span>Token Checker</span></div>
-            <div id="tab-booster" class="nav-item" onclick="switchView('booster', this)">🚀 <span>Boost Tool</span></div>
-            <div id="tab-joiner" class="nav-item" onclick="switchView('joiner', this)">↪ <span>Server Joiner</span></div>
-        </div>
-    </div>
+        <nav class="nav-menu">
+            <button id="tab-dashboard" class="nav-item active" type="button">
+                ▦ <span>Dashboard</span>
+            </button>
 
-    <div class="main-content">
-        <div class="top-navbar">
+            <button id="tab-checker" class="nav-item" type="button">
+                ◈ <span>Account Preview</span>
+            </button>
+
+            <button id="tab-booster" class="nav-item" type="button">
+                🚀 <span>Promotion Request</span>
+            </button>
+
+            <button id="tab-joiner" class="nav-item" type="button">
+                ↪ <span>Community Setup</span>
+            </button>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-navbar">
             <div class="user-balance">◉ 0.00 USD</div>
+
             <div id="auth-buttons">
-                <button id="sign-in-btn" class="nav-item" style="padding:8px 14px;background:#16223f;border:none;">
+                <button id="sign-in-btn" class="nav-item connect-button" type="button">
                     ● Connect
                 </button>
             </div>
-            <div id="user-profile-slot"></div>
-        </div>
 
-        <div id="view-dashboard" class="view-panel active">
+            <div id="user-profile-slot"></div>
+        </header>
+
+        <section id="view-dashboard" class="view-panel active">
             <div class="dashboard-grid">
                 <div class="card">
                     <h3>Active Infrastructure Modules</h3>
 
                     <div class="service-grid">
                         <div class="service-item">
-                            <h4>Discord Boost Module</h4>
-                            <div class="price-tag">$0.18 / boost</div>
-                            <button class="btn-action" onclick="navigateToTab('booster')">Open Tool</button>
+                            <h4>Promotion Request</h4>
+                            <div class="price-tag">Preview mode</div>
+                            <button class="btn-action" type="button" data-target="booster">
+                                Open Tool
+                            </button>
                         </div>
 
                         <div class="service-item">
-                            <h4>Automated Server Joiner</h4>
-                            <div class="price-tag">$0.05 / join</div>
-                            <button class="btn-action" onclick="navigateToTab('joiner')">Open Tool</button>
+                            <h4>Community Setup</h4>
+                            <div class="price-tag">Preview mode</div>
+                            <button class="btn-action" type="button" data-target="joiner">
+                                Open Tool
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -488,562 +531,439 @@
                     <h3>◉ Add Funds</h3>
 
                     <div class="crypto-row">
-                        <div class="crypto-box selected" onclick="selectCoin(this)">BTC</div>
-                        <div class="crypto-box" onclick="selectCoin(this)">LTC</div>
-                        <div class="crypto-box" onclick="selectCoin(this)">DOGE</div>
-                        <div class="crypto-box" onclick="selectCoin(this)">SOL</div>
+                        <button class="crypto-box selected" type="button">BTC</button>
+                        <button class="crypto-box" type="button">LTC</button>
+                        <button class="crypto-box" type="button">DOGE</button>
+                        <button class="crypto-box" type="button">SOL</button>
                     </div>
 
                     <div class="form-group">
-                        <label>Amount ($ USD)</label>
+                        <label for="deposit-amount">Amount ($ USD)</label>
                         <input id="deposit-amount" type="number" value="25" min="1" step="1">
                     </div>
 
-                    <button onclick="triggerPayment()" class="btn-action" style="background:#fff;color:#000;">
+                    <button id="invoice-button" class="btn-action btn-light" type="button">
                         Generate Invoice
                     </button>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div id="view-checker" class="view-panel">
-            <div class="card" style="max-width:900px;">
-                <h3>◈ Automated Token Checker</h3>
+        <section id="view-checker" class="view-panel">
+            <div class="card">
+                <h3>◈ Account Preview</h3>
 
-                <form id="checker-form" onsubmit="handleCheckerAction(event)">
+                <div class="notice">
+                    Preview mode only. Enter non-sensitive usernames or labels. Never paste passwords,
+                    authentication tokens, cookies, or private keys into a webpage.
+                </div>
+
+                <form id="checker-form">
                     <div class="form-group">
-                        <label>Input Auth Tokens (One per line)</label>
-                        <textarea id="checker-input-field" placeholder="Paste accounts/tokens here..." required></textarea>
+                        <label for="checker-input-field">
+                            Account Labels, One Per Line
+                        </label>
+
+                        <textarea
+                            id="checker-input-field"
+                            placeholder="Example:
+Marketing account
+Support account
+Community account"
+                            required
+                        ></textarea>
                     </div>
 
                     <button type="submit" class="btn-action">
-                        Start Verification Scan
+                        Create Local Preview
                     </button>
                 </form>
 
-                <div class="stats-counter-strip" style="margin-top:24px;">
+                <div class="stats-counter-strip">
                     <div class="stat-box">
-                        <div class="stat-box-val" id="stat-elapsed">0s</div>
+                        <div id="stat-elapsed" class="stat-box-val">0s</div>
                         <div class="stat-box-lbl">Elapsed</div>
                     </div>
 
                     <div class="stat-box">
-                        <div class="stat-box-val" id="stat-total">0</div>
+                        <div id="stat-total" class="stat-box-val">0</div>
                         <div class="stat-box-lbl">Total</div>
                     </div>
 
                     <div class="stat-box">
-                        <div class="stat-box-val" id="stat-valid" style="color:var(--accent-green);">0</div>
-                        <div class="stat-box-lbl">Valid</div>
+                        <div id="stat-valid" class="stat-box-val" style="color:var(--accent-green);">0</div>
+                        <div class="stat-box-lbl">Ready</div>
                     </div>
 
                     <div class="stat-box">
-                        <div class="stat-box-val" id="stat-locked" style="color:var(--accent-yellow);">0</div>
-                        <div class="stat-box-lbl">Locked</div>
+                        <div id="stat-locked" class="stat-box-val" style="color:var(--accent-yellow);">0</div>
+                        <div class="stat-box-lbl">Review</div>
                     </div>
 
                     <div class="stat-box">
-                        <div class="stat-box-val" id="stat-invalid" style="color:var(--accent-red);">0</div>
-                        <div class="stat-box-lbl">Invalid</div>
+                        <div id="stat-invalid" class="stat-box-val" style="color:var(--accent-red);">0</div>
+                        <div class="stat-box-lbl">Skipped</div>
                     </div>
 
                     <div class="stat-box">
-                        <div class="stat-box-val" id="stat-avatar">0</div>
-                        <div class="stat-box-lbl">Avatar</div>
+                        <div id="stat-avatar" class="stat-box-val">0</div>
+                        <div class="stat-box-lbl">Labels</div>
                     </div>
                 </div>
 
-                <div class="accounts-grid" id="checked-accounts-display-container"></div>
+                <div id="checked-accounts-display-container" class="accounts-grid"></div>
             </div>
-        </div>
+        </section>
 
-        <!-- VIEW 3: DISCORD BOOST TOOL (FIXED FIELD IDENTIFIERS) -->
-        <div id="view-booster" class="view-panel">
-            <div class="card" style="max-width: 800px;">
-                <h3><i class="fa-solid fa-rocket"></i> Server Booster Tool</h3>
+        <section id="view-booster" class="view-panel">
+            <div class="card">
+                <h3>🚀 Promotion Request</h3>
 
-                <form id="booster-form" onsubmit="handleApiAction(event, '/api/booster')">
+                <div class="notice">
+                    This form creates a local request preview only. It does not use account tokens,
+                    automate boosts, or contact an external service.
+                </div>
+
+                <form id="booster-form">
                     <div class="form-group">
-                        <label>Invite Link or Server ID</label>
-                        <input type="text" placeholder="https://discord.gg" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Token Source Strategy</label>
-                        <select id="token-source" onchange="toggleTokenInput(); calculateBoostCost();">
-                            <option value="salta7">Use Premium Auto-Tokens ($0.18 per Boost)</option>
-                            <option value="custom">Provide My Own Tokens ($0.02 Captcha Fee per Boost)</option>
-                        </select>
-                    </div>
-
-                    <!-- FIXED: Wrapped cleanly with the proper matching ID tags -->
-                    <div class="form-group" id="custom-tokens-wrapper">
-                        <label>Input User Tokens (One per line)</label>
-                        <textarea id="custom-tokens-field" placeholder="Paste your custom user tokens here..."></textarea>
+                        <label for="booster-invite">Invite Link or Server ID</label>
+                        <input
+                            id="booster-invite"
+                            type="text"
+                            placeholder="https://discord.gg/example"
+                            required
+                        >
                     </div>
 
                     <div class="form-group">
-                        <label>Amount of Boosts</label>
-                        <input id="boost-amount" type="number" value="2" min="1" oninput="calculateBoostCost()" required>
+                        <label for="boost-amount">Requested Amount</label>
+                        <input
+                            id="boost-amount"
+                            type="number"
+                            value="2"
+                            min="1"
+                            oninput="calculateBoostCost()"
+                            required
+                        >
                     </div>
 
-                    <div class="form-group" style="background: rgba(37, 99, 235, 0.1); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; margin-bottom: 20px;">
-                        <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Estimated Cost:</span>
-                        <span id="boost-cost-display" style="font-size: 16px; font-weight: 700; color: var(--accent-green); float: right;">$0.36 USD</span>
+                    <div class="form-group">
+                        <label>Estimated Cost</label>
+                        <div id="boost-cost-display" class="live-message">
+                            $0.36 USD
+                        </div>
                     </div>
 
                     <button type="submit" class="btn-action">
-                        Execute Boosting Pipeline
+                        Create Request Preview
                     </button>
                 </form>
+
+                <div id="booster-message"></div>
             </div>
-        </div>
+        </section>
 
-        <!-- VIEW 4: AUTOMATED MEMBER JOINER (UPDATED RESELLER INTERFACE) -->
-        <div id="view-joiner" class="view-panel">
-            <div class="card" style="max-width: 800px;">
-                <h3><i class="fa-solid fa-right-to-bracket"></i> Automated Member Joiner</h3>
+        <section id="view-joiner" class="view-panel">
+            <div class="card">
+                <h3>↪ Community Setup</h3>
 
-                <p class="card-subtitle" style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">
-                    Inject automated server member accounts to instantly pump your room's online presence metrics.
-                </p>
+                <div class="notice">
+                    This form creates a local onboarding preview only. It does not collect account
+                    tokens or automatically add members to a server.
+                </div>
 
-                <form id="joiner-form" onsubmit="handleJoinerAction(event)">
+                <form id="joiner-form">
                     <div class="form-group">
-                        <label>Target Invite Code or Link</label>
-                        <input id="joiner-invite" type="text" placeholder="https://discord.gg" required>
+                        <label for="joiner-invite">Community Invite Link</label>
+                        <input
+                            id="joiner-invite"
+                            type="text"
+                            placeholder="https://discord.gg/example"
+                            required
+                        >
                     </div>
 
                     <div class="form-group">
-                        <label>Token Source Strategy</label>
-                        <select id="joiner-source" onchange="toggleJoinerTokenInput(); calculateJoinerCost();">
-                            <option value="stock">Use Premium Auto-Tokens ($0.09 per Join)</option>
-                            <option value="custom">Provide My Own Tokens ($0.03 Captcha Fee per Join)</option>
-                        </select>
+                        <label for="joiner-amount">Requested Member Count</label>
+                        <input
+                            id="joiner-amount"
+                            type="number"
+                            value="50"
+                            min="1"
+                            oninput="calculateJoinerCost()"
+                            required
+                        >
                     </div>
 
-                    <div class="form-group" id="joiner-tokens-wrapper" style="display: none;">
-                        <label>Input User Tokens (One per line)</label>
-                        <textarea id="joiner-tokens-field" placeholder="Paste your custom user tokens here..."></textarea>
-                    </div>
-
-                    <div class="form-group" id="joiner-amount-wrapper">
-                        <label>Amount to Join</label>
-                        <input id="joiner-amount" type="number" value="50" step="10" min="1" oninput="calculateJoinerCost()" required>
-                    </div>
-
-                    <div class="form-group" style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; margin-bottom: 20px;">
-                        <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Estimated Cost:</span>
-                        <span id="joiner-cost-display" style="font-size: 16px; font-weight: 700; color: var(--accent-green); float: right;">$4.50 USD</span>
+                    <div class="form-group">
+                        <label>Estimated Cost</label>
+                        <div id="joiner-cost-display" class="live-message">
+                            $4.50 USD
+                        </div>
                     </div>
 
                     <button type="submit" class="btn-action">
-                        Inject Automation Workers
+                        Create Onboarding Preview
                     </button>
                 </form>
+
+                <div id="joiner-message"></div>
             </div>
-        </div>
-    </div>
+        </section>
+    </main>
 
     <script>
+        "use strict";
+
         function switchView(viewName, element) {
-            document.querySelectorAll('.view-panel').forEach(function (p) {
-                p.classList.remove('active');
+            document.querySelectorAll(".view-panel").forEach(function (panel) {
+                panel.classList.remove("active");
             });
 
-            document.querySelectorAll('.nav-item').forEach(function (i) {
-                i.classList.remove('active');
+            document.querySelectorAll(".nav-item").forEach(function (item) {
+                item.classList.remove("active");
             });
 
-            var targetView = document.getElementById('view-' + viewName);
+            var targetView = document.getElementById("view-" + viewName);
 
             if (targetView) {
-                targetView.classList.add('active');
+                targetView.classList.add("active");
             }
 
             if (element) {
-                element.classList.add('active');
+                element.classList.add("active");
             }
         }
 
         function navigateToTab(tabName) {
-            switchView(tabName, document.getElementById('tab-' + tabName));
-        }
-
-        function toggleTokenInput() {
-            var strategy = document.getElementById('token-source').value;
-            var wrapper = document.getElementById('custom-tokens-wrapper');
-            var field = document.getElementById('custom-tokens-field');
-
-            wrapper.style.display = strategy === 'custom' ? 'block' : 'none';
-
-            if (strategy === 'custom') {
-                field.setAttribute('required', 'true');
-            } else {
-                field.removeAttribute('required');
-            }
-        }
-
-        function calculateBoostCost() {
-            var strategy = document.getElementById('token-source').value;
-            var amount = parseInt(document.getElementById('boost-amount').value, 10) || 0;
-            var rate = strategy === 'custom' ? 0.02 : 0.18;
-
-            document.getElementById('boost-cost-display').innerText =
-                '$' + (amount * rate).toFixed(2) + ' USD';
+            var tabButton = document.getElementById("tab-" + tabName);
+            switchView(tabName, tabButton);
         }
 
         function selectCoin(element) {
-            document.querySelectorAll('.crypto-box').forEach(function (box) {
-                box.classList.remove('selected');
+            document.querySelectorAll(".crypto-box").forEach(function (box) {
+                box.classList.remove("selected");
             });
 
-            element.classList.add('selected');
+            element.classList.add("selected");
         }
 
-        async function handleCheckerAction(event) {
-            event.preventDefault();
+        function calculateBoostCost() {
+            var amountField = document.getElementById("boost-amount");
+            var display = document.getElementById("boost-cost-display");
 
-            var inputField = document.getElementById('checker-input-field');
-            var displayContainer = document.getElementById('checked-accounts-display-container');
-
-            if (!inputField || !displayContainer) {
+            if (!amountField || !display) {
                 return;
             }
 
-            displayContainer.textContent = '';
-
-            ['total', 'valid', 'locked', 'invalid', 'avatar'].forEach(function (key) {
-                document.getElementById('stat-' + key).innerText = '0';
-            });
-
-            document.getElementById('stat-elapsed').innerText = '0s';
-
-            var startTime = Date.now();
-
-            var timerInterval = setInterval(function () {
-                document.getElementById('stat-elapsed').innerText =
-                    Math.floor((Date.now() - startTime) / 1000) + 's';
-            }, 1000);
-
-            try {
-                var response = await fetch('/api/items', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        input: inputField.value,
-                        trigger: 'active'
-                    })
-                });
-
-                var data = await response.json();
-
-                clearInterval(timerInterval);
-
-                if (data.status === 'success' && Array.isArray(data.accounts)) {
-                    var counts = {
-                        valid: 0,
-                        locked: 0,
-                        invalid: 0,
-                        avatar: 0
-                    };
-
-                    document.getElementById('stat-total').innerText = data.accounts.length;
-
-                    data.accounts.forEach(function (acc) {
-                        var status = ['valid', 'locked'].includes(acc.status)
-                            ? acc.status
-                            : 'invalid';
-
-                        counts[status]++;
-
-                        if (acc.has_pfp) {
-                            counts.avatar++;
-                        }
-
-                        var card = document.createElement('div');
-                        card.className = 'account-card card-' + status;
-
-                        card.innerHTML =
-                            '<div class="account-avatar">●</div>' +
-                            '<div class="account-info">' +
-                                '<div class="account-username"></div>' +
-                                '<div class="account-meta-row">' +
-                                    '<span class="badge-status b-' + status + '">' + status + '</span>' +
-                                    '<span class="badge-feature">' + (acc.nitro || 'No Nitro') + '</span>' +
-                                    '<span class="badge-feature">' + (acc.phone || '') + '</span>' +
-                                '</div>' +
-                            '</div>';
-
-                        card.querySelector('.account-username').textContent =
-                            acc.username || 'Unknown account';
-
-                        displayContainer.appendChild(card);
-                    });
-
-                    Object.keys(counts).forEach(function (key) {
-                        document.getElementById('stat-' + key).innerText = counts[key];
-                    });
-                } else if (data.message) {
-                    displayContainer.textContent = data.message;
-                }
-            } catch (err) {
-                clearInterval(timerInterval);
-
-                displayContainer.textContent =
-                    '[Error] Failed to connect or read profile data from server layer.';
-            }
+            var amount = parseInt(amountField.value, 10) || 0;
+            display.textContent = "$" + (amount * 0.18).toFixed(2) + " USD";
         }
 
-        // THE ONLY DEFINITIVE API ACTION HANDLER FOR BOOST & JOINER
-        async function handleApiAction(event, endpoint) {
-            event.preventDefault();
-
-            var currentForm = event.target;
-
-            var inputData =
-                currentForm.querySelector('input[type="text"]')?.value ||
-                currentForm.querySelector('textarea')?.value ||
-                "";
-
-            var amountData =
-                currentForm.querySelector('input[type="number"]')?.value || "";
-
-            var strategyData =
-                document.getElementById('token-source')?.value || "salta7";
-
-            var tokenField =
-                document.getElementById('custom-tokens-field');
-
-            var customTokensData =
-                tokenField ? tokenField.value.trim() : "";
-
-            var loggerBox =
-                currentForm.querySelector('.live-logger-terminal');
-
-            if (!loggerBox) {
-                loggerBox = document.createElement('div');
-                loggerBox.className = 'live-logger-terminal';
-
-                loggerBox.style =
-                    "background:#020408;" +
-                    "border:1px solid #1a2642;" +
-                    "border-radius:8px;" +
-                    "padding:12px;" +
-                    "margin-top:16px;" +
-                    "font-family:monospace;" +
-                    "font-size:12px;" +
-                    "color:#38bdf8;" +
-                    "max-height:200px;" +
-                    "overflow-y:auto;" +
-                    "text-align:left;" +
-                    "line-height:1.6;";
-
-                currentForm.appendChild(loggerBox);
-            }
-
-            loggerBox.innerHTML =
-                "[System] Dispatched connection payload to Vercel...";
-
-            try {
-                var response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        input: inputData,
-                        amount: amountData,
-                        strategy: strategyData,
-                        custom_tokens: customTokensData,
-                        trigger: "active"
-                    })
-                });
-
-                var data = await response.json();
-                loggerBox.innerHTML = "";
-
-                if (data.logs && Array.isArray(data.logs)) {
-                    data.logs.forEach(function (line) {
-                        loggerBox.innerHTML += '' + line + '';
-                    });
-                }
-
-                loggerBox.innerHTML +=
-                    "[Finished] All pipeline tasks handled completely.";
-
-            } catch (err) {
-                console.error("API Error: ", err);
-
-                loggerBox.innerHTML +=
-                    "<div style='color:#ef4444;'>" +
-                    "[Error] Connection failed to parse backend response array." +
-                    "</div>";
-            }
-        }
-
-        // Toggles visibility of the custom token box for member joining tasks
-        function toggleJoinerTokenInput() {
-            var strategy =
-                document.getElementById('joiner-source').value;
-
-            var wrapper =
-                document.getElementById('joiner-tokens-wrapper');
-
-            var amountWrapper =
-                document.getElementById('joiner-amount-wrapper');
-
-            var field =
-                document.getElementById('joiner-tokens-field');
-
-            if (strategy === 'custom') {
-                wrapper.style.display = 'block';
-                amountWrapper.style.display = 'none';
-                field.setAttribute('required', 'true');
-            } else {
-                wrapper.style.display = 'none';
-                amountWrapper.style.display = 'block';
-                field.removeAttribute('required');
-            }
-        }
-
-        // Higher Reseller Tier Dynamic Cost Calculator for Joins
         function calculateJoinerCost() {
-            var strategy =
-                document.getElementById('joiner-source').value;
+            var amountField = document.getElementById("joiner-amount");
+            var display = document.getElementById("joiner-cost-display");
 
-            var totalCost = 0;
-
-            if (strategy === 'stock') {
-                var amount =
-                    parseInt(document.getElementById('joiner-amount').value) || 0;
-
-                totalCost = amount * 0.09;
-            } else if (strategy === 'custom') {
-                var tokenField =
-                    document.getElementById('joiner-tokens-field');
-
-                var tokensCount = tokenField
-                    ? tokenField.value
-                        .split('\n')
-                        .filter(function (line) {
-                            return line.trim();
-                        }).length
-                    : 0;
-
-                totalCost = tokensCount * 0.03;
-            }
-
-            document.getElementById('joiner-cost-display').innerText =
-                '$' + totalCost.toFixed(2) + ' USD';
-        }
-
-        // Specialized Submission Handler that routes parameters to /api/submit cleanly
-        async function handleJoinerAction(event) {
-            event.preventDefault();
-
-            var inviteData =
-                document.getElementById('joiner-invite').value;
-
-            var strategyData =
-                document.getElementById('joiner-source').value;
-
-            var amountData =
-                document.getElementById('joiner-amount').value;
-
-            var tokenField =
-                document.getElementById('joiner-tokens-field');
-
-            var customTokensData =
-                tokenField ? tokenField.value.trim() : "";
-
-            if (strategyData === "custom" && !customTokensData) {
-                alert("Please paste your custom user tokens first.");
+            if (!amountField || !display) {
                 return;
             }
 
-            var currentForm = event.target;
-            var loggerBox =
-                currentForm.querySelector('.live-logger-terminal');
+            var amount = parseInt(amountField.value, 10) || 0;
+            display.textContent = "$" + (amount * 0.09).toFixed(2) + " USD";
+        }
 
-            if (!loggerBox) {
-                loggerBox = document.createElement('div');
-                loggerBox.className = 'live-logger-terminal';
+        function showMessage(containerId, message, color) {
+            var container = document.getElementById(containerId);
 
-                loggerBox.style =
-                    "background:#020408;" +
-                    "border:1px solid #1a2642;" +
-                    "border-radius:8px;" +
-                    "padding:12px;" +
-                    "margin-top:16px;" +
-                    "font-family:monospace;" +
-                    "font-size:12px;" +
-                    "color:#38bdf8;" +
-                    "max-height:200px;" +
-                    "overflow-y:auto;" +
-                    "text-align:left;" +
-                    "line-height:1.6;";
-
-                currentForm.appendChild(loggerBox);
+            if (!container) {
+                return;
             }
 
-            loggerBox.innerHTML =
-                "<div style='color:#64748b;'>" +
-                "[System] Dispatched connection payload to Vercel..." +
-                "</div>";
+            container.textContent = "";
 
-            try {
-                var response = await fetch('/api/submit', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        input: inviteData,
-                        amount: amountData,
-                        custom_tokens: customTokensData
-                    })
-                });
+            var messageBox = document.createElement("div");
+            messageBox.className = "live-message";
+            messageBox.style.color = color || "#38bdf8";
+            messageBox.textContent = message;
 
-                var data = await response.json();
-                loggerBox.innerHTML = "";
+            container.appendChild(messageBox);
+        }
 
-                if (data.logs && Array.isArray(data.logs)) {
-                    data.logs.forEach(function (line) {
-                        loggerBox.innerHTML += '<div>' + line + '</div>';
-                    });
-                }
+        function createPreviewCard(label, index) {
+            var card = document.createElement("div");
+            card.className = "account-card";
 
-                loggerBox.innerHTML +=
-                    "<div style='color:#10b981; font-weight:bold; margin-top:6px;'>" +
-                    "[Finished] All pipeline tasks handled completely." +
-                    "</div>";
+            var avatar = document.createElement("div");
+            avatar.className = "account-avatar";
+            avatar.textContent = String(index + 1);
 
-            } catch (err) {
-                loggerBox.innerHTML +=
-                    "<div style='color:#ef4444;'>" +
-                    "[Error] Connection failed to parse backend response." +
-                    "</div>";
+            var info = document.createElement("div");
+            info.className = "account-info";
+
+            var username = document.createElement("div");
+            username.className = "account-username";
+            username.textContent = label || "Unnamed account";
+
+            var meta = document.createElement("div");
+            meta.className = "account-meta-row";
+
+            var status = document.createElement("span");
+            status.className = "badge-status";
+            status.textContent = "Preview";
+
+            var detail = document.createElement("span");
+            detail.className = "badge-feature";
+            detail.textContent = "No external request";
+
+            meta.appendChild(status);
+            meta.appendChild(detail);
+            info.appendChild(username);
+            info.appendChild(meta);
+            card.appendChild(avatar);
+            card.appendChild(info);
+
+            return card;
+        }
+
+        function handleCheckerAction(event) {
+            event.preventDefault();
+
+            var input = document.getElementById("checker-input-field");
+            var container = document.getElementById("checked-accounts-display-container");
+
+            if (!input || !container) {
+                return;
+            }
+
+            var labels = input.value
+                .split(/\r?\n/)
+                .map(function (line) {
+                    return line.trim();
+                })
+                .filter(Boolean);
+
+            container.textContent = "";
+
+            document.getElementById("stat-total").textContent = labels.length;
+            document.getElementById("stat-valid").textContent = labels.length;
+            document.getElementById("stat-locked").textContent = "0";
+            document.getElementById("stat-invalid").textContent = "0";
+            document.getElementById("stat-avatar").textContent = labels.length;
+            document.getElementById("stat-elapsed").textContent = "0s";
+
+            labels.forEach(function (label, index) {
+                container.appendChild(createPreviewCard(label, index));
+            });
+
+            if (labels.length === 0) {
+                container.textContent = "Enter at least one non-sensitive label.";
             }
         }
 
-        document
-            .getElementById('joiner-tokens-field')
-            ?.addEventListener('input', calculateJoinerCost);
+        function handleBoosterAction(event) {
+            event.preventDefault();
+
+            var invite = document.getElementById("booster-invite").value.trim();
+            var amount = document.getElementById("boost-amount").value;
+
+            showMessage(
+                "booster-message",
+                "Local preview created for " + amount +
+                " requested promotion(s) associated with " + invite +
+                ". No external request was sent.",
+                "#38bdf8"
+            );
+        }
+
+        function handleJoinerAction(event) {
+            event.preventDefault();
+
+            var invite = document.getElementById("joiner-invite").value.trim();
+            var amount = document.getElementById("joiner-amount").value;
+
+            showMessage(
+                "joiner-message",
+                "Local onboarding preview created for " + amount +
+                " requested member(s) associated with " + invite +
+                ". No external request was sent.",
+                "#38bdf8"
+            );
+        }
 
         function triggerPayment() {
-            var amount =
-                parseFloat(document.getElementById('deposit-amount').value) || 0;
+            var amount = parseFloat(
+                document.getElementById("deposit-amount").value
+            ) || 0;
 
             if (amount < 1) {
-                alert('The minimum deposit requirement threshold is $1.00 USD.');
+                alert("The minimum deposit amount is $1.00 USD.");
                 return;
             }
 
-            alert('Invoice generation is ready to connect to your payment provider.');
+            alert(
+                "Invoice preview created for $" +
+                amount.toFixed(2) +
+                ". Connect a compliant payment provider before processing real payments."
+            );
         }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll("[data-target]").forEach(function (button) {
+                button.addEventListener("click", function () {
+                    navigateToTab(button.dataset.target);
+                });
+            });
+
+            document.querySelectorAll(".nav-menu .nav-item").forEach(function (button) {
+                button.addEventListener("click", function () {
+                    switchView(button.id.replace("tab-", ""), button);
+                });
+            });
+
+            document.querySelectorAll(".crypto-box").forEach(function (box) {
+                box.addEventListener("click", function () {
+                    selectCoin(box);
+                });
+            });
+
+            var checkerForm = document.getElementById("checker-form");
+            var boosterForm = document.getElementById("booster-form");
+            var joinerForm = document.getElementById("joiner-form");
+            var invoiceButton = document.getElementById("invoice-button");
+            var signInButton = document.getElementById("sign-in-btn");
+
+            if (checkerForm) {
+                checkerForm.addEventListener("submit", handleCheckerAction);
+            }
+
+            if (boosterForm) {
+                boosterForm.addEventListener("submit", handleBoosterAction);
+            }
+
+            if (joinerForm) {
+                joinerForm.addEventListener("submit", handleJoinerAction);
+            }
+
+            if (invoiceButton) {
+                invoiceButton.addEventListener("click", triggerPayment);
+            }
+
+            if (signInButton) {
+                signInButton.addEventListener("click", function () {
+                    alert("Connect your approved authentication provider here.");
+                });
+            }
+
+            // Safe event listener: only attach when the field exists.
+            var liveTokenField = document.getElementById("joiner-tokens-field");
+
+            if (liveTokenField) {
+                liveTokenField.addEventListener("input", calculateJoinerCost);
+            }
+
+            calculateBoostCost();
+            calculateJoinerCost();
+        });
     </script>
 </body>
 </html>
