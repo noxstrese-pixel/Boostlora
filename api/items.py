@@ -1,87 +1,78 @@
-import json
 import time
 import requests
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-def fetch_discord_profile(token):
+def parse_discord_token_profile(token):
     """
-    Connects to the Discord User API to check token validity 
-    and grab profile data (Nitro, Phone, PFP, and badges).
+    Queries the official Discord API to fetch true user profile indicators.
+    Returns status parameters structured specifically for Salta7 UI rendering rules.
     """
     headers = {
         "Authorization": token.strip(),
         "Content-Type": "application/json"
     }
     try:
-        # Fetch standard profile configurations
-        user_res = requests.get("https://discord.com", headers=headers, timeout=5)
-        if user_res.status_code != 200:
-            return {"valid": False}
+        # Check standard user record parameters
+        user_res = requests.get("https://discord.com", headers=headers, timeout=4)
         
+        # Capture standard system flags indicating suspension / locks
+        if user_res.status_code == 403:
+            return {"status": "locked", "username": "Locked Account", "phone": "Unknown", "nitro": "No Nitro", "has_pfp": False}
+        if user_res.status_code != 200:
+            return {"status": "invalid", "username": token.strip()[:14] + "...", "phone": "Unknown", "nitro": "No Nitro", "has_pfp": False}
+            
         user_data = user_res.json()
         
-        # Check for Nitro membership data maps
-        nitro_res = requests.get("https://discord.com/billing/subscriptions", headers=headers, timeout=5)
-        has_nitro = "No Nitro"
-        if nitro_res.status_code == 200:
-            if len(nitro_res.json()) > 0:
-                has_nitro = "💎 Active Nitro"
+        # Check for premium Nitro sub-billing indicators
+        nitro_res = requests.get("https://discord.com/billing/subscriptions", headers=headers, timeout=4)
+        nitro_status = "No Nitro"
+        if nitro_res.status_code == 200 and len(nitro_res.json()) > 0:
+            nitro_status = "Nitro Active"
 
-        # Map out individual parameter fields nicely
-        username = user_data.get("username", "Unknown")
-        phone = user_data.get("phone") or "❌ No Phone"
-        email_verified = "✅ Verified" if user_data.get("verified") else "❌ Unverified"
+        username = user_data.get("username", "Unknown User")
+        phone_number = user_data.get("phone") or "No Phone"
         avatar_hash = user_data.get("avatar")
-        has_pfp = "✅ Has PFP" if avatar_hash else "❌ No PFP"
         
         return {
-            "valid": True,
+            "status": "valid",
             "username": username,
-            "phone": phone,
-            "nitro": has_nitro,
-            "pfp": has_pfp,
-            "email": email_verified
+            "phone": phone_number,
+            "nitro": nitro_status,
+            "has_pfp": True if avatar_hash else False
         }
     except Exception:
-        return {"valid": False}
+        # Fallback tracking indicator if endpoint times out or drops
+        return {"status": "invalid", "username": "Connection Error", "phone": "Unknown", "nitro": "No Nitro", "has_pfp": False}
 
 @app.route('/api/items', methods=['POST'])
 def handle_items_checker():
     try:
         data = request.get_json() or {}
         raw_input = data.get('input', '')
-        tokens_list = [t for t in raw_input.split('\n') if t.strip()]
+        tokens_list = [t.strip() for t in raw_input.split('\n') if t.strip()]
 
-        logs_output = [
-            f"[System] Initializing Full Capture Protocol for {len(tokens_list)} credentials..."
-        ]
+        accounts_results_array = []
 
-        for index, token in enumerate(tokens_list, 1):
-            if not token.strip():
+        for token in tokens_list:
+            if not token:
                 continue
-                
-            clean_token = token.strip()[:15] + "..."
-            logs_output.append(f"[Checking Account {index}] Contacting Discord databases...")
             
-            # Query Discord profile status live
-            profile = fetch_discord_profile(token)
+            # Fetch profile parameters directly from Discord
+            profile_data = parse_discord_token_profile(token)
+            accounts_results_array.append(profile_data)
             
-            if not profile["valid"]:
-                logs_output.append(f"❌ [Invalid Account] {clean_token} failed authorization tests.")
-            else:
-                # Beautiful inline dashboard output matrix reporting variables back
-                report = f"✨ <b>[Valid]</b> User: <span style='color:#fff;'>{profile['username']}</span> | " \
-                         f"Premium: <span style='color:#c084fc;'>{profile['nitro']}</span> | " \
-                         f"PFP: <span style='color:#38bdf8;'>{profile['pfp']}</span> | " \
-                         f"Phone: <span style='color:#fbbf24;'>{profile['phone']}</span> | " \
-                         f"Email: {profile['email']}"
-                logs_output.append(report)
-                
-            time.sleep(0.2) # Soft delay to protect endpoints from heavy API rate limits
+            time.sleep(0.15) # Protects proxies from slamming rate-limit gates
 
-        return jsonify({"status": "success", "logs": logs_output}), 200
+        # Return a structured collection object array directly down to the UI engine grid
+        return jsonify({
+            "status": "success",
+            "accounts": accounts_results_array
+        }), 200
 
     except Exception as e:
-        return jsonify({"status": "error", "message": f"[Fatal Error] Core pipeline failure: {str(e)}"}), 500
+        return jsonify({
+            "status": "error",
+            "message": f"[Fatal Pipeline Crash] Server error: {str(e)}"
+        }), 500
