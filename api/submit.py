@@ -74,6 +74,9 @@ def dashboard():
     user_id = request.args.get('userId')
     role = request.args.get('role')
     
+    if not user_id:
+        return jsonify({"error": "Authentication required"}), 403
+
     conn = get_db_connection()
     cur = conn.cursor()
     if role == 'admin':
