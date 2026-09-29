@@ -1,12 +1,11 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from flask import Flask, request, jsonify
 
-app = FastAPI()
+app = Flask(__name__)
 
-@app.post("/api/booster")
-async def handle_booster(request: Request):
+@app.route('/api/booster', methods=['POST'])
+def handle_booster():
     try:
-        data = await request.json() or {}
+        data = request.get_json() or {}
         amount = int(data.get('amount', 2))
         strategy = data.get('strategy', 'salta7')
 
@@ -20,7 +19,7 @@ async def handle_booster(request: Request):
             logs_output.append("✅ [Captcha Solved] Token bypass generated successfully.")
             logs_output.append(f"🚀 [Success] Joined guild server cleanly and dispatched booster payload! ({index}/{amount})")
 
-        return JSONResponse(content={"status": "success", "logs": logs_output})
+        return jsonify({"status": "success", "logs": logs_output}), 200
 
     except Exception as e:
-        return JSONResponse(status_code=500, content={"status": "error", "message": f"[Fatal Error] Booster crashed: {str(e)}"})
+        return jsonify({"status": "error", "message": f"[Fatal Error] Booster crashed: {str(e)}"}), 500
