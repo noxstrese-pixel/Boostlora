@@ -191,174 +191,227 @@ const BASE_URL = window.location.origin + '/api';
 let sessionUser = JSON.parse(localStorage.getItem('user_node'));
 let selectedAsset = 'BTC';
 let viewMode = 'login';
+
 function runSessionCheck() {
-if (sessionUser) {
-document.getElementById('auth-panel').style.display = 'none';
-document.getElementById('app-panel').style.display = 'block';
-fetchHubDetails();
-} else {
-document.getElementById('auth-panel').style.display = 'block';
-document.getElementById('app-panel').style.display = 'none';
+    if (sessionUser) {
+        document.getElementById('auth-panel').style.display = 'none';
+        document.getElementById('app-panel').style.display = 'block';
+        fetchHubDetails();
+    } else {
+        document.getElementById('auth-panel').style.display = 'block';
+        document.getElementById('app-panel').style.display = 'none';
+    }
 }
-}
+
 function toggleAuthMode() {
-viewMode = viewMode === 'login' ? 'register' : 'login';
-document.getElementById('auth-title').textContent = viewMode === 'login' ? 'Sign In to Engine' : 'Create New Account';
-document.getElementById('auth-primary-btn').textContent = viewMode === 'login' ? 'Login' : 'Register Account';
-document.getElementById('auth-toggle-text').textContent = viewMode === 'login' ? "Don't have an account? Register instead" : "Already registered? Login here";
+    viewMode = viewMode === 'login' ? 'register' : 'login';
+    document.getElementById('auth-title').textContent = viewMode === 'login' ? 'Sign In to Engine' : 'Create New Account';
+    document.getElementById('auth-primary-btn').textContent = viewMode === 'login' ? 'Login' : 'Register Account';
+    document.getElementById('auth-toggle-text').textContent = viewMode === 'login' ? "Don't have an account? Register instead" : "Already registered? Login here";
 }
+
 async function submitAuthForm() {
-const email = document.getElementById('auth-email').value;
-const password = document.getElementById('auth-password').value;
-const path = viewMode === 'login' ? '/submit/login' : '/submit/register';
-try {
-const res = await fetch(BASE_URL + path, {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ email, password })
-});
-const parsed = await res.json();
-if (parsed.error) return alert(parsed.error);
-if (viewMode === 'login') {
-localStorage.setItem('user_node', JSON.stringify(parsed));
-sessionUser = parsed;
-runSessionCheck();
-} else {
-alert(parsed.message + " You can now sign in.");
-toggleAuthMode();
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+    const path = viewMode === 'login' ? '/submit/login' : '/submit/register';
+
+    try {
+        const res = await fetch(BASE_URL + path, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const parsed = await res.json();
+        if (parsed.error) return alert(parsed.error);
+
+        if (viewMode === 'login') {
+            localStorage.setItem('user_node', JSON.stringify(parsed));
+            sessionUser = parsed;
+            runSessionCheck();
+        } else {
+            alert(parsed.message + " You can now sign in.");
+            toggleAuthMode();
+        }
+    } catch(e) { alert("API Connection error."); }
 }
-} catch(e) { alert("API Connection error."); }
-}
+
 function logout() {
-localStorage.clear();
-sessionUser = null;
-location.reload();
+    localStorage.clear();
+    sessionUser = null;
+    location.reload();
 }
+
 function switchView(panel) {
-document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
-document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-document.getElementById('view-' + panel).classList.add('active');
-document.getElementById('tab-' + panel).classList.add('active');
+    document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    document.getElementById('view-' + panel).classList.add('active');
+    document.getElementById('tab-' + panel).classList.add('active');
 }
+
 function selectCoin(asset) {
-document.querySelectorAll('.crypto-box').forEach(b => b.classList.remove('selected'));
-if(document.getElementById('coin-'+asset.toLowerCase())) {
-document.getElementById('coin-'+asset.toLowerCase()).classList.add('selected');
+    document.querySelectorAll('.crypto-box').forEach(b => b.classList.remove('selected'));
+    if(document.getElementById('coin-'+asset.toLowerCase())) {
+        document.getElementById('coin-'+asset.toLowerCase()).classList.add('selected');
+    }
+    selectedAsset = asset;
 }
-selectedAsset = asset;
-}
+
 async function fetchHubDetails() {
-try {
-const res = await fetch(${BASE_URL}/submit/dashboard?userId=${sessionUser.userId}&role=${sessionUser.role});
-const payload = await res.json();
-if (payload.role === 'admin') {
-document.getElementById('tab-admin').style.display = 'flex';
-document.getElementById('role-indicator').innerHTML = <span class="admin-badge">GLOBAL SYSTEM ADMIN</span>;
-document.getElementById('display-balance').textContent = "◉ FREE ROOT NODE";
-renderSystemAdminSuite(payload);
-} else {
-document.getElementById('tab-admin').style.display = 'none';
-document.getElementById('role-indicator').textContent = payload.email;
-document.getElementById('display-balance').textContent = ◉ ${payload.balance.toFixed(2)} USD;
-renderUserInvoices(payload.myDeposits);
+    try {
+        const res = await fetch(`${BASE_URL}/submit/dashboard?userId=${sessionUser.userId}&role=${sessionUser.role}`);
+        const payload = await res.json();
+
+        if (payload.role === 'admin') {
+            document.getElementById('tab-admin').style.display = 'flex';
+            document.getElementById('role-indicator').innerHTML = `<span class="admin-badge">GLOBAL SYSTEM ADMIN</span>`;
+            document.getElementById('display-balance').textContent = "◉ FREE ROOT NODE";
+            renderSystemAdminSuite(payload);
+        } else {
+            document.getElementById('tab-admin').style.display = 'none';
+            document.getElementById('role-indicator').textContent = payload.email;
+            document.getElementById('display-balance').textContent = `◉ ${payload.balance.toFixed(2)} USD`;
+            renderUserInvoices(payload.myDeposits);
+        }
+    } catch(e) { console.log("Dashboard sync failure."); }
 }
-} catch(e) { console.log("Dashboard sync failure."); }
-}
+
 function renderUserInvoices(myDeposits) {
-const container = document.getElementById('user-deposit-history');
-if (!myDeposits || myDeposits.length === 0) {
-container.innerHTML = <p style="color:var(--text-muted); font-size:13px;">No deposits found yet.</p>;
-return;
+    const container = document.getElementById('user-deposit-history');
+    if (!myDeposits || myDeposits.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted); font-size:13px;">No deposits found yet.</p>`;
+        return;
+    }
+    container.innerHTML = myDeposits.map(d => `
+        <div class="account-card">
+            <div>
+                <strong>${d.id} (${d.coin})</strong><br>
+                <span style="font-size:11px; color:var(--text-muted);">${d.created_at || 'Pending verification'}</span>
+            </div>
+            <div>
+                <span style="color:var(--accent-green); font-weight:bold;">$${parseFloat(d.amount).toFixed(2)}</span> | 
+                <span style="color:${d.status === 'confirmed' ? 'var(--accent-green)' : 'var(--accent-yellow)'}">${d.status.toUpperCase()}</span>
+            </div>
+        </div>
+    `).join('');
 }
-container.innerHTML = myDeposits.map(d => <div class="account-card"> <div> <strong>${d.id} (${d.coin})</strong><br> <span style="font-size:11px; color:var(--text-muted);">${d.created_at || 'Pending verification'}</span> </div> <div> <span style="color:var(--accent-green); font-weight:bold;">$${parseFloat(d.amount).toFixed(2)}</span> |  <span style="color:${d.status === 'confirmed' ? 'var(--accent-green)' : 'var(--accent-yellow)'}">${d.status.toUpperCase()}</span> </div> </div>).join('');
-}
+
 function renderSystemAdminSuite(payload) {
-const invoiceList = document.getElementById('admin-invoice-list');
-const userList = document.getElementById('admin-users-list');
-invoiceList.innerHTML = payload.allDeposits.length === 0 ? 'No pending invoices.' : payload.allDeposits.map(d => <div class="account-card"> <div> <strong>User: ${d.user_email}</strong> (${d.id})<br> Sent: $${d.amount} ${d.coin} | State: <b style="color:orange">${d.status}</b> </div> ${d.status === 'pending' ?Approve & Credit: '<b>[CREDITED]</b>'} </div>).join('');
-userList.innerHTML = payload.users.map(u => <div class="account-card"> <div><strong>${u.email}</strong> [Role: ${u.role}]</div> <div style="font-weight:bold; color:var(--accent-blue)">$${parseFloat(u.balance).toFixed(2)} USD</div> </div>).join('');
+    const invoiceList = document.getElementById('admin-invoice-list');
+    const userList = document.getElementById('admin-users-list');
+
+    invoiceList.innerHTML = payload.allDeposits.length === 0 ? '<p style="color:var(--text-muted); font-size:13px;">No pending invoices.</p>' : payload.allDeposits.map(d => `
+        <div class="account-card">
+            <div>
+                <strong>User: ${d.user_email}</strong> (${d.id})<br>
+                Sent: $${d.amount} ${d.coin} | State: <b style="color:orange">${d.status}</b>
+            </div>
+            ${d.status === 'pending' ? `<button style="padding:6px 12px; background:var(--accent-green); border:0; border-radius:4px; color:white; font-size:11px; font-weight:bold; cursor:pointer;" onclick="clearAdminApproval('${d.user_id}', ${d.amount}, '${d.id}')">Approve & Credit</button>` : '<b>[CREDITED]</b>'}
+        </div>
+    `).join('');
+
+    userList.innerHTML = payload.users.map(u => `
+        <div class="account-card">
+            <div><strong>${u.email}</strong> [Role: ${u.role}]</div>
+            <div style="font-weight:bold; color:var(--accent-blue)">$${parseFloat(u.balance).toFixed(2)} USD</div>
+        </div>
+    `).join('');
 }
+
 async function generateInvoice() {
-const amount = document.getElementById('deposit-amount').value;
-try {
-const res = await fetch(BASE_URL + '/booster/invoice', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ userId: sessionUser.userId, email: sessionUser.email, coin: selectedAsset, amount })
-});
-const data = await res.json();
-if (data.error) return alert(data.error);
-document.getElementById('invoice-output').innerHTML = <div class="live-message"> <strong>Invoice ${data.invoiceId} Issued!</strong><br><br> Please transfer exactly <b>$${data.amount} USD</b> worth of <b>${data.coin}</b> to your admin deposit wallet destination below:<br><br> <span style="color:var(--accent-green); font-weight:bold;">${data.address}</span><br><br> Balance will update dynamically as soon as an admin credits the invoice entry parameters. </div>;
-fetchHubDetails();
-} catch(e) { alert("Error issuing invoice payload."); }
+    const amount = document.getElementById('deposit-amount').value;
+    try {
+        const res = await fetch(BASE_URL + '/booster/invoice', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: sessionUser.userId, email: sessionUser.email, coin: selectedAsset, amount })
+        });
+        const data = await res.json();
+        if (data.error) return alert(data.error);
+
+        document.getElementById('invoice-output').innerHTML = `
+            <div class="live-message">
+                <strong>Invoice ${data.invoiceId} Issued!</strong><br><br>
+                Please transfer exactly <b>$${data.amount} USD</b> worth of <b>${data.coin}</b> to your admin deposit wallet destination below:<br><br>
+                <span style="color:var(--accent-green); font-weight:bold;">${data.address}</span><br><br>
+                Balance will update dynamically as soon as an admin credits the invoice entry parameters.
+            </div>
+        `;
+        fetchHubDetails();
+    } catch(e) { alert("Error issuing invoice payload."); }
 }
+
 async function clearAdminApproval(targetUserId, creditAmount, depositId) {
-try {
-const res = await fetch(BASE_URL + '/booster_status/credit', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ adminRole: sessionUser.role, targetUserId, creditAmount, depositId })
-});
-const data = await res.json();
-alert(data.message || data.error);
-fetchHubDetails();
-} catch(e) { alert("Error adjusting ledger registries."); }
+    try {
+        const res = await fetch(BASE_URL + '/booster_status/credit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ adminRole: sessionUser.role, targetUserId, creditAmount, depositId })
+        });
+        const data = await res.json();
+        alert(data.message || data.error);
+        fetchHubDetails();
+    } catch(e) { alert("Error adjusting ledger registries."); }
 }
+
 async function launchBoosterJob() {
-const logBox = document.getElementById('booster-live-logs');
-logBox.style.display = 'block';
-logBox.textContent = "Connecting to pipeline channels...";
-try {
-const res = await fetch(BASE_URL + '/booster', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({
-input: document.getElementById('booster-invite').value,
-amount: document.getElementById('boost-amount').value,
-strategy: document.getElementById('booster-strategy').value,
-custom_tokens: document.getElementById('booster-custom-tokens').value,
-userId: sessionUser.userId,
-role: sessionUser.role
-})
-});
-const data = await res.json();
-if(data.logs) {
-logBox.innerHTML = data.logs.map(l => <div>${l}</div>).join('');
+    const logBox = document.getElementById('booster-live-logs');
+    logBox.style.display = 'block';
+    logBox.textContent = "Connecting to pipeline channels...";
+
+    try {
+        const res = await fetch(BASE_URL + '/booster', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                input: document.getElementById('booster-invite').value,
+                amount: document.getElementById('boost-amount').value,
+                strategy: document.getElementById('booster-strategy').value,
+                custom_tokens: document.getElementById('booster-custom-tokens').value,
+                userId: sessionUser.userId,
+                role: sessionUser.role
+            })
+        });
+        const data = await res.json();
+        if(data.logs) {
+            logBox.innerHTML = data.logs.map(l => `<div>${l}</div>`).join('');
+        }
+        fetchHubDetails();
+    } catch(e) { logBox.textContent = "Pipeline execution framework failed."; }
 }
-fetchHubDetails();
-} catch(e) { logBox.textContent = "Pipeline execution framework failed."; }
-}
+
 async function launchJoinerJob() {
-const logBox = document.getElementById('joiner-live-logs');
-logBox.style.display = 'block';
-logBox.textContent = "Connecting to community setup corridors...";
-try {
-const res = await fetch(BASE_URL + '/submit', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({
-input: document.getElementById('joiner-invite').value,
-amount: document.getElementById('joiner-amount').value,
-custom_tokens: document.getElementById('joiner-custom-tokens').value,
-userId: sessionUser.userId,
-role: sessionUser.role
-})
-});
-const data = await res.json();
-if(data.logs) {
-logBox.innerHTML = data.logs.map(l => <div>${l}</div>).join('');
+    const logBox = document.getElementById('joiner-live-logs');
+    logBox.style.display = 'block';
+    logBox.textContent = "Connecting to community setup corridors...";
+
+    try {
+        const res = await fetch(BASE_URL + '/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                input: document.getElementById('joiner-invite').value,
+                amount: document.getElementById('joiner-amount').value,
+                custom_tokens: document.getElementById('joiner-custom-tokens').value,
+                userId: sessionUser.userId,
+                role: sessionUser.role
+            })
+        });
+        const data = await res.json();
+        if(data.logs) {
+            logBox.innerHTML = data.logs.map(l => `<div>${l}</div>`).join('');
+        }
+        fetchHubDetails();
+    } catch(e) { logBox.textContent = "Community tracking setup connection error."; }
 }
-fetchHubDetails();
-} catch(e) { logBox.textContent = "Community tracking setup connection error."; }
-}
+
 async function runAssetChecker() {
-const logBox = document.getElementById('checker-live-logs');
-const display = document.getElementById('checked-accounts-display-container');
-logBox.style.display = 'block';
-logBox.textContent = "Spawning thread process loops. Please hold...";
-display.innerHTML = '';
-try {
-const res = await fetch(BASE_URL + '/items', {
+    const logBox = document.getElementById('checker-live-logs');
+    const display = document.getElementById('checked-accounts-display-container');
+    logBox.style.display = 'block';
+    logBox.textContent = "Spawning thread process loops. Please hold...";
+    display.innerHTML = '';
+
+    try {const res = await fetch(BASE_URL + '/items', {
 method: 'POST',
 headers: { 'Content-Type': 'application/json' },
 body: JSON.stringify({
