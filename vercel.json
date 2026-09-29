@@ -4,24 +4,28 @@
     {
       "src": "api/*.py",
       "use": "@vercel/python"
+    },
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/items",
-      "dest": "api/items.py"
+      "source": "/api/items",
+      "destination": "/api/items.py"
     },
     {
-      "src": "/api/booster",
-      "dest": "api/booster.py"
+      "source": "/api/booster",
+      "destination": "/api/booster.py"
     },
     {
-      "src": "/api/submit",
-      "dest": "api/submit.py"
+      "source": "/api/submit",
+      "destination": "/api/submit.py"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
