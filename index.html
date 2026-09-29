@@ -187,6 +187,7 @@
             <div id="tab-joiner" class="nav-item" onclick="switchView('joiner', this)"><i class="fa-solid fa-right-to-bracket"></i>Server Joiner</div>
         </div>
     </div>
+
     <!-- Main Workspace Area Layout -->
     <div class="main-content">
         <div class="top-navbar">
@@ -272,7 +273,7 @@
                     </div>
                 </div>
 
-                <!-- NEW: Premium Live Account Status Container Display -->
+                <!-- Live Account Status Container Display -->
                 <div class="accounts-grid" id="checked-accounts-display-container"></div>
             </div>
         </div>
@@ -334,7 +335,7 @@
         </div>
     </div>
 
-    <!-- Core Dynamic Layout Scripts Attached Safely Inside Tag Channels -->
+    <!-- Core Dynamic Layout Scripts -->
     <script>
         console.log("Boostlora Core: Operational engine loaded.");
 
@@ -373,144 +374,3 @@
             var totalCost = 0;
 
             if (strategy === 'salta7') { totalCost = amount * 0.18; } 
-else if (strategy === 'custom') { totalCost = amount * 0.02; }
-document.getElementById('boost-cost-display').innerText = '$' + totalCost.toFixed(2) + ' USD';
-}
-// --- SALTA7 MULTI-CARD DESERIALIZATION FRONTEND PARSER ENGINE ---
-async function handleCheckerAction(event) {
-event.preventDefault();
-var inputField = document.getElementById('checker-input-field');
-var displayContainer = document.getElementById('checked-accounts-display-container');
-if (!inputField || !displayContainer) return;
-var rawInput = inputField.value;
-displayContainer.innerHTML = "";
-document.getElementById('stat-total').innerText = "0";
-document.getElementById('stat-valid').innerText = "0";
-document.getElementById('stat-locked').innerText = "0";
-document.getElementById('stat-invalid').innerText = "0";
-document.getElementById('stat-avatar').innerText = "0";
-document.getElementById('stat-elapsed').innerText = "0s";
-var startTime = Date.now();
-var timerInterval = setInterval(function() {
-var elapsedSecs = Math.floor((Date.now() - startTime) / 1000);
-document.getElementById('stat-elapsed').innerText = elapsedSecs + 's';
-}, 1000);
-try {
-var response = await fetch('/api/items', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ input: rawInput, trigger: "active" })
-});
-var data = await response.json();
-clearInterval(timerInterval);
-if (data.status === "success" && Array.isArray(data.accounts)) {
-var total = data.accounts.length;
-var valid = 0, locked = 0, invalid = 0, avatars = 0;
-document.getElementById('stat-total').innerText = total;
-data.accounts.forEach(function(acc) {
-var cardClass = "card-invalid";
-var statusBadge = "Invalid";
-if (acc.status === "valid") {
-valid++;
-cardClass = "card-valid";
-statusBadge = "Valid";
-} else if (acc.status === "locked") {
-locked++;
-cardClass = "card-locked";
-statusBadge = "Locked";
-} else {
-invalid++;
-}
-var nitroBadge = " No Nitro";
-if (acc.nitro && acc.nitro !== "No Nitro") {
-nitroBadge = " Nitro";
-}
-var pfpIcon = "";
-if (acc.has_pfp) {
-avatars++;
-pfpIcon = "";
-}
-var cardHtml =
-'' +
-'' + pfpIcon + '' +
-'' +
-'' + acc.username + '' +
-'' +
-statusBadge +
-nitroBadge +
-' ' + acc.phone + '' +
-'' +
-'' +
-'';
-displayContainer.innerHTML += cardHtml;
-});
-document.getElementById('stat-valid').innerText = valid;
-document.getElementById('stat-locked').innerText = locked;
-document.getElementById('stat-invalid').innerText = invalid;
-document.getElementById('stat-avatar').innerText = avatars;
-} else if (data.message) {
-displayContainer.innerHTML = "" + data.message + "";
-}
-} catch (err) {
-clearInterval(timerInterval);
-console.error("API Checker Error: ", err);
-displayContainer.innerHTML = "[Error] Failed to connect or read profile data from server layer.";
-}
-}
-async function handleApiAction(event, endpoint) {
-event.preventDefault();
-var currentForm = event.target;
-var inputData = currentForm.querySelector('input[type="text"]')?.value || currentForm.querySelector('textarea')?.value || "";
-var amountData = currentForm.querySelector('input[type="number"]')?.value || "";
-var strategyData = document.getElementById('token-source')?.value || "salta7";
-let loggerBox = currentForm.querySelector('.live-logger-terminal');
-if (!loggerBox) {
-loggerBox = document.createElement('div');
-loggerBox.className = 'live-logger-terminal';
-loggerBox.style = "background:#020408; border:1px solid #1a2642; border-radius:8px; padding:12px; margin-top:16px; font-family:monospace; font-size:12px; color:#38bdf8; max-height:200px; overflow-y:auto; text-align:left; line-height:1.6;";
-currentForm.appendChild(loggerBox);
-}
-loggerBox.innerHTML = "[System] Dispatched connection payload to Vercel...";
-try {
-var response = await fetch(endpoint, {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ input: inputData, amount: amountData, strategy: strategyData, trigger: "active" })
-});
-var data = await response.json();
-loggerBox.innerHTML = "";
-if (data.logs && Array.isArray(data.logs)) {
-data.logs.forEach(function(line) { loggerBox.innerHTML += '' + line + ''; });
-}
-loggerBox.innerHTML += "[Finished] All pipeline tasks handled completely.";
-} catch (err) {
-loggerBox.innerHTML += "[Error] Connection failed to parse backend response.";
-}
-}
-function triggerPayment() {
-var amount = parseFloat(document.getElementById('deposit-amount').value) || 0;
-if (isNaN(amount) || amount < 1.00) { alert("The minimum deposit requirement threshold is $1.00 USD."); return; }
-if (window.Clerk && !window.Clerk.user) { alert("Please connect an account profile to log this invoice securely."); window.Clerk.openSignIn(); return; }
-var userId = window.Clerk.user ? window.Clerk.user.id : "guest_session";
-var userEmail = window.Clerk.user ? window.Clerk.user.primaryEmailAddress.emailAddress : "no_email";
-var commerceUrl = 'coinbase.com' + amount + '&custom=' + userId + '&email=' + userEmail;
-window.open(commerceUrl, '_blank', 'width=500,height=700,status=yes,resizable=yes');
-}
-window.addEventListener('load', async function() {
-var script = document.getElementById('clerk-script');
-if (!script) return;
-script.addEventListener('load', async function() {
-if (!window.Clerk) return;
-await window.Clerk.load();
-var authButtons = document.getElementById('auth-buttons');
-var profileSlot = document.getElementById('user-profile-slot');
-var signInBtn = document.getElementById('sign-in-btn');
-if (window.Clerk.user) {
-window.Clerk.mountUserButton(profileSlot, { appearance: { baseTheme: 'dark' } });
-if (authButtons) authButtons.style.display = 'none';
-} else {
-if (authButtons) authButtons.style.display = 'block';
-if (signInBtn) { signInBtn.addEventListener('click', function() { window.Clerk.openSignIn(); }); }
-}
-});
-});
