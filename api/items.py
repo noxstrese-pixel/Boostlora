@@ -4,158 +4,105 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-def clean_and_extract_token(raw_line):
-    """
-    Isolates the raw token Base64 string from messy lines or email combos.
-    """
-    cleaned = raw_line.strip()
-    if not cleaned:
-        return None
-        
-    if ":" in cleaned:
-        parts = cleaned.split(":")
-        for part in reversed(parts):
-            part_clean = part.strip()
-            # Valid tokens must contain structural segments longer than 40 chars
-            if len(part_clean) > 40:
-                return part_clean
-        return parts[-1].strip()
-        
-    return cleaned
-
-def parse_discord_token_profile(raw_line):
-    """
-    Queries Discord directly using proxy routers to sort real accounts from dead ones.
-    """
-    auth_token = clean_and_extract_token(raw_line)
-    
-    # SHARPENED RULE: Catch obviously dead, shortened, or fake text immediately
-    if not auth_token or len(auth_token) < 40 or "invalid" in raw_line.lower():
-        return {
-            "status": "invalid", 
-            "username": "Invalid/Dead Token", 
-            "phone": "No Phone", 
-            "nitro": "No Nitro", 
-            "has_pfp": False
-        }
-    
-    headers = {
-        "Authorization": auth_token,
-        "Content-Type": "application/json",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    }
-    
-    # 💡 HOW TO SEE TRUE REJECTS IMMEDIATELY:
-    # Paste your personal residential proxy address from providers like Asocks or Webshare here!
-    # Format: proxies = { "http": "http://user:pass@ip:port", "https": "http://user:pass@ip:port" }
-    proxies = None 
-
-    try:
-        user_res = requests.get(
-            "https://discord.com", 
-            headers=headers, 
-            proxies=proxies,
-            timeout=4
-        )
-        
-        # If the proxy is live, Discord will give an exact response answer:
-        if user_res.status_code == 200:
-            user_data = user_res.json()
-            
-            # Check for active Nitro billing properties
-            nitro_res = requests.get(
-                "https://discord.com/billing/subscriptions", 
-                headers=headers, 
-                proxies=proxies,
-                timeout=4
-            )
-            nitro_status = "No Nitro"
-            if nitro_res.status_code == 200 and len(nitro_res.json()) > 0:
-                nitro_status = "💎 Nitro Active"
-
-            username = user_data.get("username", "Discord User")
-            phone_number = user_data.get("phone") or "No Phone"
-            avatar_hash = user_data.get("avatar")
-            
-            return {
-                "status": "valid",
-                "username": username,
-                "phone": phone_number,
-                "nitro": nitro_status,
-                "has_pfp": True if avatar_hash else False
-            }
-            
-        elif user_res.status_code == 403:
-            return {
-                "status": "locked", 
-                "username": "Locked/Suspended", 
-                "phone": "Unknown", 
-                "nitro": "No Nitro", 
-                "has_pfp": False
-            }
-        elif user_res.status_code == 401:
-            return {
-                "status": "invalid", 
-                "username": "Dead Token (401)", 
-                "phone": "No Phone", 
-                "nitro": "No Nitro", 
-                "has_pfp": False
-            }
-
-        # Fallback layer only activates if Vercel gets cloud-blocked by the firewall:
-        if len(auth_token) > 50:
-            return {
-                "status": "valid", 
-                "username": f"User_{auth_token[0:5]}...{auth_token[-4:]}", 
-                "phone": "✅ Linked", 
-                "nitro": "💎 Nitro Active", 
-                "has_pfp": True
-            }
-            
-    except Exception:
-        # If no proxies are attached and the cloud connection fails, catch string properties gently
-        if len(auth_token) > 50:
-            return {
-                "status": "valid", 
-                "username": f"User_{auth_token[0:5]}...{auth_token[-4:]}", 
-                "phone": "✅ Linked", 
-                "nitro": "💎 Nitro Active", 
-                "has_pfp": True
-            }
-            
-    return {
-        "status": "invalid", 
-        "username": "Invalid Token", 
-        "phone": "No Phone", 
-        "nitro": "No Nitro", 
-        "has_pfp": False
-    }
+# Real production mapping extracted directly from the user dashboard settings
+SALTA7_BASE_URL = "https://salta7.store"
+SALTA7_HEADERS = {
+    "Authorization": "Bearer FWG7PJY53V4PLHI1TED5C7SYFNOBYQW5",
+    "Content-Type": "application/json"
+}
 
 @app.route('/api/items', methods=['POST'])
 def handle_items_checker():
     try:
         data = request.get_json() or {}
         raw_input = data.get('input', '')
-        tokens_list = [t.strip() for t in raw_input.split('\n') if t.strip()]
+        
+        # Parse pasted string rows line-by-line into clean array elements
+        lines_list = [line.strip() for line in raw_input.split('\n') if line.strip()]
 
-        accounts_results_array = []
+        if not lines_list:
+            return jsonify({"status": "success", "accounts": []}), 200
 
-        for token in tokens_list:
-            if not token:
+        # --- STEP 1: INITIALIZE THE ASYNCHRONOUS CHECK RUN WITH SALTA7 ---
+        payload = {
+            "tool": "check",
+            "tokens": lines_list
+        }
+        
+        create_res = requests.post(
+            f"{SALTA7_BASE_URL}/task/create", 
+            headers=SALTA7_HEADERS, 
+            json=payload, 
+            timeout=10
+        )
+        
+        if create_res.status_code != 200:
+            return jsonify({
+                "status": "error", 
+                "message": f"Salta7 Task Initialization Failed (Status Code: {create_res.status_code})"
+            }), 400
+            
+        task_data = create_res.json()
+        job_id = task_data.get("job_id")
+        
+        if not job_id:
+            return jsonify({"status": "error", "message": "No job identifier token returned from Salta7 API layer."}), 500
+
+        # --- STEP 2: POLL THE REAL-TIME RESULTS CHANNEL ---
+        results_collection = []
+        max_attempts = 45  # Safety timeout loop boundaries protecting serverless instance lifecycle bounds
+        after_id = 0
+
+        for attempt in range(max_attempts):
+            poll_params = {
+                "job_id": job_id,
+                "after": after_id
+            }
+            
+            poll_res = requests.get(
+                f"{SALTA7_BASE_URL}/task/items", 
+                headers=SALTA7_HEADERS, 
+                params=poll_params, 
+                timeout=10
+            )
+            
+            if poll_res.status_code != 200:
+                time.sleep(1.0)
                 continue
+                
+            poll_data = poll_res.json()
             
-            profile_data = parse_discord_token_profile(token)
-            accounts_results_array.append(profile_data)
+            # Map out each incremental status payload cleanly to populate your index.html display grid
+            for item in poll_data.get("results", []):
+                has_nitro = item.get("nitro", False)
+                nitro_days = item.get("nitro_days", 0)
+                nitro_label = f"Nitro ({nitro_days}d)" if has_nitro else "No Nitro"
+                
+                phone_label = "✅ Linked" if item.get("has_phone") else "No Phone"
+                
+                results_collection.append({
+                    "status": item.get("status", "invalid"),  # valid, locked, invalid, error
+                    "username": item.get("username") or item.get("global_name") or "Unknown User",
+                    "phone": phone_label,
+                    "nitro": nitro_label,
+                    "has_pfp": item.get("has_avatar", False)
+                })
+
+            after_id = poll_data.get("last_id", after_id)
             
-            time.sleep(0.1)
+            # Instantly terminate the loop container when execution changes status parameters from running
+            if poll_data.get("status") != "running":
+                break
+                
+            time.sleep(1.0)  # Polling interval frequency rule requested by Salta7 engine rules
 
         return jsonify({
             "status": "success",
-            "accounts": accounts_results_array
+            "accounts": results_collection
         }), 200
 
     except Exception as e:
         return jsonify({
             "status": "error",
-            "message": f"[Server Error] API error: {str(e)}"
+            "message": f"[Pipeline Error] Salta7 processing failed: {str(e)}"
         }), 500
