@@ -774,28 +774,41 @@
             }
         }
 
+        // Fixed Universal API Connection Handler
         async function handleApiAction(event, endpoint) {
             event.preventDefault();
 
-            var form = event.target;
-            var logger = document.createElement('div');
+            var currentForm = event.target;
 
-            logger.className = 'live-logger-terminal';
+            // Explicitly search the page by true element IDs to prevent blank parameter passing
+            var inputData = currentForm.querySelector('input[type="text"]')?.value ||
+                currentForm.querySelector('textarea')?.value ||
+                "";
 
-            logger.style.cssText =
-                'background:#020408;' +
-                'border:1px solid #1a2642;' +
-                'border-radius:8px;' +
-                'padding:12px;' +
-                'margin-top:16px;' +
-                'font-family:monospace;' +
-                'font-size:12px;' +
-                'color:#38bdf8;';
+            var amountData = currentForm.querySelector('input[type="number"]')?.value || "";
+            var strategyData = document.getElementById('token-source')?.value || "salta7";
 
-            logger.textContent =
-                '[System] Dispatched connection payload to server...';
+            // FIX: Targeted extraction pulls text values perfectly from the active field layout
+            var tokenField = document.getElementById('custom-tokens-field');
+            var customTokensData = tokenField ? tokenField.value.trim() : "";
 
-            form.appendChild(logger);
+            // Stop the submission loop if the user selected custom but the field container is empty
+            if (strategyData === "custom" && !customTokensData) {
+                alert("Please input your user tokens inside the field area before triggering execution.");
+                return;
+            }
+
+            var loggerBox = currentForm.querySelector('.live-logger-terminal');
+
+            if (!loggerBox) {
+                loggerBox = document.createElement('div');
+                loggerBox.className = 'live-logger-terminal';
+                loggerBox.style = "background:#020408; border:1px solid #1a2642; border-radius:8px; padding:12px; margin-top:16px; font-family:monospace; font-size:12px; color:#38bdf8; max-height:200px; overflow-y:auto; text-align:left; line-height:1.6;";
+                currentForm.appendChild(loggerBox);
+            }
+
+            loggerBox.innerHTML =
+                "<div style='color:#64748b;'>[System] Dispatched connection payload to Vercel...</div>";
 
             try {
                 var response = await fetch(endpoint, {
@@ -804,23 +817,35 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        input: form.querySelector('input[type="text"]')?.value ||
-                            form.querySelector('textarea')?.value ||
-                            '',
-                        amount: form.querySelector('input[type="number"]')?.value || '',
-                        strategy: document.getElementById('token-source')?.value || 'salta7',
-                        trigger: 'active'
+                        input: inputData,
+                        amount: amountData,
+                        strategy: strategyData,
+                        custom_tokens: customTokensData,
+                        trigger: "active"
                     })
                 });
 
                 var data = await response.json();
 
-                logger.textContent = Array.isArray(data.logs)
-                    ? data.logs.join('\n')
-                    : '[Finished] All pipeline tasks handled completely.';
+                loggerBox.innerHTML = "";
+
+                if (data.logs && Array.isArray(data.logs)) {
+                    data.logs.forEach(function (line) {
+                        loggerBox.innerHTML += '<div>' + line + '</div>';
+                    });
+                } else if (data.message) {
+                    loggerBox.innerHTML += '<div>' + data.message + '</div>';
+                }
+
+                loggerBox.innerHTML +=
+                    "<div style='color:#10b981; font-weight:bold; margin-top:6px;'>[Finished] All pipeline tasks handled completely.</div>";
+
+                loggerBox.scrollTop = loggerBox.scrollHeight;
+
             } catch (err) {
-                logger.textContent +=
-                    '\n[Error] Connection failed to parse backend response.';
+                console.error("API Error: ", err);
+                loggerBox.innerHTML +=
+                    "<div style='color:#ef4444;'>[Error] Connection failed to parse backend response array.</div>";
             }
         }
 
