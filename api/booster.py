@@ -1,5 +1,6 @@
 import os
 import time
+import random
 import requests
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -13,8 +14,49 @@ SALTA7_HEADERS = {
     "Content-Type": "application/json"
 }
 
+# CONFIGURATION COLLECTION FOR ADMIN WALLET DESTINATIONS
+ADMIN_ADDRESSES = {
+    "BTC": "1YourBitcoinWalletAddressHere",
+    "LTC": "LYourLitecoinWalletAddressHere",
+    "DOGE": "DYourDogecoinWalletAddressHere",
+    "SOL": "SYourSolanaWalletAddressHere"
+}
+
 def get_db_connection():
     return psycopg2.connect(os.environ.get('DATABASE_URL'), cursor_factory=RealDictCursor)
+
+@app.route('/api/booster/invoice', methods=['POST'])
+def generate_invoice():
+    data = request.get_json() or {}
+    user_id = data.get('userId')
+    email = data.get('email')
+    coin = data.get('coin')
+    amount = data.get('amount')
+    
+    if not coin or not amount or float(amount) <= 0:
+        return jsonify({"error": "Invalid deposit parameters"}), 400
+        
+    invoice_id = f"TX-{random.randint(100000, 999999)}"
+    wallet = ADMIN_ADDRESSES.get(coin, "Address Unconfigured")
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    cur.execute(
+        "INSERT INTO deposits (id, user_id, user_email, coin, amount, wallet_address, status) VALUES (%s, %s, %s, %s, %s, %s, %s);",
+        (invoice_id, user_id, email, coin, float(amount), wallet, 'pending')
+    )
+    conn.commit()
+    
+    cur.close()
+    conn.close()
+    
+    return jsonify({
+        "invoiceId": invoice_id,
+        "coin": coin,
+        "amount": float(amount),
+        "address": wallet
+    }), 201
 
 @app.route('/api/booster', methods=['POST'])
 def handle_booster_pipeline():
