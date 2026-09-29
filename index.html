@@ -229,20 +229,23 @@
             </div>
         </div>
     </div>
+    </div>
 
     <!-- Core Dynamic Layout Scripts -->
     <script>
         console.log("Boostlora Core: Operational engine loaded.");
 
-        // Tab View Router Engine (100% Fail-Safe)
+        // Tab View Router Engine (100% Fail-Safe Layout Router)
         function switchView(viewName, element) {
-            document.querySelectorAll('.view-panel').forEach(p => {
+            document.querySelectorAll('.view-panel').forEach(function(p) {
                 p.classList.remove('active');
             });
-            document.querySelectorAll('.nav-item').forEach(i => {
+            document.querySelectorAll('.nav-item').forEach(function(i) {
                 i.classList.remove('active');
             });
-            const targetView = document.getElementById(`view-${viewName}`);
+            
+            // Clean string concat fix to restore GitHub editor theme colors
+            var targetView = document.getElementById('view-' + viewName);
             if (targetView) {
                 targetView.classList.add('active');
             }
@@ -253,15 +256,15 @@
 
         // Bridge helper for shortcut links inside cards
         function navigateToTab(tabName) {
-            const sidebarBtn = document.getElementById(`tab-${tabName}`);
+            var sidebarBtn = document.getElementById('tab-' + tabName);
             switchView(tabName, sidebarBtn);
         }
 
         // Reveals or hides the custom user token text area
         function toggleTokenInput() {
-            const strategy = document.getElementById('token-source').value;
-            const wrapper = document.getElementById('custom-tokens-wrapper');
-            const field = document.getElementById('custom-tokens-field');
+            var strategy = document.getElementById('token-source').value;
+            var wrapper = document.getElementById('custom-tokens-wrapper');
+            var field = document.getElementById('custom-tokens-field');
             
             if (strategy === 'custom') {
                 wrapper.style.display = 'block';
@@ -274,9 +277,9 @@
 
         // Dynamic Cost Calculator
         function calculateBoostCost() {
-            const strategy = document.getElementById('token-source').value;
-            const amount = parseInt(document.getElementById('boost-amount').value) || 0;
-            let totalCost = 0;
+            var strategy = document.getElementById('token-source').value;
+            var amount = parseInt(document.getElementById('boost-amount').value) || 0;
+            var totalCost = 0;
 
             if (strategy === 'salta7') {
                 totalCost = amount * 0.18;
@@ -284,20 +287,20 @@
                 totalCost = amount * 0.02;
             }
 
-            document.getElementById('boost-cost-display').innerText = `$${totalCost.toFixed(2)} USD`;
+            document.getElementById('boost-cost-display').innerText = '$' + totalCost.toFixed(2) + ' USD';
         }
 
         // Backend Serverless Streaming API Handler
         async function handleApiAction(event, endpoint) {
             event.preventDefault();
             
-            const currentForm = event.target;
-            const inputData = currentForm.querySelector('input[type="text"]')?.value || currentForm.querySelector('textarea')?.value || "";
-            const amountData = currentForm.querySelector('input[type="number"]')?.value || "";
-            const strategyData = document.getElementById('token-source')?.value || "salta7";
-            const customTokensData = document.getElementById('custom-tokens-field')?.value || "";
+            var currentForm = event.target;
+            var inputData = currentForm.querySelector('input[type="text"]')?.value || currentForm.querySelector('textarea')?.value || "";
+            var amountData = currentForm.querySelector('input[type="number"]')?.value || "";
+            var strategyData = document.getElementById('token-source')?.value || "salta7";
+            var customTokensData = document.getElementById('custom-tokens-field')?.value || "";
 
-            let loggerBox = currentForm.querySelector('.live-logger-terminal');
+            var loggerBox = currentForm.querySelector('.live-logger-terminal');
             if (!loggerBox) {
                 loggerBox = document.createElement('div');
                 loggerBox.className = 'live-logger-terminal';
@@ -308,7 +311,7 @@
             loggerBox.innerHTML = "<div style='color:#64748b;'>[System] Initializing connection to Vercel API runner...</div>";
 
             try {
-                const response = await fetch(endpoint, {
+                var response = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
@@ -320,15 +323,15 @@
                     })
                 });
 
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
+                var reader = response.body.getReader();
+                var decoder = new TextDecoder();
                 
                 while (true) {
-                    const { value, done } = await reader.read();
-                    if (done) break;
+                    var chunkResult = await reader.read();
+                    if (chunkResult.done) break;
                     
-                    const chunk = decoder.decode(value);
-                    loggerBox.innerHTML += `<div>${chunk}</div>`;
+                    var chunk = decoder.decode(chunkResult.value);
+                    loggerBox.innerHTML += '<div>' + chunk + '</div>';
                     loggerBox.scrollTop = loggerBox.scrollHeight;
                 }
                 
@@ -341,7 +344,7 @@
 
         // Crypto Invoice Launcher with a Strict $1 Minimum Bound
         function triggerPayment() {
-            const amount = parseFloat(document.getElementById('deposit-amount').value) || 0;
+            var amount = parseFloat(document.getElementById('deposit-amount').value) || 0;
 
             if (isNaN(amount) || amount < 1.00) {
                 alert("Invoice Generation Failed: The minimum deposit requirement threshold is $1.00 USD.");
@@ -354,31 +357,37 @@
                 return;
             }
             
-            const userId = window.Clerk.user ? window.Clerk.user.id : "guest_session";
-            const userEmail = window.Clerk.user ? window.Clerk.user.primaryEmailAddress.emailAddress : "no_email";
+            var userId = window.Clerk.user ? window.Clerk.user.id : "guest_session";
+            var userEmail = window.Clerk.user ? window.Clerk.user.primaryEmailAddress.emailAddress : "no_email";
             
-            const commerceUrl = `https://coinbase.com{amount}&custom=${userId}&email=${userEmail}`;
+            var commerceUrl = 'https://coinbase.com' + amount + '&custom=' + userId + '&email=' + userEmail;
             window.open(commerceUrl, '_blank', 'width=500,height=700,status=yes,resizable=yes');
         }
 
         // Clerk Auth Manager Initialization Loop
-window.addEventListener('load', async function() {
-const script = document.getElementById('clerk-script');
-if (!script) return;
-script.addEventListener('load', async function() {
-if (!window.Clerk) return;
-await window.Clerk.load();
-const authButtons = document.getElementById('auth-buttons');
-const profileSlot = document.getElementById('user-profile-slot');
-const signInBtn = document.getElementById('sign-in-btn');
-if (window.Clerk.user) {
-window.Clerk.mountUserButton(profileSlot, { appearance: { baseTheme: 'dark' } });
-if (authButtons) authButtons.style.display = 'none';
-} else {
-if (authButtons) authButtons.style.display = 'block';
-if (signInBtn) {
-signInBtn.addEventListener('click', () => { window.Clerk.openSignIn(); });
-}
-}
-});
-});
+        window.addEventListener('load', async function() {
+            var script = document.getElementById('clerk-script');
+            if (!script) return;
+
+            script.addEventListener('load', async function() {
+                if (!window.Clerk) return;
+                await window.Clerk.load();
+                
+                var authButtons = document.getElementById('auth-buttons');
+                var profileSlot = document.getElementById('user-profile-slot');
+                var signInBtn = document.getElementById('sign-in-btn');
+
+                if (window.Clerk.user) {
+                    window.Clerk.mountUserButton(profileSlot, { appearance: { baseTheme: 'dark' } });
+                    if (authButtons) authButtons.style.display = 'none';
+                } else {
+                    if (authButtons) authButtons.style.display = 'block';
+                    if (signInBtn) {
+                        signInBtn.addEventListener('click', function() { window.Clerk.openSignIn(); });
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
