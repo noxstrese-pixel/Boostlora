@@ -1,40 +1,29 @@
-import json
-import time
-from flask import Flask, request, Response, stream_with_context
+import asyncio
+from fastapi import FastAPI, Request
+from fastapi.responses import StreamingResponse
 
-app = Flask(__name__)
+app = FastAPI()
 
-@app.route('/', methods=['POST'])
-def handle_booster():
-    data = request.get_json() or {}
-    amount = data.get('amount', 2)
+@app.post("/api/booster")
+async def handle_booster(request: Request):
+    data = await request.json() or {}
+    amount = int(data.get('amount', 2))
     strategy = data.get('strategy', 'salta7')
 
-    @stream_with_context
-    def generate():
+    async def generate_logs():
         yield f"[System] Initializing boost queue for {amount} nodes using target strategy: '{strategy}'\n"
-        time.sleep(0.4)
+        await asyncio.sleep(0.5)
 
-        tokens_to_process = [f"Token_MTAx{i}..." for i in range(1, int(amount) + 1)]
-
-        for index, token in enumerate(tokens_to_process, 1):
+        for index in range(1, amount + 1):
             yield f"[Node {index}] Authenticating proxy connection channels...\n"
-            time.sleep(0.4)
+            await asyncio.sleep(0.5)
 
             yield f"🧩 [Captcha Triggered] Anti-bot challenge flagged. Solving network grid entry keys...\n"
-            time.sleep(1.2)
+            await asyncio.sleep(1.0)
             yield f"✅ [Captcha Solved] Token bypass generated successfully.\n"
-            time.sleep(0.2)
+            await asyncio.sleep(0.2)
 
             yield f"🚀 [Success] Joined guild server cleanly and dispatched booster payload! ({index}/{amount})\n"
-            time.sleep(0.1)
+            await asyncio.sleep(0.1)
 
-    return Response(
-        generate(),
-        mimetype='text/event-stream',
-        headers={
-            'Cache-Control': 'no-cache',
-            'Connection': 'keep-alive',
-            'X-Accel-Buffering': 'no'
-        }
-    )
+    return StreamingResponse(generate_logs(), media_type="text/plain")
