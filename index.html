@@ -20,6 +20,8 @@
             --text-muted: #64748b;
             --accent-blue: #2563eb;
             --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #fbbf24;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
         body { background-color: var(--bg-base); color: var(--text-main); min-height: 100vh; display: flex; overflow-x: hidden; }
@@ -94,6 +96,79 @@
         .crypto-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
         .crypto-box { background-color: var(--bg-input); border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; text-align: center; font-size: 11px; font-weight: 600; color: var(--text-muted); }
         .crypto-box i { display: block; font-size: 16px; margin-bottom: 4px; }
+
+        /* --- SALTA7 PREMIUM LIVE CHECKER UI CODES --- */
+        .stats-counter-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        @media (min-width: 640px) { .stats-counter-strip { grid-template-columns: repeat(6, 1fr); } }
+        
+        .stat-box {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+        .stat-box-val { font-size: 20px; font-weight: 700; color: #fff; }
+        .stat-box-lbl { font-size: 10px; text-transform: uppercase; color: var(--text-muted); margin-top: 4px; font-weight: 600; letter-spacing: 0.5px; }
+        
+        /* Accounts Display Grid Area */
+        .accounts-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        @media (min-width: 768px) { .accounts-grid { grid-template-columns: 1fr 1fr; } }
+        
+        .account-card {
+            background: linear-gradient(135deg, #0e1629 0%, #060b14 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+        }
+        .account-card.card-valid { border-left: 3px solid var(--accent-green); }
+        .account-card.card-invalid { border-left: 3px solid var(--accent-red); opacity: 0.6; }
+        .account-card.card-locked { border-left: 3px solid var(--accent-yellow); }
+
+        .account-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: #16223f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+        }
+        .account-avatar i { font-size: 20px; color: var(--text-muted); }
+        
+        .account-info { flex-grow: 1; }
+        .account-username { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .account-meta-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        
+        .badge-status {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        .badge-status.b-valid { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+        .badge-status.b-invalid { background: rgba(239,68,68,0.15); color: var(--accent-red); }
+        .badge-status.b-locked { background: rgba(251,191,36,0.15); color: var(--accent-yellow); }
+        
+        .badge-feature { font-size: 11px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 4px; }
+        .badge-feature i { font-size: 12px; }
+        .badge-feature.has-feature { color: #c084fc; } /* Nitro purple */
     </style>
 </head>
 <body>
@@ -117,285 +192,178 @@
     <div class="main-content">
         <div class="top-navbar">
             <div class="user-balance"><i class="fa-solid fa-wallet"></i> 0.00 USD</div>
-            <div id="auth-buttons">
-                <button id="sign-in-btn" class="nav-item" style="padding: 8px 14px; background: #16223f; border: none; cursor: pointer;"><i class="fa-solid fa-user"></i>Connect</button>
-            </div>
-            <div id="user-profile-slot"></div>
-        </div>
-
-        <!-- VIEW 1: MAIN DASHBOARD & DEPOSITS -->
-        <div id="view-dashboard" class="view-panel active">
-            <div class="dashboard-grid">
-                <div class="card">
-                    <h3>Active Infrastructure Modules</h3>
-                    <div class="service-grid">
-                        <div class="service-item">
-                            <h4>Discord Boost Module</h4>
-                            <div class="price-tag">$0.18 / boost</div>
-                            <button class="btn-action" style="padding: 8px;" onclick="navigateToTab('booster')">Open Tool</button>
-                        </div>
-                        <div class="service-item">
-                            <h4>Automated Server Joiner</h4>
-                            <div class="price-tag">$0.05 / join</div>
-                            <button class="btn-action" style="padding: 8px;" onclick="navigateToTab('joiner')">Open Tool</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3><i class="fa-solid fa-wallet" style="color: var(--accent-blue);"></i> Add Funds</h3>
-                    <div class="crypto-row">
-                        <div class="crypto-box"><i class="fa-brands fa-btc" style="color:#f59e0b"></i>BTC</div>
-                        <div class="crypto-box"><i class="fa-solid fa-coins" style="color:#cbd5e1"></i>LTC</div>
-                        <div class="crypto-box"><i class="fa-solid fa-paw" style="color:#eab308"></i>DOGE</div>
-                        <div class="crypto-box"><i class="fa-solid fa-circle-nodes" style="color:#14b8a6"></i>SOL</div>
-                    </div>
-                    <div class="form-group">
-                        <label>Amount ($ USD)</label>
-                        <input id="deposit-amount" type="number" value="25" min="1" step="1">
-                    </div>
-                    <button onclick="triggerPayment()" class="btn-action" style="background:#fff; color:#000;">Generate Invoice</button>
-                </div>
-            </div>
-        </div>
-
-              <!-- VIEW 2: TOKEN CHECKER TOOL -->
-        <div id="view-checker" class="view-panel">
-            <div class="card" style="max-width: 800px;">
-                <h3><i class="fa-solid fa-shield-halved"></i> Automated Token Checker</h3>
-                <form id="checker-form" onsubmit="handleApiAction(event, '/api/items')">
-                    <div class="form-group">
-                        <label>Input Auth Tokens (One per line)</label>
-                        <textarea placeholder="Paste accounts/tokens here..." required></textarea>
-                    </div>
-                    <button type="submit" class="btn-action">Start Verification Scan</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- VIEW 3: DISCORD BOOST TOOL -->
-        <div id="view-booster" class="view-panel">
-            <div class="card" style="max-width: 800px;">
-                <h3><i class="fa-solid fa-rocket"></i> Server Booster Tool</h3>
-                <form id="booster-form" onsubmit="handleApiAction(event, '/api/booster')">
-                    <div class="form-group">
-                        <label>Invite Link or Server ID</label>
-                        <input type="text" placeholder="https://discord.gg" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Token Source Strategy</label>
-                        <select id="token-source" onchange="toggleTokenInput(); calculateBoostCost();">
-                            <option value="salta7">Use Premium Auto-Tokens ($0.18 per Boost)</option>
-                            <option value="custom">Provide My Own Tokens ($0.02 Captcha Fee per Boost)</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group" id="custom-tokens-wrapper">
-                        <label>Input User Tokens (One per line)</label>
-                        <textarea id="custom-tokens-field" placeholder="Paste your custom user tokens here..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Amount of Boosts</label>
-                        <input id="boost-amount" type="number" value="2" min="1" oninput="calculateBoostCost()" required>
-                    </div>
-
-                    <div class="form-group" style="background: rgba(37, 99, 235, 0.1); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; margin-bottom: 20px;">
-                        <span style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Estimated Cost:</span>
-                        <span id="boost-cost-display" style="font-size: 16px; font-weight: 700; color: var(--accent-green); float: right;">$0.36 USD</span>
-                    </div>
-
-                    <button type="submit" class="btn-action">Execute Boosting Pipeline</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- VIEW 4: AUTOMATED MEMBER JOINER -->
-        <div id="view-joiner" class="view-panel">
-            <div class="card" style="max-width: 800px;">
-                <h3><i class="fa-solid fa-right-to-bracket"></i> Automated Member Joiner</h3>
-                <form id="joiner-form" onsubmit="handleApiAction(event, '/api/submit')">
-                    <div class="form-group">
-                        <label>Target Invite Code</label>
-                        <input type="text" placeholder="discord.gg/your-code" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Amount to Join</label>
-                        <input type="number" value="50" step="10" required>
-                    </div>
-                    <button type="submit" class="btn-action">Inject Automation Workers</button>
-                </form>
-            </div>
-        </div>
-    </div>
-    </div>
-
-    <!-- Core Dynamic Layout Scripts -->
-    <script>
-        console.log("Boostlora Core: Operational engine loaded.");
-
-        // Tab View Router Engine (100% Fail-Safe Layout Router)
-        function switchView(viewName, element) {
-            document.querySelectorAll('.view-panel').forEach(function(p) {
-                p.classList.remove('active');
-            });
-            document.querySelectorAll('.nav-item').forEach(function(i) {
-                i.classList.remove('active');
-            });
-            
-            // Clean string concat fix to restore GitHub editor theme colors
-            var targetView = document.getElementById('view-' + viewName);
-            if (targetView) {
-                targetView.classList.add('active');
-            }
-            if (element) {
-                element.classList.add('active');
-            }
-        }
-
-        // Bridge helper for shortcut links inside cards
-        function navigateToTab(tabName) {
-            var sidebarBtn = document.getElementById('tab-' + tabName);
-            switchView(tabName, sidebarBtn);
-        }
-
-        // Reveals or hides the custom user token text area
-                // Bridge helper for shortcut links inside cards
-        function navigateToTab(tabName) {
-            var sidebarBtn = document.getElementById('tab-' + tabName);
-            switchView(tabName, sidebarBtn);
-        }
-
-        // Reveals or hides the custom user token text area
-        function toggleTokenInput() {
-            var strategy = document.getElementById('token-source').value;
-            var wrapper = document.getElementById('custom-tokens-wrapper');
-            var field = document.getElementById('custom-tokens-field');
-            
-            if (strategy === 'custom') {
-                wrapper.style.display = 'block';
-                field.setAttribute('required', 'true');
-            } else {
-                wrapper.style.display = 'none';
-                field.removeAttribute('required');
-            }
-        }
-
-        // Dynamic Cost Calculator (Fixed Syntax Errors)
-        function calculateBoostCost() {
-            var strategy = document.getElementById('token-source').value;
-            var amount = parseInt(document.getElementById('boost-amount').value) || 0;
-            var totalCost = 0;
-
-            if (strategy === 'salta7') {
-                totalCost = amount * 0.18;
-            } else if (strategy === 'custom') {
-                totalCost = amount * 0.02;
-            }
-
-            document.getElementById('boost-cost-display').innerText = '$' + totalCost.toFixed(2) + ' USD';
-        }
-
-        // Clean Vercel Backend API Connection Handler (Instant Array Delivery)
-        async function handleApiAction(event, endpoint) {
-            event.preventDefault();
-            
-            var currentForm = event.target;
-            var inputData = currentForm.querySelector('input[type="text"]')?.value || currentForm.querySelector('textarea')?.value || "";
-            var amountData = currentForm.querySelector('input[type="number"]')?.value || "";
-            var strategyData = document.getElementById('token-source')?.value || "salta7";
-            var customTokensData = document.getElementById('custom-tokens-field')?.value || "";
-
-            var loggerBox = currentForm.querySelector('.live-logger-terminal');
-            if (!loggerBox) {
-                loggerBox = document.createElement('div');
-                loggerBox.className = 'live-logger-terminal';
-                loggerBox.style = "background:#020408; border:1px solid #1a2642; border-radius:8px; padding:12px; margin-top:16px; font-family:monospace; font-size:12px; color:#38bdf8; max-height:200px; overflow-y:auto; text-align:left; line-height:1.6;";
-                currentForm.appendChild(loggerBox);
-            }
-            
-            loggerBox.innerHTML = "<div style='color:#64748b;'>[System] Dispatched connection payload to Vercel instances...</div>";
-
-            try {
-                var response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        input: inputData,
-                        amount: amountData,
-                        strategy: strategyData,
-                        custom_tokens: customTokensData,
-                        trigger: "active" 
-                    })
-                });
-
-                var data = await response.json();
-                
-                loggerBox.innerHTML = "";
-                if (data.logs && Array.isArray(data.logs)) {
-                    data.logs.forEach(function(line) {
-                        loggerBox.innerHTML += '<div>' + line + '</div>';
-                    });
-                } else if (data.message) {
-                    loggerBox.innerHTML += '<div>' + data.message + '</div>';
-                }
-                
-                loggerBox.innerHTML += "<div style='color:#10b981; font-weight:bold; margin-top:6px;'>[Finished] All pipeline tasks handled completely.</div>";
-                loggerBox.scrollTop = loggerBox.scrollHeight;
-
-            } catch (err) {
-                console.error("API Error: ", err);
-                loggerBox.innerHTML += "<div style='color:#ef4444;'>[Error] Connection failed to parse backend response array.</div>";
-            }
-        }
-
-        // Crypto Invoice Launcher with a Strict $1 Minimum Bound
-        function triggerPayment() {
-            var amount = parseFloat(document.getElementById('deposit-amount').value) || 0;
-
-            if (isNaN(amount) || amount < 1.00) {
-                alert("Invoice Generation Failed: The minimum deposit requirement threshold is $1.00 USD.");
-                return;
-            }
-
-            if (window.Clerk && !window.Clerk.user) {
-                alert("Please connect an account profile to log this invoice securely.");
-                window.Clerk.openSignIn();
-                return;
-            }
-            
-            var userId = window.Clerk.user ? window.Clerk.user.id : "guest_session";
-            var userEmail = window.Clerk.user ? window.Clerk.user.primaryEmailAddress.emailAddress : "no_email";
-            
-            var commerceUrl = 'https://coinbase.com' + amount + '&custom=' + userId + '&email=' + userEmail;
-            window.open(commerceUrl, '_blank', 'width=500,height=700,status=yes,resizable=yes');
-        }
-
-        // Clerk Auth Manager Initialization Loop
-        window.addEventListener('load', async function() {
-            var script = document.getElementById('clerk-script');
-            if (!script) return;
-
-            script.addEventListener('load', async function() {
-                if (!window.Clerk) return;
-                await window.Clerk.load();
-                
-                var authButtons = document.getElementById('auth-buttons');
-                var profileSlot = document.getElementById('user-profile-slot');
-                var signInBtn = document.getElementById('sign-in-btn');
-
-                if (window.Clerk.user) {
-                    window.Clerk.mountUserButton(profileSlot, { appearance: { baseTheme: 'dark' } });
-                    if (authButtons) authButtons.style.display = 'none';
-                } else {
-                    if (authButtons) authButtons.style.display = 'block';
-                    if (signInBtn) {
-                        signInBtn.addEventListener('click', function() { window.Clerk.openSignIn(); });
-                    }
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+console.log("Boostlora Core: Operational engine loaded.");
+// Tab View Router Engine (100% Fail-Safe Layout Router)
+function switchView(viewName, element) {
+document.querySelectorAll('.view-panel').forEach(function(p) { p.classList.remove('active'); });
+document.querySelectorAll('.nav-item').forEach(function(i) { i.classList.remove('active'); });
+var targetView = document.getElementById('view-' + viewName);
+if (targetView) { targetView.classList.add('active'); }
+if (element) { element.classList.add('active'); }
+}
+function navigateToTab(tabName) {
+var sidebarBtn = document.getElementById('tab-' + tabName);
+switchView(tabName, sidebarBtn);
+}
+function toggleTokenInput() {
+var strategy = document.getElementById('token-source').value;
+var wrapper = document.getElementById('custom-tokens-wrapper');
+var field = document.getElementById('custom-tokens-field');
+if (strategy === 'custom') {
+wrapper.style.display = 'block';
+field.setAttribute('required', 'true');
+} else {
+wrapper.style.display = 'none';
+field.removeAttribute('required');
+}
+}
+function calculateBoostCost() {
+var strategy = document.getElementById('token-source').value;
+var amount = parseInt(document.getElementById('boost-amount').value) || 0;
+var totalCost = 0;
+if (strategy === 'salta7') { totalCost = amount * 0.18; }
+else if (strategy === 'custom') { totalCost = amount * 0.02; }
+document.getElementById('boost-cost-display').innerText = '$' + totalCost.toFixed(2) + ' USD';
+}
+// --- SALTA7 MULTI-CARD DESERIALIZATION FRONTEND PARSER ENGINE ---
+async function handleCheckerAction(event) {
+event.preventDefault();
+var inputField = document.getElementById('checker-input-field');
+var displayContainer = document.getElementById('checked-accounts-display-container');
+if (!inputField || !displayContainer) return;
+var rawInput = inputField.value;
+displayContainer.innerHTML = ""; // Wipe past visual grid items
+// Reset counter boxes back to zero state parameters
+document.getElementById('stat-total').innerText = "0";
+document.getElementById('stat-valid').innerText = "0";
+document.getElementById('stat-locked').innerText = "0";
+document.getElementById('stat-invalid').innerText = "0";
+document.getElementById('stat-avatar').innerText = "0";
+document.getElementById('stat-elapsed').innerText = "0s";
+var startTime = Date.now();
+var timerInterval = setInterval(function() {
+var elapsedSecs = Math.floor((Date.now() - startTime) / 1000);
+document.getElementById('stat-elapsed').innerText = elapsedSecs + 's';
+}, 1000);
+try {
+var response = await fetch('/api/items', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ input: rawInput, trigger: "active" })
+});
+var data = await response.json();
+clearInterval(timerInterval);
+if (data.status === "success" && Array.isArray(data.accounts)) {
+var total = data.accounts.length;
+var valid = 0, locked = 0, invalid = 0, avatars = 0;
+document.getElementById('stat-total').innerText = total;
+data.accounts.forEach(function(acc) {
+var cardClass = "card-invalid";
+var statusBadge = "Invalid";
+if (acc.status === "valid") {
+valid++;
+cardClass = "card-valid";
+statusBadge = "Valid";
+} else if (acc.status === "locked") {
+locked++;
+cardClass = "card-locked";
+statusBadge = "Locked";
+} else {
+invalid++;
+}
+var nitroBadge = " No Nitro";
+if (acc.nitro && acc.nitro !== "No Nitro") {
+nitroBadge = " Nitro";
+}
+var pfpIcon = "";
+if (acc.has_pfp) {
+avatars++;
+pfpIcon = "";
+}
+// Generate beautiful visual container profile blocks matching salta7 style
+var cardHtml =
+'' +
+'' + pfpIcon + '' +
+'' +
+'' + acc.username + '' +
+'' +
+statusBadge +
+nitroBadge +
+' ' + acc.phone + '' +
+'' +
+'' +
+'';
+displayContainer.innerHTML += cardHtml;
+});
+// Update total parameter boxes
+document.getElementById('stat-valid').innerText = valid;
+document.getElementById('stat-locked').innerText = locked;
+document.getElementById('stat-invalid').innerText = invalid;
+document.getElementById('stat-avatar').innerText = avatars;
+} else if (data.message) {
+displayContainer.innerHTML = "" + data.message + "";
+}
+} catch (err) {
+clearInterval(timerInterval);
+console.error("API Checker Error: ", err);
+displayContainer.innerHTML = "[Error] Failed to connect or read profile data from server layer.";
+}
+}
+// Standard action tracker handler for booster and joiner views
+async function handleApiAction(event, endpoint) {
+event.preventDefault();
+var currentForm = event.target;
+var inputData = currentForm.querySelector('input[type="text"]')?.value || currentForm.querySelector('textarea')?.value || "";
+var amountData = currentForm.querySelector('input[type="number"]')?.value || "";
+var strategyData = document.getElementById('token-source')?.value || "salta7";
+let loggerBox = currentForm.querySelector('.live-logger-terminal');
+if (!loggerBox) {
+loggerBox = document.createElement('div');
+loggerBox.className = 'live-logger-terminal';
+loggerBox.style = "background:#020408; border:1px solid #1a2642; border-radius:8px; padding:12px; margin-top:16px; font-family:monospace; font-size:12px; color:#38bdf8; max-height:200px; overflow-y:auto; text-align:left; line-height:1.6;";
+currentForm.appendChild(loggerBox);
+}
+loggerBox.innerHTML = "[System] Dispatched connection payload to Vercel...";
+try {
+var response = await fetch(endpoint, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ input: inputData, amount: amountData, strategy: strategyData, trigger: "active" })
+});
+var data = await response.json();
+loggerBox.innerHTML = "";
+if (data.logs && Array.isArray(data.logs)) {
+data.logs.forEach(function(line) { loggerBox.innerHTML += '' + line + ''; });
+}
+loggerBox.innerHTML += "[Finished] All pipeline tasks handled completely.";
+} catch (err) {
+loggerBox.innerHTML += "[Error] Connection failed to parse backend response.";
+}
+}
+function triggerPayment() {
+var amount = parseFloat(document.getElementById('deposit-amount').value) || 0;
+if (isNaN(amount) || amount < 1.00) { alert("The minimum deposit requirement threshold is $1.00 USD."); return; }
+if (window.Clerk && !window.Clerk.user) { alert("Please connect an account profile to log this invoice securely."); window.Clerk.openSignIn(); return; }
+var userId = window.Clerk.user ? window.Clerk.user.id : "guest_session";
+var userEmail = window.Clerk.user ? window.Clerk.user.primaryEmailAddress.emailAddress : "no_email";
+var commerceUrl = 'coinbase.com' + amount + '&custom=' + userId + '&email=' + userEmail;
+window.open(commerceUrl, '_blank', 'width=500,height=700,status=yes,resizable=yes');
+}
+window.addEventListener('load', async function() {
+var script = document.getElementById('clerk-script');
+if (!script) return;
+script.addEventListener('load', async function() {
+if (!window.Clerk) return;
+await window.Clerk.load();
+var authButtons = document.getElementById('auth-buttons');
+var profileSlot = document.getElementById('user-profile-slot');
+var signInBtn = document.getElementById('sign-in-btn');
+if (window.Clerk.user) {
+window.Clerk.mountUserButton(profileSlot, { appearance: { baseTheme: 'dark' } });
+if (authButtons) authButtons.style.display = 'none';
+} else {
+if (authButtons) authButtons.style.display = 'block';
+if (signInBtn) { signInBtn.addEventListener('click', function() { window.Clerk.openSignIn(); }); }
+}
+});
+});
