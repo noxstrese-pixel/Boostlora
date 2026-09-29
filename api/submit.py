@@ -1,25 +1,26 @@
-import asyncio
 from fastapi import FastAPI, Request
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
 @app.post("/api/submit")
 async def handle_joiner(request: Request):
-    data = await request.json() or {}
-    invite_code = data.get('input', '')
-    amount = int(data.get('amount', 50))
+    try:
+        data = await request.json() or {}
+        invite_code = data.get('input', '')
+        amount = int(data.get('amount', 50))
 
-    async def generate_logs():
-        yield f"[System] Initializing socket connection pathways for invite parameter: {invite_code}\n"
-        await asyncio.sleep(0.5)
+        logs_output = [
+            f"[System] Initializing socket connection pathways for invite parameter: {invite_code}"
+        ]
 
         steps = min(amount, 5)
         for i in range(1, steps + 1):
-            yield f"[Worker Group {i}] Injecting automated profiles directly into server corridors...\n"
-            await asyncio.sleep(0.4)
-            yield f"🚀 [Success] Managed batch injection profile connection success.\n"
+            logs_output.append(f"[Worker Group {i}] Injecting automated profiles directly into server corridors...")
+            logs_output.append("🚀 [Success] Managed batch injection profile connection success.")
 
-        yield f"🏆 [Order Finished] Dispatched requested member allocations safely.\n"
+        logs_output.append("🏆 [Order Finished] Dispatched requested member allocations safely.")
+        return JSONResponse(content={"status": "success", "logs": logs_output})
 
-    return StreamingResponse(generate_logs(), media_type="text/plain")
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"status": "error", "message": f"[Fatal Error] Joiner crashed: {str(e)}"})
