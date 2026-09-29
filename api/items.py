@@ -1,12 +1,11 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from flask import Flask, request, jsonify
 
-app = FastAPI()
+app = Flask(__name__)
 
-@app.post("/api/items")
-async def handle_items_checker(request: Request):
+@app.route('/api/items', methods=['POST'])
+def handle_items_checker():
     try:
-        data = await request.json() or {}
+        data = request.get_json() or {}
         raw_input = data.get('input', '')
         tokens_list = [t for t in raw_input.split('\n') if t.strip()]
 
@@ -25,7 +24,7 @@ async def handle_items_checker(request: Request):
             else:
                 logs_output.append(f"✅ [Valid Token] {clean_token} active and authenticated cleanly.")
 
-        return JSONResponse(content={"status": "success", "logs": logs_output})
+        return jsonify({"status": "success", "logs": logs_output}), 200
 
     except Exception as e:
-        return JSONResponse(status_code=500, content={"status": "error", "message": f"[Fatal Error] Checker crashed: {str(e)}"})
+        return jsonify({"status": "error", "message": f"[Fatal Error] Checker crashed: {str(e)}"}), 500
