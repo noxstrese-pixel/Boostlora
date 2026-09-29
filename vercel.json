@@ -1,5 +1,8 @@
 {
   "version": 2,
+  "env": {
+    "DATABASE_URL": "postgresql://neondb_owner:npg_pv09lCJezSGW@ep-snowy-dew-auyxgxv4-pooler.c-10.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+  },
   "builds": [
     {
       "src": "api/*.py",
@@ -12,8 +15,10 @@
   ],
   "routes": [
     { "src": "/api/items", "dest": "api/items.py" },
-    { "src": "/api/booster", "dest": "api/booster.py" },
-    { "src": "/api/submit", "dest": "api/submit.py" },
+    { "src": "/api/booster(.*)", "dest": "api/booster.py" },
+    { "src": "/api/booster_status(.*)", "dest": "api/booster_status.py" },
+    { "src": "/api/submit(.*)", "dest": "api/submit.py" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
+
