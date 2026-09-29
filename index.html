@@ -281,7 +281,6 @@
             </tbody>
         </table>
     </div>
-
     <script>
         let isRegisterMode = false;
         let currentUser = null;
@@ -332,101 +331,126 @@
             if (isRegisterMode) {
                 if (users[userInp.toLowerCase()]) {
                     msg.className = "message error";
-msg.innerText = "Username is already registered.";
-return;
-}
-// Check if this is the first user overall to assign admin role
-const isFirstUser = Object.keys(users).length === 0;
-// Create the profile model architecture natively
-users[userInp.toLowerCase()] = {
-username: userInp,
-password: passInp, // Stored safely inside local client workspace boundary
-role: isFirstUser ? 'admin' : 'user',
-balance: 0.00,
-deposits: []
-};
-localStorage.setItem('app_users', JSON.stringify(users));
-msg.className = "message success";
-msg.innerText = "Registration complete! Switching to login window...";
-setTimeout(() => {
-toggleAuthMode(false);
-document.getElementById('password').value = "";
-}, 1500);
-} else {
-// Login Flow
-const matchedUser = users[userInp.toLowerCase()];
-if (!matchedUser || matchedUser.password !== passInp) {
-msg.className = "message error";
-msg.innerText = "Invalid security credentials matched.";
-return;
-}
-// Initialize local routing state session
-localStorage.setItem('logged_in_session', userInp.toLowerCase());
-loadDashboard(userInp.toLowerCase());
-}
-}
-function loadDashboard(usernameKey) {
-const users = JSON.parse(localStorage.getItem('app_users')) || {};
-currentUser = users[usernameKey];
-if (!currentUser) {
-logout();
-return;
-}
-document.getElementById('authBox').style.display = 'none';
-document.getElementById('dashboardBox').style.display = 'block';
-document.getElementById('userDisplay').innerText = currentUser.username;
-document.getElementById('roleDisplay').innerText = currentUser.role;
-document.getElementById('balanceDisplay').innerText = $${parseFloat(currentUser.balance).toFixed(2)};
-renderDeposits();
-}
-function renderDeposits() {
-const tbody = document.getElementById('depositTableBody');
-tbody.innerHTML = "";
-if (!currentUser.deposits || currentUser.deposits.length === 0) {
-tbody.innerHTML = <tr><td colspan="3" style="text-align:center; color:#6b7280;">No logged deposits recorded yet.</td></tr>;
-return;
-}
-// Show newest transactions first
-const chronologicalList = [...currentUser.deposits].reverse();
-chronologicalList.forEach(item => {
-const tr = document.createElement('tr');
-tr.innerHTML = `
-${item.date}
-$${parseFloat(item.amount).toFixed(2)}
-Completed
-`;
-tbody.appendChild(tr);
-});
-}
-function addDeposit() {
-const amtInp = document.getElementById('depositAmount');
-const val = parseFloat(amtInp.value);
-if (isNaN(val) || val <= 0) {
-alert("Please enter a valid currency value higher than 0.");
-return;
-}
-// Construct new ledger payload entry block
-const newTransaction = {
-date: new Date().toLocaleString(),
-amount: val
-};
-currentUser.deposits.push(newTransaction);
-currentUser.balance = parseFloat(currentUser.balance) + val;
-// Sync structural parameters up to database repository simulation
-let users = JSON.parse(localStorage.getItem('app_users'));
-users[localStorage.getItem('logged_in_session')] = currentUser;
-localStorage.setItem('app_users', JSON.stringify(users));
-// Visual UI refresh updates
-document.getElementById('balanceDisplay').innerText = $${parseFloat(currentUser.balance).toFixed(2)};
-amtInp.value = "";
-renderDeposits();
-}
-function logout() {
-localStorage.removeItem('logged_in_session');
-currentUser = null;
-document.getElementById('username').value = "";
-document.getElementById('password').value = "";
-document.getElementById('authBox').style.display = 'block';
-document.getElementById('dashboardBox').style.display = 'none';
-toggleAuthMode(false);
-}
+                    msg.innerText = "Username is already registered.";
+                    return;
+                }
+
+                // Check if this is the first user overall to assign admin role
+                const isFirstUser = Object.keys(users).length === 0;
+
+                // Create the profile model architecture natively
+                users[userInp.toLowerCase()] = {
+                    username: userInp,
+                    password: passInp, // Stored safely inside local client workspace boundary
+                    role: isFirstUser ? 'admin' : 'user',
+                    balance: 0.00,
+                    deposits: []
+                };
+
+                localStorage.setItem('app_users', JSON.stringify(users));
+                msg.className = "message success";
+                msg.innerText = "Registration complete! Switching to login window...";
+                
+                setTimeout(() => {
+                    toggleAuthMode(false);
+                    document.getElementById('password').value = "";
+                }, 1500);
+
+            } else {
+                // Login Flow
+                const matchedUser = users[userInp.toLowerCase()];
+                if (!matchedUser || matchedUser.password !== passInp) {
+                    msg.className = "message error";
+                    msg.innerText = "Invalid security credentials matched.";
+                    return;
+                }
+
+                // Initialize local routing state session
+                localStorage.setItem('logged_in_session', userInp.toLowerCase());
+                loadDashboard(userInp.toLowerCase());
+            }
+        }
+
+        function loadDashboard(usernameKey) {
+            const users = JSON.parse(localStorage.getItem('app_users')) || {};
+            currentUser = users[usernameKey];
+
+            if (!currentUser) {
+                logout();
+                return;
+            }
+
+            document.getElementById('authBox').style.display = 'none';
+            document.getElementById('dashboardBox').style.display = 'block';
+            
+            document.getElementById('userDisplay').innerText = currentUser.username;
+            document.getElementById('roleDisplay').innerText = currentUser.role;
+            document.getElementById('balanceDisplay').innerText = `$${parseFloat(currentUser.balance).toFixed(2)}`;
+
+            renderDeposits();
+        }
+
+        function renderDeposits() {
+            const tbody = document.getElementById('depositTableBody');
+            tbody.innerHTML = "";
+
+            if (!currentUser.deposits || currentUser.deposits.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#6b7280;">No logged deposits recorded yet.</td></tr>`;
+                return;
+            }
+
+            // Show newest transactions first
+            const chronologicalList = [...currentUser.deposits].reverse();
+
+            chronologicalList.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.date}</td>
+                    <td style="font-weight:600; color: var(--success-color);">$${parseFloat(item.amount).toFixed(2)}</td>
+                    <td><span style="background-color: rgba(16, 185, 129, 0.1); color: var(--success-color); padding: 4px 8px; border-radius:4px; font-size:12px;">Completed</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function addDeposit() {
+            const amtInp = document.getElementById('depositAmount');
+            const val = parseFloat(amtInp.value);
+
+            if (isNaN(val) || val <= 0) {
+                alert("Please enter a valid currency value higher than 0.");
+                return;
+            }
+
+            // Construct new ledger payload entry block
+            const newTransaction = {
+                date: new Date().toLocaleString(),
+                amount: val
+            };
+
+            currentUser.deposits.push(newTransaction);
+            currentUser.balance = parseFloat(currentUser.balance) + val;
+
+            // Sync structural parameters up to database repository simulation
+            let users = JSON.parse(localStorage.getItem('app_users'));
+            users[localStorage.getItem('logged_in_session')] = currentUser;
+            localStorage.setItem('app_users', JSON.stringify(users));
+
+            // Visual UI refresh updates
+            document.getElementById('balanceDisplay').innerText = `$${parseFloat(currentUser.balance).toFixed(2)}`;
+            amtInp.value = "";
+            renderDeposits();
+        }
+
+        function logout() {
+            localStorage.removeItem('logged_in_session');
+            currentUser = null;
+            document.getElementById('username').value = "";
+            document.getElementById('password').value = "";
+            document.getElementById('authBox').style.display = 'block';
+            document.getElementById('dashboardBox').style.display = 'none';
+            toggleAuthMode(false);
+        }
+    </script>
+</body>
+</html>
