@@ -3,432 +3,430 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boostlora Hub</title>
+    <title>Boostlora Dashboard</title>
     <style>
         :root {
-            --bg-base: #060b13;
-            --bg-card: #0d1527;
-            --bg-input: #050811;
-            --border-color: #1a2642;
-            --text-main: #f8fafc;
-            --text-muted: #64748b;
-            --accent-blue: #2563eb;
-            --accent-green: #10b981;
-            --accent-red: #ef4444;
-            --accent-yellow: #fbbf24;
+            --bg-color: #0b0f19;
+            --container-bg: #111827;
+            --text-color: #f3f4f6;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --border-color: #1f2937;
+            --error-color: #ef4444;
+            --success-color: #10b981;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
-        body { background: var(--bg-base); color: var(--text-main); min-height: 100vh; overflow-x: hidden; }
-        .sidebar { width: 260px; height: 100vh; position: fixed; left: 0; top: 0; z-index: 10; padding: 24px 16px; display: flex; flex-direction: column; background: var(--bg-card); border-right: 1px solid var(--border-color); }
-        .brand-section { display: flex; align-items: center; gap: 10px; margin-bottom: 32px; font-size: 1.2rem; font-weight: 700; }
-        .brand-icon { color: var(--accent-blue); font-size: 22px; }
-        .status-dot { width: 8px; height: 8px; display: inline-block; border-radius: 50%; background: var(--accent-green); box-shadow: 0 0 8px rgba(16, 185, 129, .6); }
-        .nav-menu { display: flex; flex-direction: column; gap: 6px; }
-        .nav-item { width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px; border: 0; border-radius: 8px; color: var(--text-muted); background: transparent; text-align: left; font-size: 14px; cursor: pointer; transition: .2s ease; }
-        .nav-item:hover, .nav-item.active { color: var(--text-main); background: #111a30; border-left: 3px solid var(--accent-blue); }
-        .main-content { width: calc(100% - 260px); min-height: 100vh; margin-left: 260px; padding: 32px; }
-        .top-navbar { display: flex; justify-content: flex-end; align-items: center; gap: 12px; padding: 12px 24px; margin-bottom: 24px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-card); }
-        .user-balance { padding: 8px 14px; border: 1px solid var(--border-color); border-radius: 8px; background: #16223f; font-size: 13px; font-weight: bold; }
-        .view-panel { display: none; width: 100%; }
-        .view-panel.active { display: block; }
-        .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
-        .card { width: 100%; height: max-content; padding: 24px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-card); margin-bottom: 20px; }
-        .card h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 17px; }
-        .form-group { margin-bottom: 16px; }
-        label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; outline: none; color: var(--text-main); background: var(--bg-input); font-size: 14px; }
-        .btn-action { width: 100%; padding: 12px; border: 0; border-radius: 8px; color: white; background: var(--accent-blue); font-weight: 700; cursor: pointer; transition: .2s ease; }
-        .btn-action:hover { background: #3b82f6; }
-        .btn-light { color: #000; background: #fff; }
-        .crypto-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
-        .crypto-box { padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-muted); background: var(--bg-input); text-align: center; font-size: 11px; font-weight: 700; cursor: pointer; }
-        .crypto-box.selected { border-color: var(--accent-blue); color: var(--text-main); }
-        .live-message { margin-top: 16px; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; color: #38bdf8; background: #020408; font-family: monospace; font-size: 12px; line-height: 1.6; word-break: break-all; height: 180px; overflow-y: auto; text-align: left; }
-        .accounts-grid { display: grid; grid-template-columns: repeat(1, 1fr); gap: 12px; margin-top: 20px; }
-        .account-card { display: flex; align-items: center; justify-content: space-between; padding: 14px; border: 1px solid var(--border-color); border-left: 3px solid var(--accent-blue); border-radius: 10px; background: #0e1629; }
-        .auth-container { max-width: 400px; margin: 100px auto; }
-        .admin-badge { background: var(--accent-red); color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-        .service-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-        .service-item { padding: 20px; border: 1px solid var(--border-color); border-radius: 10px; background: linear-gradient(135deg, #0f1930, #0a1122); text-align: center; }
-        .service-item h4 { margin-bottom: 8px; }
-        .price-tag { margin: 6px 0 16px; color: var(--accent-green); font-weight: 700; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .auth-container, .dashboard-container {
+            background-color: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .dashboard-container {
+            max-width: 800px;
+            display: none;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #9ca3af;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-color);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .switch-mode {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 14px;
+            color: #9ca3af;
+        }
+
+        .switch-mode span {
+            color: var(--accent-color);
+            cursor: pointer;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            display: none;
+            text-align: center;
+        }
+
+        .message.error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--error-color);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            display: block;
+        }
+
+        .message.success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            display: block;
+        }
+
+        /* Dashboard Styles */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card .val {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-top: 8px;
+        }
+
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .logout-btn {
+            background-color: transparent;
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+            padding: 6px 12px;
+            font-size: 14px;
+            width: auto;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            color: #9ca3af;
+            font-weight: 500;
+        }
+
+        .deposit-section {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .inline-form {
+            display: flex;
+            gap: 12px;
+        }
+
+        .inline-form input {
+            flex: 1;
+        }
+
+        .inline-form button {
+            width: auto;
+            padding: 0 24px;
+        }
     </style>
 </head>
 <body>
 
-    <!-- SECURE GATEWAY PANEL -->
-    <div id="auth-panel" class="auth-container">
-        <div class="card">
-            <h3 id="auth-title">Sign In to Engine</h3>
-            <div class="form-group" style="margin-top: 15px;">
-                <label>Email Address</label>
-                <input type="email" id="auth-email" placeholder="name@domain.com">
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="auth-password" placeholder="••••••••">
-            </div>
-            <button class="btn-action" id="auth-primary-btn" onclick="submitAuthForm()">Login</button>
-            <p style="margin-top:15px; font-size:12px; text-align:center; color:var(--text-muted); cursor:pointer;" onclick="toggleAuthMode()" id="auth-toggle-text">
-                Don't have an account? Register instead
-            </p>
+    <!-- AUTHENTICATION CONTAINER (LOGIN / REGISTER) -->
+    <div class="auth-container" id="authBox">
+        <h2 id="authTitle">Sign In to Boostlora</h2>
+        <div class="message" id="authMessage"></div>
+        
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Enter username">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter password">
+        </div>
+        
+        <button id="authBtn" onclick="handleAuth()">Sign In</button>
+        
+        <div class="switch-mode" id="switchPrompt">
+            Don't have an account? <span onclick="toggleAuthMode(true)">Register</span>
         </div>
     </div>
 
-    <!-- CORE LIVE APP SYSTEM -->
-    <div id="app-panel" style="display: none;">
-        <aside class="sidebar">
-            <div class="brand-section">
-                <span class="brand-icon">⚡</span>
-                <span>Boostlora Hub</span>
-                <span class="status-dot"></span>
-            </div>
-            <nav class="nav-menu">
-                <button id="tab-dashboard" class="nav-item active" onclick="switchView('dashboard')">▦ <span>Dashboard</span></button>
-                <button id="tab-checker" class="nav-item" onclick="switchView('checker')">◈ <span>Account Preview</span></button>
-                <button id="tab-booster" class="nav-item" onclick="switchView('booster')">🚀 <span>Promotion Request</span></button>
-                <button id="tab-joiner" class="nav-item" onclick="switchView('joiner')">↪ <span>Community Setup</span></button>
-                <button id="tab-admin" class="nav-item" onclick="switchView('admin')" style="display:none; border-left: 3px solid var(--accent-red); color: white;">⚙ <span>Admin Settings</span></button>
-            </nav>
-        </aside>
-
-        <main class="main-content">
-            <header class="top-navbar">
-                <div id="role-indicator" style="margin-right: auto; font-size: 14px; font-weight: bold;"></div>
-                <div class="user-balance" id="display-balance">◉ 0.00 USD</div>
-                <button class="nav-item" style="width:auto; padding:8px 14px; background:#16223f;" onclick="logout()">Logout</button>
-            </header>
-
-            <!-- MODULE 1: THE LEDGER HOME PANEL -->
-            <section id="view-dashboard" class="view-panel active">
-                <div class="dashboard-grid">
-                    <div class="card">
-                        <h3>Active Infrastructure Modules</h3>
-                        <div class="service-grid" style="margin-top: 15px;">
-                            <div class="service-item">
-                                <h4>Promotion Request</h4>
-                                <div class="price-tag">$0.18 / Boost</div>
-                                <button class="btn-action" type="button" onclick="switchView('booster')">Open Tool</button>
-                            </div>
-                            <div class="service-item">
-                                <h4>Community Setup</h4>
-                                <div class="price-tag">$0.09 / Member</div>
-                                <button class="btn-action" type="button" onclick="switchView('joiner')">Open Tool</button>
-                            </div>
-                        </div>
-                        <h3 style="margin-top: 30px;">Deposit Status Tracking</h3>
-                        <div id="user-deposit-history" class="accounts-grid">
-                            <p style="color:var(--text-muted); font-size:13px;">No deposits processed yet.</p>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <h3>◉ Add Funds</h3>
-                        <div class="crypto-row" style="margin-top:15px;">
-                            <button class="crypto-box selected" id="coin-btc" onclick="selectCoin('BTC')">BTC</button>
-                            <button class="crypto-box" id="coin-ltc" onclick="selectCoin('LTC')">LTC</button>
-                            <button class="crypto-box" id="coin-doge" onclick="selectCoin('DOGE')">DOGE</button>
-                            <button class="crypto-box" id="coin-sol" onclick="selectCoin('SOL')">SOL</button>
-                        </div>
-                        <div class="form-group">
-                            <label>Amount ($ USD)</label>
-                            <input id="deposit-amount" type="number" value="25" min="1">
-                        </div>
-Use code with caution.
-Generate Invoice
-
-
-
-◈ Token Assets Checker
-Tokens Array (One Per Line)
-Launch Validation Check
-
-
-
-🚀 Promotion Request Pipeline
-Invite Link or Server ID
-Strategy Mode
-Salta7 Premium Stock Tier
-Provide Your Own Tokens (BYOT)
-
-
-Custom Tokens List
-Requested Boost Count
-Estimated Charge Deduction
-$0.36 USD
-
-Deploy Boost Pipeline
-
-
-↪ Community Onboarding Engine
-Invite Link
-Strategy Layer
-Salta7 Account Pool
-Provide Your Own Tokens (BYOT)
-
-
-Custom Tokens
-Requested Members Volume
-Estimated Charge Deduction
-$4.50 USD
-
-Deploy Entry Pipeline
-
-
-⚙ System Executive Console
-Review network ledger requests and authorize user wallet configurations.
-Pending Platform Invoices
-
-
-
-Registered App Client Clusters
-
-
-
-
-const BASE_URL = window.location.origin + '/api';
-let sessionUser = JSON.parse(localStorage.getItem('user_node'));
-let selectedAsset = 'BTC';
-let viewMode = 'login';
-
-function runSessionCheck() {
-    if (sessionUser) {
-        document.getElementById('auth-panel').style.display = 'none';
-        document.getElementById('app-panel').style.display = 'block';
-        fetchHubDetails();
-    } else {
-        document.getElementById('auth-panel').style.display = 'block';
-        document.getElementById('app-panel').style.display = 'none';
-    }
-}
-
-function toggleAuthMode() {
-    viewMode = viewMode === 'login' ? 'register' : 'login';
-    document.getElementById('auth-title').textContent = viewMode === 'login' ? 'Sign In to Engine' : 'Create New Account';
-    document.getElementById('auth-primary-btn').textContent = viewMode === 'login' ? 'Login' : 'Register Account';
-    document.getElementById('auth-toggle-text').textContent = viewMode === 'login' ? "Don't have an account? Register instead" : "Already registered? Login here";
-}
-
-async function submitAuthForm() {
-    const email = document.getElementById('auth-email').value;
-    const password = document.getElementById('auth-password').value;
-    const path = viewMode === 'login' ? '/submit/login' : '/submit/register';
-
-    try {
-        const res = await fetch(BASE_URL + path, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
-        const parsed = await res.json();
-        if (parsed.error) return alert(parsed.error);
-
-        if (viewMode === 'login') {
-            localStorage.setItem('user_node', JSON.stringify(parsed));
-            sessionUser = parsed;
-            runSessionCheck();
-        } else {
-            alert(parsed.message + " You can now sign in.");
-            toggleAuthMode();
-        }
-    } catch(e) { alert("API Connection error."); }
-}
-
-function logout() {
-    localStorage.clear();
-    sessionUser = null;
-    location.reload();
-}
-
-function switchView(panel) {
-    document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    document.getElementById('view-' + panel).classList.add('active');
-    document.getElementById('tab-' + panel).classList.add('active');
-}
-
-function selectCoin(asset) {
-    document.querySelectorAll('.crypto-box').forEach(b => b.classList.remove('selected'));
-    if(document.getElementById('coin-'+asset.toLowerCase())) {
-        document.getElementById('coin-'+asset.toLowerCase()).classList.add('selected');
-    }
-    selectedAsset = asset;
-}
-
-async function fetchHubDetails() {
-    try {
-        const res = await fetch(`${BASE_URL}/submit/dashboard?userId=${sessionUser.userId}&role=${sessionUser.role}`);
-        const payload = await res.json();
-
-        if (payload.role === 'admin') {
-            document.getElementById('tab-admin').style.display = 'flex';
-            document.getElementById('role-indicator').innerHTML = `<span class="admin-badge">GLOBAL SYSTEM ADMIN</span>`;
-            document.getElementById('display-balance').textContent = "◉ FREE ROOT NODE";
-            renderSystemAdminSuite(payload);
-        } else {
-            document.getElementById('tab-admin').style.display = 'none';
-            document.getElementById('role-indicator').textContent = payload.email;
-            document.getElementById('display-balance').textContent = `◉ ${payload.balance.toFixed(2)} USD`;
-            renderUserInvoices(payload.myDeposits);
-        }
-    } catch(e) { console.log("Dashboard sync failure."); }
-}
-
-function renderUserInvoices(myDeposits) {
-    const container = document.getElementById('user-deposit-history');
-    if (!myDeposits || myDeposits.length === 0) {
-        container.innerHTML = `<p style="color:var(--text-muted); font-size:13px;">No deposits found yet.</p>`;
-        return;
-    }
-    container.innerHTML = myDeposits.map(d => `
-        <div class="account-card">
+    <!-- MAIN DASHBOARD CONTAINER -->
+    <div class="dashboard-container" id="dashboardBox">
+        <div class="nav-header">
             <div>
-                <strong>${d.id} (${d.coin})</strong><br>
-                <span style="font-size:11px; color:var(--text-muted);">${d.created_at || 'Pending verification'}</span>
+                Welcome back, <strong id="userDisplay" style="color: var(--accent-color);">User</strong>!
             </div>
-            <div>
-                <span style="color:var(--accent-green); font-weight:bold;">$${parseFloat(d.amount).toFixed(2)}</span> | 
-                <span style="color:${d.status === 'confirmed' ? 'var(--accent-green)' : 'var(--accent-yellow)'}">${d.status.toUpperCase()}</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <label>Account Status</label>
+                <div class="val" id="roleDisplay" style="font-size: 20px; text-transform: uppercase;">User</div>
+            </div>
+            <div class="stat-card">
+                <label>Available Balance</label>
+                <div class="val" id="balanceDisplay">$0.00</div>
             </div>
         </div>
-    `).join('');
-}
 
-function renderSystemAdminSuite(payload) {
-    const invoiceList = document.getElementById('admin-invoice-list');
-    const userList = document.getElementById('admin-users-list');
-
-    invoiceList.innerHTML = payload.allDeposits.length === 0 ? '<p style="color:var(--text-muted); font-size:13px;">No pending invoices.</p>' : payload.allDeposits.map(d => `
-        <div class="account-card">
-            <div>
-                <strong>User: ${d.user_email}</strong> (${d.id})<br>
-                Sent: $${d.amount} ${d.coin} | State: <b style="color:orange">${d.status}</b>
+        <!-- DEPOSIT MANAGEMENT SECTION -->
+        <div class="deposit-section">
+            <h3 style="margin-top:0; font-size: 18px; margin-bottom: 16px;">Log a New Deposit</h3>
+            <div class="inline-form">
+                <input type="number" id="depositAmount" placeholder="Enter amount in USD ($)" min="1" step="any">
+                <button onclick="addDeposit()">Submit Deposit</button>
             </div>
-            ${d.status === 'pending' ? `<button style="padding:6px 12px; background:var(--accent-green); border:0; border-radius:4px; color:white; font-size:11px; font-weight:bold; cursor:pointer;" onclick="clearAdminApproval('${d.user_id}', ${d.amount}, '${d.id}')">Approve & Credit</button>` : '<b>[CREDITED]</b>'}
         </div>
-    `).join('');
 
-    userList.innerHTML = payload.users.map(u => `
-        <div class="account-card">
-            <div><strong>${u.email}</strong> [Role: ${u.role}]</div>
-            <div style="font-weight:bold; color:var(--accent-blue)">$${parseFloat(u.balance).toFixed(2)} USD</div>
-        </div>
-    `).join('');
-}
+        <h3>Your Deposit History</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date / Time</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="depositTableBody">
+                <!-- Data injected dynamically -->
+            </tbody>
+        </table>
+    </div>
 
-async function generateInvoice() {
-    const amount = document.getElementById('deposit-amount').value;
-    try {
-        const res = await fetch(BASE_URL + '/booster/invoice', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: sessionUser.userId, email: sessionUser.email, coin: selectedAsset, amount })
-        });
-        const data = await res.json();
-        if (data.error) return alert(data.error);
+    <script>
+        let isRegisterMode = false;
+        let currentUser = null;
 
-        document.getElementById('invoice-output').innerHTML = `
-            <div class="live-message">
-                <strong>Invoice ${data.invoiceId} Issued!</strong><br><br>
-                Please transfer exactly <b>$${data.amount} USD</b> worth of <b>${data.coin}</b> to your admin deposit wallet destination below:<br><br>
-                <span style="color:var(--accent-green); font-weight:bold;">${data.address}</span><br><br>
-                Balance will update dynamically as soon as an admin credits the invoice entry parameters.
-            </div>
-        `;
-        fetchHubDetails();
-    } catch(e) { alert("Error issuing invoice payload."); }
-}
+        // Check if a session already exists on page load
+        window.onload = function() {
+            const loggedInUser = localStorage.getItem('logged_in_session');
+            if (loggedInUser) {
+                loadDashboard(loggedInUser);
+            }
+        };
 
-async function clearAdminApproval(targetUserId, creditAmount, depositId) {
-    try {
-        const res = await fetch(BASE_URL + '/booster_status/credit', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ adminRole: sessionUser.role, targetUserId, creditAmount, depositId })
-        });
-        const data = await res.json();
-        alert(data.message || data.error);
-        fetchHubDetails();
-    } catch(e) { alert("Error adjusting ledger registries."); }
-}
+        function toggleAuthMode(toRegister) {
+            isRegisterMode = toRegister;
+            const title = document.getElementById('authTitle');
+            const btn = document.getElementById('authBtn');
+            const prompt = document.getElementById('switchPrompt');
+            const msg = document.getElementById('authMessage');
+            
+            msg.className = "message";
+            msg.innerText = "";
 
-async function launchBoosterJob() {
-    const logBox = document.getElementById('booster-live-logs');
-    logBox.style.display = 'block';
-    logBox.textContent = "Connecting to pipeline channels...";
-
-    try {
-        const res = await fetch(BASE_URL + '/booster', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                input: document.getElementById('booster-invite').value,
-                amount: document.getElementById('boost-amount').value,
-                strategy: document.getElementById('booster-strategy').value,
-                custom_tokens: document.getElementById('booster-custom-tokens').value,
-                userId: sessionUser.userId,
-                role: sessionUser.role
-            })
-        });
-        const data = await res.json();
-        if(data.logs) {
-            logBox.innerHTML = data.logs.map(l => `<div>${l}</div>`).join('');
+            if (isRegisterMode) {
+                title.innerText = "Create Your Account";
+                btn.innerText = "Register Account";
+                prompt.innerHTML = 'Already have an account? <span onclick="toggleAuthMode(false)">Sign In</span>';
+            } else {
+                title.innerText = "Sign In to Boostlora";
+                btn.innerText = "Sign In";
+                prompt.innerHTML = 'Don\'t have an account? <span onclick="toggleAuthMode(true)">Register</span>';
+            }
         }
-        fetchHubDetails();
-    } catch(e) { logBox.textContent = "Pipeline execution framework failed."; }
+
+        function handleAuth() {
+            const userInp = document.getElementById('username').value.trim();
+            const passInp = document.getElementById('password').value.trim();
+            const msg = document.getElementById('authMessage');
+
+            if (!userInp || !passInp) {
+                msg.className = "message error";
+                msg.innerText = "Please complete all validation fields.";
+                return;
+            }
+
+            // Fetch stored local user index registry
+            let users = JSON.parse(localStorage.getItem('app_users')) || {};
+
+            if (isRegisterMode) {
+                if (users[userInp.toLowerCase()]) {
+                    msg.className = "message error";
+msg.innerText = "Username is already registered.";
+return;
 }
-
-async function launchJoinerJob() {
-    const logBox = document.getElementById('joiner-live-logs');
-    logBox.style.display = 'block';
-    logBox.textContent = "Connecting to community setup corridors...";
-
-    try {
-        const res = await fetch(BASE_URL + '/submit', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                input: document.getElementById('joiner-invite').value,
-                amount: document.getElementById('joiner-amount').value,
-                custom_tokens: document.getElementById('joiner-custom-tokens').value,
-                userId: sessionUser.userId,
-                role: sessionUser.role
-            })
-        });
-        const data = await res.json();
-        if(data.logs) {
-            logBox.innerHTML = data.logs.map(l => `<div>${l}</div>`).join('');
-        }
-        fetchHubDetails();
-    } catch(e) { logBox.textContent = "Community tracking setup connection error."; }
-}
-
-async function runAssetChecker() {
-    const logBox = document.getElementById('checker-live-logs');
-    const display = document.getElementById('checked-accounts-display-container');
-    logBox.style.display = 'block';
-    logBox.textContent = "Spawning thread process loops. Please hold...";
-    display.innerHTML = '';
-
-    try {const res = await fetch(BASE_URL + '/items', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({
-input: document.getElementById('checker-input-field').value,
-userId: sessionUser.userId,
-role: sessionUser.role
-})
-});
-const data = await res.json();
-logBox.style.display = 'none';
-if(data.message) return alert(data.message);
-if(data.accounts && data.accounts.length > 0) {
-display.innerHTML = data.accounts.map((acc, index) => <div class="account-card"> <div style="display:flex; align-items:center; gap:10px;"> <div style="width:30px; height:30px; border-radius:50%; background:#16223f; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:bold; color:var(--accent-blue);">\${index+1}</div> <div> <strong>\${acc.username}</strong><br> <span style="font-size:11px; color:var(--text-muted);">\${acc.phone} | \${acc.nitro}</span> </div> </div> <span class="badge-status" style="background:\${acc.status==='valid'?'rgba(16,185,129,0.15)':acc.status==='locked'?'rgba(251,191,36,0.15)':'rgba(239,68,68,0.15)'}; color:\${acc.status==='valid'?'var(--accent-green)':acc.status==='locked'?'var(--accent-yellow)':'var(--accent-red)'};">\${acc.status.toUpperCase()}</span> </div>).join('');
+// Check if this is the first user overall to assign admin role
+const isFirstUser = Object.keys(users).length === 0;
+// Create the profile model architecture natively
+users[userInp.toLowerCase()] = {
+username: userInp,
+password: passInp, // Stored safely inside local client workspace boundary
+role: isFirstUser ? 'admin' : 'user',
+balance: 0.00,
+deposits: []
+};
+localStorage.setItem('app_users', JSON.stringify(users));
+msg.className = "message success";
+msg.innerText = "Registration complete! Switching to login window...";
+setTimeout(() => {
+toggleAuthMode(false);
+document.getElementById('password').value = "";
+}, 1500);
 } else {
-display.innerHTML = 'No accounts targets returned.';
+// Login Flow
+const matchedUser = users[userInp.toLowerCase()];
+if (!matchedUser || matchedUser.password !== passInp) {
+msg.className = "message error";
+msg.innerText = "Invalid security credentials matched.";
+return;
 }
-fetchHubDetails();
-} catch(e) { logBox.textContent = "Asset checker runner thread failure."; }
+// Initialize local routing state session
+localStorage.setItem('logged_in_session', userInp.toLowerCase());
+loadDashboard(userInp.toLowerCase());
 }
-runSessionCheck();
+}
+function loadDashboard(usernameKey) {
+const users = JSON.parse(localStorage.getItem('app_users')) || {};
+currentUser = users[usernameKey];
+if (!currentUser) {
+logout();
+return;
+}
+document.getElementById('authBox').style.display = 'none';
+document.getElementById('dashboardBox').style.display = 'block';
+document.getElementById('userDisplay').innerText = currentUser.username;
+document.getElementById('roleDisplay').innerText = currentUser.role;
+document.getElementById('balanceDisplay').innerText = $${parseFloat(currentUser.balance).toFixed(2)};
+renderDeposits();
+}
+function renderDeposits() {
+const tbody = document.getElementById('depositTableBody');
+tbody.innerHTML = "";
+if (!currentUser.deposits || currentUser.deposits.length === 0) {
+tbody.innerHTML = <tr><td colspan="3" style="text-align:center; color:#6b7280;">No logged deposits recorded yet.</td></tr>;
+return;
+}
+// Show newest transactions first
+const chronologicalList = [...currentUser.deposits].reverse();
+chronologicalList.forEach(item => {
+const tr = document.createElement('tr');
+tr.innerHTML = `
+${item.date}
+$${parseFloat(item.amount).toFixed(2)}
+Completed
+`;
+tbody.appendChild(tr);
+});
+}
+function addDeposit() {
+const amtInp = document.getElementById('depositAmount');
+const val = parseFloat(amtInp.value);
+if (isNaN(val) || val <= 0) {
+alert("Please enter a valid currency value higher than 0.");
+return;
+}
+// Construct new ledger payload entry block
+const newTransaction = {
+date: new Date().toLocaleString(),
+amount: val
+};
+currentUser.deposits.push(newTransaction);
+currentUser.balance = parseFloat(currentUser.balance) + val;
+// Sync structural parameters up to database repository simulation
+let users = JSON.parse(localStorage.getItem('app_users'));
+users[localStorage.getItem('logged_in_session')] = currentUser;
+localStorage.setItem('app_users', JSON.stringify(users));
+// Visual UI refresh updates
+document.getElementById('balanceDisplay').innerText = $${parseFloat(currentUser.balance).toFixed(2)};
+amtInp.value = "";
+renderDeposits();
+}
+function logout() {
+localStorage.removeItem('logged_in_session');
+currentUser = null;
+document.getElementById('username').value = "";
+document.getElementById('password').value = "";
+document.getElementById('authBox').style.display = 'block';
+document.getElementById('dashboardBox').style.display = 'none';
+toggleAuthMode(false);
+}
