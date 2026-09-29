@@ -1,12 +1,11 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from flask import Flask, request, jsonify
 
-app = FastAPI()
+app = Flask(__name__)
 
-@app.post("/api/submit")
-async def handle_joiner(request: Request):
+@app.route('/api/submit', methods=['POST'])
+def handle_joiner():
     try:
-        data = await request.json() or {}
+        data = request.get_json() or {}
         invite_code = data.get('input', '')
         amount = int(data.get('amount', 50))
 
@@ -20,7 +19,7 @@ async def handle_joiner(request: Request):
             logs_output.append("🚀 [Success] Managed batch injection profile connection success.")
 
         logs_output.append("🏆 [Order Finished] Dispatched requested member allocations safely.")
-        return JSONResponse(content={"status": "success", "logs": logs_output})
+        return jsonify({"status": "success", "logs": logs_output}), 200
 
     except Exception as e:
-        return JSONResponse(status_code=500, content={"status": "error", "message": f"[Fatal Error] Joiner crashed: {str(e)}"})
+        return jsonify({"status": "error", "message": f"[Fatal Error] Joiner crashed: {str(e)}"}), 500
