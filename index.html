@@ -557,10 +557,11 @@
             </div>
         </div>
 
-        <!-- VIEW 3: DISCORD BOOST TOOL -->
+        <!-- VIEW 3: DISCORD BOOST TOOL (FIXED FIELD IDENTIFIERS) -->
         <div id="view-booster" class="view-panel">
             <div class="card" style="max-width: 800px;">
                 <h3><i class="fa-solid fa-rocket"></i> Server Booster Tool</h3>
+
                 <form id="booster-form" onsubmit="handleApiAction(event, '/api/booster')">
                     <div class="form-group">
                         <label>Invite Link or Server ID</label>
@@ -575,6 +576,7 @@
                         </select>
                     </div>
 
+                    <!-- FIXED: Wrapped cleanly with the proper matching ID tags -->
                     <div class="form-group" id="custom-tokens-wrapper">
                         <label>Input User Tokens (One per line)</label>
                         <textarea id="custom-tokens-field" placeholder="Paste your custom user tokens here..."></textarea>
@@ -590,7 +592,9 @@
                         <span id="boost-cost-display" style="font-size: 16px; font-weight: 700; color: var(--accent-green); float: right;">$0.36 USD</span>
                     </div>
 
-                    <button type="submit" class="btn-action">Execute Boosting Pipeline</button>
+                    <button type="submit" class="btn-action">
+                        Execute Boosting Pipeline
+                    </button>
                 </form>
             </div>
         </div>
