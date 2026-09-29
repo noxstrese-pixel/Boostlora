@@ -1,23 +1,17 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "boost.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "api/*.py",
-      "use": "@vercel/python"
-    }
-  ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "api/$1.py"
+      "src": "/api/items",
+      "dest": "api/items.py"
+    },
+    {
+      "src": "/api/booster",
+      "dest": "api/booster.py"
+    },
+    {
+      "src": "/api/submit",
+      "dest": "api/submit.py"
     },
     {
       "src": "/(.*)",
