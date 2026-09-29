@@ -561,7 +561,6 @@
         <div id="view-booster" class="view-panel">
             <div class="card" style="max-width: 800px;">
                 <h3><i class="fa-solid fa-rocket"></i> Server Booster Tool</h3>
-
                 <form id="booster-form" onsubmit="handleApiAction(event, '/api/booster')">
                     <div class="form-group">
                         <label>Invite Link or Server ID</label>
@@ -774,29 +773,18 @@
             }
         }
 
-        // Fixed Universal API Connection Handler
+        // THE ONLY DEFINITIVE API ACTION HANDLER FOR BOOST & JOINER
         async function handleApiAction(event, endpoint) {
             event.preventDefault();
 
             var currentForm = event.target;
 
-            // Explicitly search the page by true element IDs to prevent blank parameter passing
-            var inputData = currentForm.querySelector('input[type="text"]')?.value ||
-                currentForm.querySelector('textarea')?.value ||
-                "";
-
+            var inputData = currentForm.querySelector('input[type="text"]')?.value || "";
             var amountData = currentForm.querySelector('input[type="number"]')?.value || "";
             var strategyData = document.getElementById('token-source')?.value || "salta7";
 
-            // FIX: Targeted extraction pulls text values perfectly from the active field layout
             var tokenField = document.getElementById('custom-tokens-field');
             var customTokensData = tokenField ? tokenField.value.trim() : "";
-
-            // Stop the submission loop if the user selected custom but the field container is empty
-            if (strategyData === "custom" && !customTokensData) {
-                alert("Please input your user tokens inside the field area before triggering execution.");
-                return;
-            }
 
             var loggerBox = currentForm.querySelector('.live-logger-terminal');
 
@@ -808,7 +796,7 @@
             }
 
             loggerBox.innerHTML =
-                "<div style='color:#64748b;'>[System] Dispatched connection payload to Vercel...</div>";
+                "[System] Dispatched connection payload to Vercel...";
 
             try {
                 var response = await fetch(endpoint, {
@@ -830,17 +818,13 @@
                 loggerBox.innerHTML = "";
 
                 if (data.logs && Array.isArray(data.logs)) {
-                    data.logs.forEach(function (line) {
-                        loggerBox.innerHTML += '<div>' + line + '</div>';
+                    data.logs.forEach(function(line) {
+                        loggerBox.innerHTML += '' + line + '';
                     });
-                } else if (data.message) {
-                    loggerBox.innerHTML += '<div>' + data.message + '</div>';
                 }
 
                 loggerBox.innerHTML +=
-                    "<div style='color:#10b981; font-weight:bold; margin-top:6px;'>[Finished] All pipeline tasks handled completely.</div>";
-
-                loggerBox.scrollTop = loggerBox.scrollHeight;
+                    "[Finished] All pipeline tasks handled completely.";
 
             } catch (err) {
                 console.error("API Error: ", err);
