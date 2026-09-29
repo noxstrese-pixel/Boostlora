@@ -1,87 +1,85 @@
+import os
 import time
 import requests
+import psycopg2
+from psycopg2.extras import RealDictCursor
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# Real production mapping extracted directly from the user dashboard settings
 SALTA7_BASE_URL = "https://salta7.store"
 SALTA7_HEADERS = {
     "Authorization": "Bearer FWG7PJY53V4PLHI1TED5C7SYFNOBYQW5",
     "Content-Type": "application/json"
 }
 
+def get_db_connection():
+    return psycopg2.connect(os.environ.get('DATABASE_URL'), cursor_factory=RealDictCursor)
+
 @app.route('/api/items', methods=['POST'])
 def handle_items_checker():
     try:
         data = request.get_json() or {}
         raw_input = data.get('input', '')
-        
-        # Parse pasted string rows line-by-line into clean array elements
-        lines_list = [line.strip() for line in raw_input.split('\n') if line.strip()]
+        user_id = data.get('userId')
 
+        if not user_id:
+            return jsonify({"status": "error", "message": "Authentication required."}), 403
+
+        lines_list = [line.strip() for line in raw_input.split('\n') if line.strip()]
         if not lines_list:
             return jsonify({"status": "success", "accounts": []}), 200
 
-        # --- STEP 1: INITIALIZE THE ASYNCHRONOUS CHECK RUN WITH SALTA7 ---
-        payload = {
-            "tool": "check",
-            "tokens": lines_list
-        }
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT balance, role FROM users WHERE id = %s;", (user_id,))
+        user_profile = cur.fetchone()
         
-        create_res = requests.post(
-            f"{SALTA7_BASE_URL}/task/create", 
-            headers=SALTA7_HEADERS, 
-            json=payload, 
-            timeout=10
-        )
-        
-        if create_res.status_code != 200:
-            return jsonify({
-                "status": "error", 
-                "message": f"Salta7 Task Initialization Failed (Status Code: {create_res.status_code})"
-            }), 400
-            
-        task_data = create_res.json()
-        job_id = task_data.get("job_id")
-        
-        if not job_id:
-            return jsonify({"status": "error", "message": "No job identifier token returned from Salta7 API layer."}), 500
+        if not user_profile:
+            cur.close()
+            conn.close()
+            return jsonify({"status": "error", "message": "System account node missing."}), 404
 
-        # --- STEP 2: POLL THE REAL-TIME RESULTS CHANNEL ---
+        total_tokens = len(lines_list)
+        cost_per_token = 0.01 
+        total_cost = 0.00 if user_profile['role'] == 'admin' else (total_tokens * cost_per_token)
+        current_balance = float(user_profile['balance'])
+
+        if current_balance < total_cost:
+            cur.close()
+            conn.close()
+            return jsonify({"status": "error", "message": f"Insufficient funds. Required: ${total_cost:.2f} USD"}), 400
+
+        payload = {"tool": "check", "tokens": lines_list}
+        create_res = requests.post(f"{SALTA7_BASE_URL}/task/create", headers=SALTA7_HEADERS, json=payload, timeout=10)
+        if create_res.status_code != 200:
+            cur.close()
+            conn.close()
+            return jsonify({"status": "error", "message": "Task initialization failed."}), 400
+            
+        job_id = create_res.json().get("job_id")
+        if total_cost > 0:
+            cur.execute("UPDATE users SET balance = balance - %s WHERE id = %s;", (total_cost, user_id))
+            conn.commit()
+        cur.close()
+        conn.close()
+
         results_collection = []
-        max_attempts = 45  # Safety timeout loop boundaries protecting serverless instance lifecycle bounds
+        max_attempts = 45  
         after_id = 0
 
         for attempt in range(max_attempts):
-            poll_params = {
-                "job_id": job_id,
-                "after": after_id
-            }
-            
-            poll_res = requests.get(
-                f"{SALTA7_BASE_URL}/task/items", 
-                headers=SALTA7_HEADERS, 
-                params=poll_params, 
-                timeout=10
-            )
-            
+            poll_res = requests.get(f"{SALTA7_BASE_URL}/task/items", headers=SALTA7_HEADERS, params={"job_id": job_id, "after": after_id}, timeout=10)
             if poll_res.status_code != 200:
                 time.sleep(1.0)
                 continue
                 
             poll_data = poll_res.json()
-            
-            # Map out each incremental status payload cleanly to populate your index.html display grid
             for item in poll_data.get("results", []):
-                has_nitro = item.get("nitro", False)
-                nitro_days = item.get("nitro_days", 0)
-                nitro_label = f"Nitro ({nitro_days}d)" if has_nitro else "No Nitro"
-                
+                nitro_label = f"Nitro ({item.get('nitro_days', 0)}d)" if item.get("nitro") else "No Nitro"
                 phone_label = "✅ Linked" if item.get("has_phone") else "No Phone"
-                
                 results_collection.append({
-                    "status": item.get("status", "invalid"),  # valid, locked, invalid, error
+                    "status": item.get("status", "invalid"),  
                     "username": item.get("username") or item.get("global_name") or "Unknown User",
                     "phone": phone_label,
                     "nitro": nitro_label,
@@ -89,20 +87,10 @@ def handle_items_checker():
                 })
 
             after_id = poll_data.get("last_id", after_id)
-            
-            # Instantly terminate the loop container when execution changes status parameters from running
             if poll_data.get("status") != "running":
                 break
-                
-            time.sleep(1.0)  # Polling interval frequency rule requested by Salta7 engine rules
+            time.sleep(1.0)  
 
-        return jsonify({
-            "status": "success",
-            "accounts": results_collection
-        }), 200
-
+        return jsonify({"status": "success", "accounts": results_collection}), 200
     except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": f"[Pipeline Error] Salta7 processing failed: {str(e)}"
-        }), 500
+        return jsonify({"status": "error", "message": f"[Pipeline Error]: {str(e)}"}), 500
