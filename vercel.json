@@ -1,20 +1,15 @@
 {
   "version": 2,
-  "env": {
-    "DATABASE_URL": "postgresql://neondb_owner:npg_pv09lCJezSGW@ep-snowy-dew-auyxgxv4-pooler.c-10.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
-  },
   "builds": [
     {
       "src": "index.py",
       "use": "@vercel/python"
-    },
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "index.py" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    {
+      "source": "/api/submit/(.*)",
+      "destination": "index.py"
+    }
   ]
 }
