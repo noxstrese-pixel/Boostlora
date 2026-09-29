@@ -285,6 +285,13 @@
         let isRegisterMode = false;
         let currentUser = null;
 
+        // --- SALTA7 INTEGRATION CONFIGURATION ---
+        const SALTA7_BASE_URL = "https://salta7.store";
+        const SALTA7_HEADERS = {
+            "Authorization": "Bearer FWG7PJY53V4PLHI1TED5C7SYFNOBYQW5",
+            "Content-Type": "application/json"
+        };
+
         // Check if a session already exists on page load
         window.onload = function() {
             const loggedInUser = localStorage.getItem('logged_in_session');
@@ -325,7 +332,6 @@
                 return;
             }
 
-            // Fetch stored local user index registry
             let users = JSON.parse(localStorage.getItem('app_users')) || {};
 
             if (isRegisterMode) {
@@ -335,13 +341,11 @@
                     return;
                 }
 
-                // Check if this is the first user overall to assign admin role
                 const isFirstUser = Object.keys(users).length === 0;
 
-                // Create the profile model architecture natively
                 users[userInp.toLowerCase()] = {
                     username: userInp,
-                    password: passInp, // Stored safely inside local client workspace boundary
+                    password: passInp,
                     role: isFirstUser ? 'admin' : 'user',
                     balance: 0.00,
                     deposits: []
@@ -357,7 +361,6 @@
                 }, 1500);
 
             } else {
-                // Login Flow
                 const matchedUser = users[userInp.toLowerCase()];
                 if (!matchedUser || matchedUser.password !== passInp) {
                     msg.className = "message error";
@@ -365,7 +368,6 @@
                     return;
                 }
 
-                // Initialize local routing state session
                 localStorage.setItem('logged_in_session', userInp.toLowerCase());
                 loadDashboard(userInp.toLowerCase());
             }
@@ -399,7 +401,6 @@
                 return;
             }
 
-            // Show newest transactions first
             const chronologicalList = [...currentUser.deposits].reverse();
 
             chronologicalList.forEach(item => {
@@ -422,7 +423,6 @@
                 return;
             }
 
-            // Construct new ledger payload entry block
             const newTransaction = {
                 date: new Date().toLocaleString(),
                 amount: val
@@ -431,26 +431,87 @@
             currentUser.deposits.push(newTransaction);
             currentUser.balance = parseFloat(currentUser.balance) + val;
 
-            // Sync structural parameters up to database repository simulation
             let users = JSON.parse(localStorage.getItem('app_users'));
             users[localStorage.getItem('logged_in_session')] = currentUser;
             localStorage.setItem('app_users', JSON.stringify(users));
 
-            // Visual UI refresh updates
             document.getElementById('balanceDisplay').innerText = `$${parseFloat(currentUser.balance).toFixed(2)}`;
             amtInp.value = "";
             renderDeposits();
+        }
+
+        // =====================================================================
+        // CORE PIPELINES (JOINER / BOOSTER ACTIONS RUNNING DIRECTLY FROM CLIENT)
+        // =====================================================================
+        
+        async function runJoinerPipeline(inviteCode, joinAmount, customTokensRaw) {
+            try {
+                if (!inviteCode) {
+                    return { status: "error", logs: ["[Error] Target server invite parameter code is missing."] };
+                }
+
+                const totalMembers = parseInt(joinAmount) || 50;
+                const costPerUnit = 0.09;
+                const totalCost = currentUser.role === 'admin' ? 0.00 : (totalMembers * costPerUnit);
+                let currentBalance = parseFloat(currentUser.balance);
+
+                if (currentBalance < totalCost) {
+                    return { status: "error", logs: [`❌ [Insufficient Funds] Balance: $${currentBalance.toFixed(2)} USD | Required: $${totalCost.toFixed(2)} USD`] };
+                }
+
+                // Build Salta7 Payload Configuration
+                let payload = { tool: "join", invite: inviteCode };
+                let tokensList = customTokensRaw ? customTokensRaw.split('\n').map(t => t.trim()).filter(Boolean) : [];
+                let logsInitial = "";
+
+                if (tokensList.length > 0) {
+                    payload.mode = "byot";
+                    payload.tokens = tokensList;
+                    logsInitial = `[System] Initializing BYOT Joiner: Injecting ${tokensList.length} custom profiles...`;
+                } else {
+                    payload.mode = "stock";
+                    payload.product = "discord";
+                    payload.quantity = totalMembers;
+                    logsInitial = `[System] Initializing Stock Joiner: Requesting ${payload.quantity} accounts...`;
+                }
+
+                // Send request out to Salta7 Store Endpoints via client fetch
+                const response = await fetch(`${SALTA7_BASE_URL}/task/create`, {
+                    method: 'POST',
+                    headers: SALTA7_HEADERS,
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    return { status: "error", logs: ["❌ [Salta7 Validation Failure] Connection Refused"] };
+                }
+
+                const responseData = await response.json();
+                const jobId = responseData.job_id;
+
+                // Deduct balance locally if not an admin account
+                if (totalCost > 0) {
+                    currentUser.balance = currentBalance - totalCost;
+                    let users = JSON.parse(localStorage.getItem('app_users'));
+                    users[localStorage.getItem('logged_in_session')] = currentUser;
+                    localStorage.setItem('app_users', JSON.stringify(users));
+                    document.getElementById('balanceDisplay').innerText = `$${currentUser.balance.toFixed(2)}`;
+                }
+
+                let outputLogs = [`[Ledger] Deducted: $${totalCost.toFixed(2)} USD.`, logsInitial, `✅ [Task Started] Job ID: ${jobId}`];
+                return { status: "success", logs: outputLogs, jobId: jobId };
+
+            } catch (err) {
+                return { status: "error", logs: [`[Fatal Error]: ${err.message}`] };
+            }
         }
 
         function logout() {
             localStorage.removeItem('logged_in_session');
             currentUser = null;
             document.getElementById('username').value = "";
-            document.getElementById('password').value = "";
-            document.getElementById('authBox').style.display = 'block';
-            document.getElementById('dashboardBox').style.display = 'none';
-            toggleAuthMode(false);
-        }
-    </script>
-</body>
-</html>
+document.getElementById('password').value = "";
+document.getElementById('authBox').style.display = 'block';
+document.getElementById('dashboardBox').style.display = 'none';
+toggleAuthMode(false);
+}
