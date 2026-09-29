@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boostlora Hub</title>
-
     <style>
         :root {
             --bg-base: #060b13;
@@ -19,951 +18,364 @@
             --accent-yellow: #fbbf24;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        }
-
-        body {
-            background: var(--bg-base);
-            color: var(--text-main);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        button,
-        input,
-        textarea,
-        select {
-            font: inherit;
-        }
-
-        .sidebar {
-            width: 260px;
-            height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            z-index: 10;
-            padding: 24px 16px;
-            display: flex;
-            flex-direction: column;
-            background: var(--bg-card);
-            border-right: 1px solid var(--border-color);
-        }
-
-        .brand-section {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 32px;
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-
-        .brand-icon {
-            color: var(--accent-blue);
-            font-size: 22px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            display: inline-block;
-            border-radius: 50%;
-            background: var(--accent-green);
-            box-shadow: 0 0 8px rgba(16, 185, 129, .6);
-        }
-
-        .nav-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .nav-item {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            border: 0;
-            border-radius: 8px;
-            color: var(--text-muted);
-            background: transparent;
-            text-align: left;
-            font-size: 14px;
-            cursor: pointer;
-            transition: .2s ease;
-        }
-
-        .nav-item:hover,
-        .nav-item.active {
-            color: var(--text-main);
-            background: #111a30;
-            border-left: 3px solid var(--accent-blue);
-        }
-
-        .main-content {
-            width: calc(100% - 260px);
-            min-height: 100vh;
-            margin-left: 260px;
-            padding: 32px;
-        }
-
-        .top-navbar {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 24px;
-            margin-bottom: 24px;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            background: var(--bg-card);
-        }
-
-        .user-balance {
-            padding: 8px 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background: #16223f;
-            font-size: 13px;
-        }
-
-        .connect-button {
-            width: auto;
-            padding: 8px 14px;
-            background: #16223f;
-        }
-
-        .view-panel {
-            display: none;
-            width: 100%;
-        }
-
-        .view-panel.active {
-            display: block;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 24px;
-        }
-
-        .card {
-            width: 100%;
-            height: max-content;
-            padding: 24px;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            background: var(--bg-card);
-        }
-
-        .card h3 {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 16px;
-            font-size: 17px;
-        }
-
-        .card-subtitle {
-            margin-bottom: 18px;
-            color: var(--text-muted);
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .service-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-        }
-
-        .service-item {
-            padding: 20px;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            background: linear-gradient(135deg, #0f1930, #0a1122);
-            text-align: center;
-        }
-
-        .service-item h4 {
-            margin-bottom: 8px;
-        }
-
-        .price-tag {
-            margin: 6px 0 16px;
-            color: var(--accent-green);
-            font-weight: 700;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-muted);
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        input,
-        select,
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            outline: none;
-            color: var(--text-main);
-            background: var(--bg-input);
-            font-size: 14px;
-        }
-
-        input:focus,
-        select:focus,
-        textarea:focus {
-            border-color: var(--accent-blue);
-        }
-
-        textarea {
-            min-height: 130px;
-            resize: vertical;
-            font-family: monospace;
-        }
-
-        .btn-action {
-            width: 100%;
-            padding: 12px;
-            border: 0;
-            border-radius: 8px;
-            color: white;
-            background: var(--accent-blue);
-            font-weight: 700;
-            cursor: pointer;
-            transition: .2s ease;
-        }
-
-        .btn-action:hover {
-            background: #3b82f6;
-        }
-
-        .btn-light {
-            color: #000;
-            background: #fff;
-        }
-
-        .crypto-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .crypto-box {
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-muted);
-            background: var(--bg-input);
-            text-align: center;
-            font-size: 11px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .crypto-box:hover,
-        .crypto-box.selected {
-            border-color: var(--accent-blue);
-            color: var(--text-main);
-        }
-
-        .stats-counter-strip {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 12px;
-            margin: 24px 0 20px;
-        }
-
-        .stat-box {
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background: var(--bg-input);
-            text-align: center;
-        }
-
-        .stat-box-val {
-            color: #fff;
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .stat-box-lbl {
-            margin-top: 4px;
-            color: var(--text-muted);
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: .5px;
-            text-transform: uppercase;
-        }
-
-        .accounts-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .account-card {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 14px;
-            border: 1px solid var(--border-color);
-            border-left: 3px solid var(--accent-blue);
-            border-radius: 10px;
-            background: linear-gradient(135deg, #0e1629, #060b14);
-        }
-
-        .account-avatar {
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            border: 1px solid var(--border-color);
-            border-radius: 50%;
-            background: #16223f;
-            color: var(--accent-blue);
-            font-weight: 700;
-        }
-
-        .account-info {
-            min-width: 0;
-        }
-
-        .account-username {
-            overflow: hidden;
-            margin-bottom: 4px;
-            color: #fff;
-            font-size: 14px;
-            font-weight: 700;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .account-meta-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .badge-status,
-        .badge-feature {
-            font-size: 11px;
-        }
-
-        .badge-status {
-            padding: 2px 6px;
-            border-radius: 4px;
-            background: rgba(37, 99, 235, .15);
-            color: #60a5fa;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .badge-feature {
-            color: var(--text-muted);
-        }
-
-        .live-message {
-            margin-top: 16px;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: #38bdf8;
-            background: #020408;
-            font-family: monospace;
-            font-size: 12px;
-            line-height: 1.6;
-        }
-
-        .notice {
-            margin-bottom: 18px;
-            padding: 12px;
-            border: 1px solid rgba(251, 191, 36, .35);
-            border-radius: 8px;
-            color: #fbbf24;
-            background: rgba(251, 191, 36, .08);
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        @media (max-width: 900px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .stats-counter-strip {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        @media (max-width: 720px) {
-            .sidebar {
-                width: 76px;
-                padding: 20px 10px;
-            }
-
-            .brand-section span:not(.status-dot),
-            .nav-item span {
-                display: none;
-            }
-
-            .brand-section,
-            .nav-item {
-                justify-content: center;
-            }
-
-            .main-content {
-                width: calc(100% - 76px);
-                margin-left: 76px;
-                padding: 16px;
-            }
-
-            .service-grid,
-            .accounts-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .top-navbar {
-                padding: 12px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .crypto-row {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .stats-counter-strip {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+        body { background: var(--bg-base); color: var(--text-main); min-height: 100vh; overflow-x: hidden; }
+        .sidebar { width: 260px; height: 100vh; position: fixed; left: 0; top: 0; z-index: 10; padding: 24px 16px; display: flex; flex-direction: column; background: var(--bg-card); border-right: 1px solid var(--border-color); }
+        .brand-section { display: flex; align-items: center; gap: 10px; margin-bottom: 32px; font-size: 1.2rem; font-weight: 700; }
+        .brand-icon { color: var(--accent-blue); font-size: 22px; }
+        .status-dot { width: 8px; height: 8px; display: inline-block; border-radius: 50%; background: var(--accent-green); box-shadow: 0 0 8px rgba(16, 185, 129, .6); }
+        .nav-menu { display: flex; flex-direction: column; gap: 6px; }
+        .nav-item { width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px; border: 0; border-radius: 8px; color: var(--text-muted); background: transparent; text-align: left; font-size: 14px; cursor: pointer; transition: .2s ease; }
+        .nav-item:hover, .nav-item.active { color: var(--text-main); background: #111a30; border-left: 3px solid var(--accent-blue); }
+        .main-content { width: calc(100% - 260px); min-height: 100vh; margin-left: 260px; padding: 32px; }
+        .top-navbar { display: flex; justify-content: flex-end; align-items: center; gap: 12px; padding: 12px 24px; margin-bottom: 24px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-card); }
+        .user-balance { padding: 8px 14px; border: 1px solid var(--border-color); border-radius: 8px; background: #16223f; font-size: 13px; font-weight: bold; }
+        .view-panel { display: none; width: 100%; }
+        .view-panel.active { display: block; }
+        .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+        .card { width: 100%; height: max-content; padding: 24px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-card); margin-bottom: 20px; }
+        .card h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 17px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; outline: none; color: var(--text-main); background: var(--bg-input); font-size: 14px; }
+        .btn-action { width: 100%; padding: 12px; border: 0; border-radius: 8px; color: white; background: var(--accent-blue); font-weight: 700; cursor: pointer; transition: .2s ease; }
+        .btn-action:hover { background: #3b82f6; }
+        .btn-light { color: #000; background: #fff; }
+        .crypto-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
+        .crypto-box { padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-muted); background: var(--bg-input); text-align: center; font-size: 11px; font-weight: 700; cursor: pointer; }
+        .crypto-box.selected { border-color: var(--accent-blue); color: var(--text-main); }
+        .live-message { margin-top: 16px; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; color: #38bdf8; background: #020408; font-family: monospace; font-size: 12px; line-height: 1.6; word-break: break-all; height: 180px; overflow-y: auto; text-align: left; }
+        .accounts-grid { display: grid; grid-template-columns: repeat(1, 1fr); gap: 12px; margin-top: 20px; }
+        .account-card { display: flex; align-items: center; justify-content: space-between; padding: 14px; border: 1px solid var(--border-color); border-left: 3px solid var(--accent-blue); border-radius: 10px; background: #0e1629; }
+        .auth-container { max-width: 400px; margin: 100px auto; }
+        .admin-badge { background: var(--accent-red); color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .service-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .service-item { padding: 20px; border: 1px solid var(--border-color); border-radius: 10px; background: linear-gradient(135deg, #0f1930, #0a1122); text-align: center; }
+        .service-item h4 { margin-bottom: 8px; }
+        .price-tag { margin: 6px 0 16px; color: var(--accent-green); font-weight: 700; }
     </style>
 </head>
-
 <body>
-    <aside class="sidebar">
-        <div class="brand-section">
-            <span class="brand-icon">⚡</span>
-            <span>Boostlora Hub</span>
-            <span class="status-dot"></span>
+
+    <!-- SECURE GATEWAY PANEL -->
+    <div id="auth-panel" class="auth-container">
+        <div class="card">
+            <h3 id="auth-title">Sign In to Engine</h3>
+            <div class="form-group" style="margin-top: 15px;">
+                <label>Email Address</label>
+                <input type="email" id="auth-email" placeholder="name@domain.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="auth-password" placeholder="••••••••">
+            </div>
+            <button class="btn-action" id="auth-primary-btn" onclick="submitAuthForm()">Login</button>
+            <p style="margin-top:15px; font-size:12px; text-align:center; color:var(--text-muted); cursor:pointer;" onclick="toggleAuthMode()" id="auth-toggle-text">
+                Don't have an account? Register instead
+            </p>
         </div>
+    </div>
 
-        <nav class="nav-menu">
-            <button id="tab-dashboard" class="nav-item active" type="button">
-                ▦ <span>Dashboard</span>
-            </button>
-
-            <button id="tab-checker" class="nav-item" type="button">
-                ◈ <span>Account Preview</span>
-            </button>
-
-            <button id="tab-booster" class="nav-item" type="button">
-                🚀 <span>Promotion Request</span>
-            </button>
-
-            <button id="tab-joiner" class="nav-item" type="button">
-                ↪ <span>Community Setup</span>
-            </button>
-        </nav>
-    </aside>
-
-    <main class="main-content">
-        <header class="top-navbar">
-            <div class="user-balance">◉ 0.00 USD</div>
-
-            <div id="auth-buttons">
-                <button id="sign-in-btn" class="nav-item connect-button" type="button">
-                    ● Connect
-                </button>
+    <!-- CORE LIVE APP SYSTEM -->
+    <div id="app-panel" style="display: none;">
+        <aside class="sidebar">
+            <div class="brand-section">
+                <span class="brand-icon">⚡</span>
+                <span>Boostlora Hub</span>
+                <span class="status-dot"></span>
             </div>
+            <nav class="nav-menu">
+                <button id="tab-dashboard" class="nav-item active" onclick="switchView('dashboard')">▦ <span>Dashboard</span></button>
+                <button id="tab-checker" class="nav-item" onclick="switchView('checker')">◈ <span>Account Preview</span></button>
+                <button id="tab-booster" class="nav-item" onclick="switchView('booster')">🚀 <span>Promotion Request</span></button>
+                <button id="tab-joiner" class="nav-item" onclick="switchView('joiner')">↪ <span>Community Setup</span></button>
+                <button id="tab-admin" class="nav-item" onclick="switchView('admin')" style="display:none; border-left: 3px solid var(--accent-red); color: white;">⚙ <span>Admin Settings</span></button>
+            </nav>
+        </aside>
 
-            <div id="user-profile-slot"></div>
-        </header>
+        <main class="main-content">
+            <header class="top-navbar">
+                <div id="role-indicator" style="margin-right: auto; font-size: 14px; font-weight: bold;"></div>
+                <div class="user-balance" id="display-balance">◉ 0.00 USD</div>
+                <button class="nav-item" style="width:auto; padding:8px 14px; background:#16223f;" onclick="logout()">Logout</button>
+            </header>
 
-        <section id="view-dashboard" class="view-panel active">
-            <div class="dashboard-grid">
-                <div class="card">
-                    <h3>Active Infrastructure Modules</h3>
-
-                    <div class="service-grid">
-                        <div class="service-item">
-                            <h4>Promotion Request</h4>
-                            <div class="price-tag">Preview mode</div>
-                            <button class="btn-action" type="button" data-target="booster">
-                                Open Tool
-                            </button>
+            <!-- MODULE 1: THE LEDGER HOME PANEL -->
+            <section id="view-dashboard" class="view-panel active">
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>Active Infrastructure Modules</h3>
+                        <div class="service-grid" style="margin-top: 15px;">
+                            <div class="service-item">
+                                <h4>Promotion Request</h4>
+                                <div class="price-tag">$0.18 / Boost</div>
+                                <button class="btn-action" type="button" onclick="switchView('booster')">Open Tool</button>
+                            </div>
+                            <div class="service-item">
+                                <h4>Community Setup</h4>
+                                <div class="price-tag">$0.09 / Member</div>
+                                <button class="btn-action" type="button" onclick="switchView('joiner')">Open Tool</button>
+                            </div>
                         </div>
-
-                        <div class="service-item">
-                            <h4>Community Setup</h4>
-                            <div class="price-tag">Preview mode</div>
-                            <button class="btn-action" type="button" data-target="joiner">
-                                Open Tool
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3>◉ Add Funds</h3>
-
-                    <div class="crypto-row">
-                        <button class="crypto-box selected" type="button">BTC</button>
-                        <button class="crypto-box" type="button">LTC</button>
-                        <button class="crypto-box" type="button">DOGE</button>
-                        <button class="crypto-box" type="button">SOL</button>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="deposit-amount">Amount ($ USD)</label>
-                        <input id="deposit-amount" type="number" value="25" min="1" step="1">
-                    </div>
-
-                    <button id="invoice-button" class="btn-action btn-light" type="button">
-                        Generate Invoice
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <section id="view-checker" class="view-panel">
-            <div class="card">
-                <h3>◈ Account Preview</h3>
-
-                <div class="notice">
-                    Preview mode only. Enter non-sensitive usernames or labels. Never paste passwords,
-                    authentication tokens, cookies, or private keys into a webpage.
-                </div>
-
-                <form id="checker-form">
-                    <div class="form-group">
-                        <label for="checker-input-field">
-                            Account Labels, One Per Line
-                        </label>
-
-                        <textarea
-                            id="checker-input-field"
-                            placeholder="Example:
-Marketing account
-Support account
-Community account"
-                            required
-                        ></textarea>
-                    </div>
-
-                    <button type="submit" class="btn-action">
-                        Create Local Preview
-                    </button>
-                </form>
-
-                <div class="stats-counter-strip">
-                    <div class="stat-box">
-                        <div id="stat-elapsed" class="stat-box-val">0s</div>
-                        <div class="stat-box-lbl">Elapsed</div>
-                    </div>
-
-                    <div class="stat-box">
-                        <div id="stat-total" class="stat-box-val">0</div>
-                        <div class="stat-box-lbl">Total</div>
-                    </div>
-
-                    <div class="stat-box">
-                        <div id="stat-valid" class="stat-box-val" style="color:var(--accent-green);">0</div>
-                        <div class="stat-box-lbl">Ready</div>
-                    </div>
-
-                    <div class="stat-box">
-                        <div id="stat-locked" class="stat-box-val" style="color:var(--accent-yellow);">0</div>
-                        <div class="stat-box-lbl">Review</div>
-                    </div>
-
-                    <div class="stat-box">
-                        <div id="stat-invalid" class="stat-box-val" style="color:var(--accent-red);">0</div>
-                        <div class="stat-box-lbl">Skipped</div>
-                    </div>
-
-                    <div class="stat-box">
-                        <div id="stat-avatar" class="stat-box-val">0</div>
-                        <div class="stat-box-lbl">Labels</div>
-                    </div>
-                </div>
-
-                <div id="checked-accounts-display-container" class="accounts-grid"></div>
-            </div>
-        </section>
-
-        <section id="view-booster" class="view-panel">
-            <div class="card">
-                <h3>🚀 Promotion Request</h3>
-
-                <div class="notice">
-                    This form creates a local request preview only. It does not use account tokens,
-                    automate boosts, or contact an external service.
-                </div>
-
-                <form id="booster-form">
-                    <div class="form-group">
-                        <label for="booster-invite">Invite Link or Server ID</label>
-                        <input
-                            id="booster-invite"
-                            type="text"
-                            placeholder="https://discord.gg/example"
-                            required
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="boost-amount">Requested Amount</label>
-                        <input
-                            id="boost-amount"
-                            type="number"
-                            value="2"
-                            min="1"
-                            oninput="calculateBoostCost()"
-                            required
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label>Estimated Cost</label>
-                        <div id="boost-cost-display" class="live-message">
-                            $0.36 USD
+                        <h3 style="margin-top: 30px;">Deposit Status Tracking</h3>
+                        <div id="user-deposit-history" class="accounts-grid">
+                            <p style="color:var(--text-muted); font-size:13px;">No deposits processed yet.</p>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-action">
-                        Create Request Preview
-                    </button>
-                </form>
-
-                <div id="booster-message"></div>
-            </div>
-        </section>
-
-        <section id="view-joiner" class="view-panel">
-            <div class="card">
-                <h3>↪ Community Setup</h3>
-
-                <div class="notice">
-                    This form creates a local onboarding preview only. It does not collect account
-                    tokens or automatically add members to a server.
-                </div>
-
-                <form id="joiner-form">
-                    <div class="form-group">
-                        <label for="joiner-invite">Community Invite Link</label>
-                        <input
-                            id="joiner-invite"
-                            type="text"
-                            placeholder="https://discord.gg/example"
-                            required
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label for="joiner-amount">Requested Member Count</label>
-                        <input
-                            id="joiner-amount"
-                            type="number"
-                            value="50"
-                            min="1"
-                            oninput="calculateJoinerCost()"
-                            required
-                        >
-                    </div>
-
-                    <div class="form-group">
-                        <label>Estimated Cost</label>
-                        <div id="joiner-cost-display" class="live-message">
-                            $4.50 USD
+                    <div class="card">
+                        <h3>◉ Add Funds</h3>
+                        <div class="crypto-row" style="margin-top:15px;">
+                            <button class="crypto-box selected" id="coin-btc" onclick="selectCoin('BTC')">BTC</button>
+                            <button class="crypto-box" id="coin-ltc" onclick="selectCoin('LTC')">LTC</button>
+                            <button class="crypto-box" id="coin-doge" onclick="selectCoin('DOGE')">DOGE</button>
+                            <button class="crypto-box" id="coin-sol" onclick="selectCoin('SOL')">SOL</button>
                         </div>
-                    </div>
+                        <div class="form-group">
+                            <label>Amount ($ USD)</label>
+                            <input id="deposit-amount" type="number" value="25" min="1">
+                        </div>
+Use code with caution.
+Generate Invoice
 
-                    <button type="submit" class="btn-action">
-                        Create Onboarding Preview
-                    </button>
-                </form>
 
-                <div id="joiner-message"></div>
-            </div>
-        </section>
-    </main>
 
-    <script>
-        "use strict";
+◈ Token Assets Checker
+Tokens Array (One Per Line)
+Launch Validation Check
 
-        function switchView(viewName, element) {
-            document.querySelectorAll(".view-panel").forEach(function (panel) {
-                panel.classList.remove("active");
-            });
 
-            document.querySelectorAll(".nav-item").forEach(function (item) {
-                item.classList.remove("active");
-            });
 
-            var targetView = document.getElementById("view-" + viewName);
+🚀 Promotion Request Pipeline
+Invite Link or Server ID
+Strategy Mode
+Salta7 Premium Stock Tier
+Provide Your Own Tokens (BYOT)
 
-            if (targetView) {
-                targetView.classList.add("active");
-            }
 
-            if (element) {
-                element.classList.add("active");
-            }
-        }
+Custom Tokens List
+Requested Boost Count
+Estimated Charge Deduction
+$0.36 USD
 
-        function navigateToTab(tabName) {
-            var tabButton = document.getElementById("tab-" + tabName);
-            switchView(tabName, tabButton);
-        }
+Deploy Boost Pipeline
 
-        function selectCoin(element) {
-            document.querySelectorAll(".crypto-box").forEach(function (box) {
-                box.classList.remove("selected");
-            });
 
-            element.classList.add("selected");
-        }
+↪ Community Onboarding Engine
+Invite Link
+Strategy Layer
+Salta7 Account Pool
+Provide Your Own Tokens (BYOT)
 
-        function calculateBoostCost() {
-            var amountField = document.getElementById("boost-amount");
-            var display = document.getElementById("boost-cost-display");
 
-            if (!amountField || !display) {
-                return;
-            }
+Custom Tokens
+Requested Members Volume
+Estimated Charge Deduction
+$4.50 USD
 
-            var amount = parseInt(amountField.value, 10) || 0;
-            display.textContent = "$" + (amount * 0.18).toFixed(2) + " USD";
-        }
+Deploy Entry Pipeline
 
-        function calculateJoinerCost() {
-            var amountField = document.getElementById("joiner-amount");
-            var display = document.getElementById("joiner-cost-display");
 
-            if (!amountField || !display) {
-                return;
-            }
+⚙ System Executive Console
+Review network ledger requests and authorize user wallet configurations.
+Pending Platform Invoices
 
-            var amount = parseInt(amountField.value, 10) || 0;
-            display.textContent = "$" + (amount * 0.09).toFixed(2) + " USD";
-        }
 
-        function showMessage(containerId, message, color) {
-            var container = document.getElementById(containerId);
 
-            if (!container) {
-                return;
-            }
+Registered App Client Clusters
 
-            container.textContent = "";
 
-            var messageBox = document.createElement("div");
-            messageBox.className = "live-message";
-            messageBox.style.color = color || "#38bdf8";
-            messageBox.textContent = message;
 
-            container.appendChild(messageBox);
-        }
 
-        function createPreviewCard(label, index) {
-            var card = document.createElement("div");
-            card.className = "account-card";
-
-            var avatar = document.createElement("div");
-            avatar.className = "account-avatar";
-            avatar.textContent = String(index + 1);
-
-            var info = document.createElement("div");
-            info.className = "account-info";
-
-            var username = document.createElement("div");
-            username.className = "account-username";
-            username.textContent = label || "Unnamed account";
-
-            var meta = document.createElement("div");
-            meta.className = "account-meta-row";
-
-            var status = document.createElement("span");
-            status.className = "badge-status";
-            status.textContent = "Preview";
-
-            var detail = document.createElement("span");
-            detail.className = "badge-feature";
-            detail.textContent = "No external request";
-
-            meta.appendChild(status);
-            meta.appendChild(detail);
-            info.appendChild(username);
-            info.appendChild(meta);
-            card.appendChild(avatar);
-            card.appendChild(info);
-
-            return card;
-        }
-
-        function handleCheckerAction(event) {
-            event.preventDefault();
-
-            var input = document.getElementById("checker-input-field");
-            var container = document.getElementById("checked-accounts-display-container");
-
-            if (!input || !container) {
-                return;
-            }
-
-            var labels = input.value
-                .split(/\r?\n/)
-                .map(function (line) {
-                    return line.trim();
-                })
-                .filter(Boolean);
-
-            container.textContent = "";
-
-            document.getElementById("stat-total").textContent = labels.length;
-            document.getElementById("stat-valid").textContent = labels.length;
-            document.getElementById("stat-locked").textContent = "0";
-            document.getElementById("stat-invalid").textContent = "0";
-            document.getElementById("stat-avatar").textContent = labels.length;
-            document.getElementById("stat-elapsed").textContent = "0s";
-
-            labels.forEach(function (label, index) {
-                container.appendChild(createPreviewCard(label, index));
-            });
-
-            if (labels.length === 0) {
-                container.textContent = "Enter at least one non-sensitive label.";
-            }
-        }
-
-        function handleBoosterAction(event) {
-            event.preventDefault();
-
-            var invite = document.getElementById("booster-invite").value.trim();
-            var amount = document.getElementById("boost-amount").value;
-
-            showMessage(
-                "booster-message",
-                "Local preview created for " + amount +
-                " requested promotion(s) associated with " + invite +
-                ". No external request was sent.",
-                "#38bdf8"
-            );
-        }
-
-        function handleJoinerAction(event) {
-            event.preventDefault();
-
-            var invite = document.getElementById("joiner-invite").value.trim();
-            var amount = document.getElementById("joiner-amount").value;
-
-            showMessage(
-                "joiner-message",
-                "Local onboarding preview created for " + amount +
-                " requested member(s) associated with " + invite +
-                ". No external request was sent.",
-                "#38bdf8"
-            );
-        }
-
-        function triggerPayment() {
-            var amount = parseFloat(
-                document.getElementById("deposit-amount").value
-            ) || 0;
-
-            if (amount < 1) {
-                alert("The minimum deposit amount is $1.00 USD.");
-                return;
-            }
-
-            alert(
-                "Invoice preview created for $" +
-                amount.toFixed(2) +
-                ". Connect a compliant payment provider before processing real payments."
-            );
-        }
-
-        document.addEventListener("DOMContentLoaded", function () {
-            document.querySelectorAll("[data-target]").forEach(function (button) {
-                button.addEventListener("click", function () {
-                    navigateToTab(button.dataset.target);
-                });
-            });
-
-            document.querySelectorAll(".nav-menu .nav-item").forEach(function (button) {
-                button.addEventListener("click", function () {
-                    switchView(button.id.replace("tab-", ""), button);
-                });
-            });
-
-            document.querySelectorAll(".crypto-box").forEach(function (box) {
-                box.addEventListener("click", function () {
-                    selectCoin(box);
-                });
-            });
-
-            var checkerForm = document.getElementById("checker-form");
-            var boosterForm = document.getElementById("booster-form");
-            var joinerForm = document.getElementById("joiner-form");
-            var invoiceButton = document.getElementById("invoice-button");
-            var signInButton = document.getElementById("sign-in-btn");
-
-            if (checkerForm) {
-                checkerForm.addEventListener("submit", handleCheckerAction);
-            }
-
-            if (boosterForm) {
-                boosterForm.addEventListener("submit", handleBoosterAction);
-            }
-
-            if (joinerForm) {
-                joinerForm.addEventListener("submit", handleJoinerAction);
-            }
-
-            if (invoiceButton) {
-                invoiceButton.addEventListener("click", triggerPayment);
-            }
-
-            if (signInButton) {
-                signInButton.addEventListener("click", function () {
-                    alert("Connect your approved authentication provider here.");
-                });
-            }
-
-            // Safe event listener: only attach when the field exists.
-            var liveTokenField = document.getElementById("joiner-tokens-field");
-
-            if (liveTokenField) {
-                liveTokenField.addEventListener("input", calculateJoinerCost);
-            }
-
-            calculateBoostCost();
-            calculateJoinerCost();
-        });
-    </script>
-</body>
-</html>
+const BASE_URL = window.location.origin + '/api';
+let sessionUser = JSON.parse(localStorage.getItem('user_node'));
+let selectedAsset = 'BTC';
+let viewMode = 'login';
+function runSessionCheck() {
+if (sessionUser) {
+document.getElementById('auth-panel').style.display = 'none';
+document.getElementById('app-panel').style.display = 'block';
+fetchHubDetails();
+} else {
+document.getElementById('auth-panel').style.display = 'block';
+document.getElementById('app-panel').style.display = 'none';
+}
+}
+function toggleAuthMode() {
+viewMode = viewMode === 'login' ? 'register' : 'login';
+document.getElementById('auth-title').textContent = viewMode === 'login' ? 'Sign In to Engine' : 'Create New Account';
+document.getElementById('auth-primary-btn').textContent = viewMode === 'login' ? 'Login' : 'Register Account';
+document.getElementById('auth-toggle-text').textContent = viewMode === 'login' ? "Don't have an account? Register instead" : "Already registered? Login here";
+}
+async function submitAuthForm() {
+const email = document.getElementById('auth-email').value;
+const password = document.getElementById('auth-password').value;
+const path = viewMode === 'login' ? '/submit/login' : '/submit/register';
+try {
+const res = await fetch(BASE_URL + path, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ email, password })
+});
+const parsed = await res.json();
+if (parsed.error) return alert(parsed.error);
+if (viewMode === 'login') {
+localStorage.setItem('user_node', JSON.stringify(parsed));
+sessionUser = parsed;
+runSessionCheck();
+} else {
+alert(parsed.message + " You can now sign in.");
+toggleAuthMode();
+}
+} catch(e) { alert("API Connection error."); }
+}
+function logout() {
+localStorage.clear();
+sessionUser = null;
+location.reload();
+}
+function switchView(panel) {
+document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+document.getElementById('view-' + panel).classList.add('active');
+document.getElementById('tab-' + panel).classList.add('active');
+}
+function selectCoin(asset) {
+document.querySelectorAll('.crypto-box').forEach(b => b.classList.remove('selected'));
+if(document.getElementById('coin-'+asset.toLowerCase())) {
+document.getElementById('coin-'+asset.toLowerCase()).classList.add('selected');
+}
+selectedAsset = asset;
+}
+async function fetchHubDetails() {
+try {
+const res = await fetch(${BASE_URL}/submit/dashboard?userId=${sessionUser.userId}&role=${sessionUser.role});
+const payload = await res.json();
+if (payload.role === 'admin') {
+document.getElementById('tab-admin').style.display = 'flex';
+document.getElementById('role-indicator').innerHTML = <span class="admin-badge">GLOBAL SYSTEM ADMIN</span>;
+document.getElementById('display-balance').textContent = "◉ FREE ROOT NODE";
+renderSystemAdminSuite(payload);
+} else {
+document.getElementById('tab-admin').style.display = 'none';
+document.getElementById('role-indicator').textContent = payload.email;
+document.getElementById('display-balance').textContent = ◉ ${payload.balance.toFixed(2)} USD;
+renderUserInvoices(payload.myDeposits);
+}
+} catch(e) { console.log("Dashboard sync failure."); }
+}
+function renderUserInvoices(myDeposits) {
+const container = document.getElementById('user-deposit-history');
+if (!myDeposits || myDeposits.length === 0) {
+container.innerHTML = <p style="color:var(--text-muted); font-size:13px;">No deposits found yet.</p>;
+return;
+}
+container.innerHTML = myDeposits.map(d => <div class="account-card"> <div> <strong>${d.id} (${d.coin})</strong><br> <span style="font-size:11px; color:var(--text-muted);">${d.created_at || 'Pending verification'}</span> </div> <div> <span style="color:var(--accent-green); font-weight:bold;">$${parseFloat(d.amount).toFixed(2)}</span> |  <span style="color:${d.status === 'confirmed' ? 'var(--accent-green)' : 'var(--accent-yellow)'}">${d.status.toUpperCase()}</span> </div> </div>).join('');
+}
+function renderSystemAdminSuite(payload) {
+const invoiceList = document.getElementById('admin-invoice-list');
+const userList = document.getElementById('admin-users-list');
+invoiceList.innerHTML = payload.allDeposits.length === 0 ? 'No pending invoices.' : payload.allDeposits.map(d => <div class="account-card"> <div> <strong>User: ${d.user_email}</strong> (${d.id})<br> Sent: $${d.amount} ${d.coin} | State: <b style="color:orange">${d.status}</b> </div> ${d.status === 'pending' ?Approve & Credit: '<b>[CREDITED]</b>'} </div>).join('');
+userList.innerHTML = payload.users.map(u => <div class="account-card"> <div><strong>${u.email}</strong> [Role: ${u.role}]</div> <div style="font-weight:bold; color:var(--accent-blue)">$${parseFloat(u.balance).toFixed(2)} USD</div> </div>).join('');
+}
+async function generateInvoice() {
+const amount = document.getElementById('deposit-amount').value;
+try {
+const res = await fetch(BASE_URL + '/booster/invoice', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ userId: sessionUser.userId, email: sessionUser.email, coin: selectedAsset, amount })
+});
+const data = await res.json();
+if (data.error) return alert(data.error);
+document.getElementById('invoice-output').innerHTML = <div class="live-message"> <strong>Invoice ${data.invoiceId} Issued!</strong><br><br> Please transfer exactly <b>$${data.amount} USD</b> worth of <b>${data.coin}</b> to your admin deposit wallet destination below:<br><br> <span style="color:var(--accent-green); font-weight:bold;">${data.address}</span><br><br> Balance will update dynamically as soon as an admin credits the invoice entry parameters. </div>;
+fetchHubDetails();
+} catch(e) { alert("Error issuing invoice payload."); }
+}
+async function clearAdminApproval(targetUserId, creditAmount, depositId) {
+try {
+const res = await fetch(BASE_URL + '/booster_status/credit', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ adminRole: sessionUser.role, targetUserId, creditAmount, depositId })
+});
+const data = await res.json();
+alert(data.message || data.error);
+fetchHubDetails();
+} catch(e) { alert("Error adjusting ledger registries."); }
+}
+async function launchBoosterJob() {
+const logBox = document.getElementById('booster-live-logs');
+logBox.style.display = 'block';
+logBox.textContent = "Connecting to pipeline channels...";
+try {
+const res = await fetch(BASE_URL + '/booster', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({
+input: document.getElementById('booster-invite').value,
+amount: document.getElementById('boost-amount').value,
+strategy: document.getElementById('booster-strategy').value,
+custom_tokens: document.getElementById('booster-custom-tokens').value,
+userId: sessionUser.userId,
+role: sessionUser.role
+})
+});
+const data = await res.json();
+if(data.logs) {
+logBox.innerHTML = data.logs.map(l => <div>${l}</div>).join('');
+}
+fetchHubDetails();
+} catch(e) { logBox.textContent = "Pipeline execution framework failed."; }
+}
+async function launchJoinerJob() {
+const logBox = document.getElementById('joiner-live-logs');
+logBox.style.display = 'block';
+logBox.textContent = "Connecting to community setup corridors...";
+try {
+const res = await fetch(BASE_URL + '/submit', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({
+input: document.getElementById('joiner-invite').value,
+amount: document.getElementById('joiner-amount').value,
+custom_tokens: document.getElementById('joiner-custom-tokens').value,
+userId: sessionUser.userId,
+role: sessionUser.role
+})
+});
+const data = await res.json();
+if(data.logs) {
+logBox.innerHTML = data.logs.map(l => <div>${l}</div>).join('');
+}
+fetchHubDetails();
+} catch(e) { logBox.textContent = "Community tracking setup connection error."; }
+}
+async function runAssetChecker() {
+const logBox = document.getElementById('checker-live-logs');
+const display = document.getElementById('checked-accounts-display-container');
+logBox.style.display = 'block';
+logBox.textContent = "Spawning thread process loops. Please hold...";
+display.innerHTML = '';
+try {
+const res = await fetch(BASE_URL + '/items', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({
+input: document.getElementById('checker-input-field').value,
+userId: sessionUser.userId,
+role: sessionUser.role
+})
+});
+const data = await res.json();
+logBox.style.display = 'none';
+if(data.message) return alert(data.message);
+if(data.accounts && data.accounts.length > 0) {
+display.innerHTML = data.accounts.map((acc, index) => <div class="account-card"> <div style="display:flex; align-items:center; gap:10px;"> <div style="width:30px; height:30px; border-radius:50%; background:#16223f; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:bold; color:var(--accent-blue);">\${index+1}</div> <div> <strong>\${acc.username}</strong><br> <span style="font-size:11px; color:var(--text-muted);">\${acc.phone} | \${acc.nitro}</span> </div> </div> <span class="badge-status" style="background:\${acc.status==='valid'?'rgba(16,185,129,0.15)':acc.status==='locked'?'rgba(251,191,36,0.15)':'rgba(239,68,68,0.15)'}; color:\${acc.status==='valid'?'var(--accent-green)':acc.status==='locked'?'var(--accent-yellow)':'var(--accent-red)'};">\${acc.status.toUpperCase()}</span> </div>).join('');
+} else {
+display.innerHTML = 'No accounts targets returned.';
+}
+fetchHubDetails();
+} catch(e) { logBox.textContent = "Asset checker runner thread failure."; }
+}
+runSessionCheck();
