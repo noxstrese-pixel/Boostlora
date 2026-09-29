@@ -4,12 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boostlora Hub</title>
-    <link rel="stylesheet" href="https://cloudflare.com">
-    
-    <!-- Clerk Authentication Engine -->
-    <script async crossorigin="anonymous" src="https://jsdelivr.net" 
-            data-clerk-publishable-key="your-clerk-publishable-key" id="clerk-script"></script>
-
     <style>
         :root {
             --bg-base: #060b13;
@@ -23,23 +17,25 @@
             --accent-red: #ef4444;
             --accent-yellow: #fbbf24;
         }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: system-ui, -apple-system, sans-serif;
         }
+
         body {
-            background-color: var(--bg-base);
+            background: var(--bg-base);
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
             overflow-x: hidden;
         }
-        /* Sidebar Layout */
+
         .sidebar {
             width: 260px;
-            background-color: var(--bg-card);
+            background: var(--bg-card);
             border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
@@ -48,6 +44,7 @@
             height: 100vh;
             z-index: 100;
         }
+
         .brand-section {
             display: flex;
             align-items: center;
@@ -56,24 +53,28 @@
             font-size: 1.2rem;
             margin-bottom: 32px;
         }
+
         .brand-icon {
             color: var(--accent-blue);
             font-size: 20px;
         }
+
         .status-dot {
-            background-color: var(--accent-green);
+            background: var(--accent-green);
             width: 8px;
             height: 8px;
             border-radius: 50%;
             display: inline-block;
             box-shadow: 0 0 8px rgba(16, 185, 129, .6);
         }
+
         .nav-menu {
             display: flex;
             flex-direction: column;
             gap: 6px;
             flex-grow: 1;
         }
+
         .nav-item {
             display: flex;
             align-items: center;
@@ -87,17 +88,14 @@
             cursor: pointer;
             transition: all .2s;
         }
+
         .nav-item:hover,
         .nav-item.active {
-            background-color: #111a30;
+            background: #111a30;
             color: var(--text-main);
             border-left: 3px solid var(--accent-blue);
         }
-        .nav-item i {
-            width: 18px;
-            text-align: center;
-        }
-        /* Main Application Workspace Wrapper */
+
         .main-content {
             margin-left: 260px;
             flex-grow: 1;
@@ -107,9 +105,9 @@
             gap: 24px;
             width: calc(100% - 260px);
         }
-        /* Top Navigation Bar Component */
+
         .top-navbar {
-            background-color: var(--bg-card);
+            background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 12px 24px;
@@ -118,45 +116,46 @@
             align-items: center;
             gap: 12px;
         }
+
         .user-balance {
-            background-color: #16223f;
+            background: #16223f;
             border: 1px solid var(--border-color);
             font-size: 13px;
             padding: 8px 14px;
             border-radius: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
-        /* App Window Switching Views */
+
         .view-panel {
             display: none;
             width: 100%;
         }
+
         .view-panel.active {
             display: block;
         }
-        /* Dashboard Container Grid System */
+
         .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr;
             gap: 24px;
             width: 100%;
         }
+
         @media (min-width: 1024px) {
             .dashboard-grid {
                 grid-template-columns: 2fr 1fr;
             }
         }
-        /* Content Base Cards Customizations */
+
         .card {
-            background-color: var(--bg-card);
+            background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 24px;
             height: max-content;
             width: 100%;
         }
+
         .card h3 {
             font-size: 16px;
             font-weight: 600;
@@ -165,14 +164,16 @@
             align-items: center;
             gap: 8px;
         }
-        /* Interface Data Form Parameters */
+
         .form-group {
             margin-bottom: 16px;
         }
+
         #custom-tokens-wrapper {
             display: none;
             margin-bottom: 16px;
         }
+
         label {
             display: block;
             font-size: 11px;
@@ -181,11 +182,12 @@
             margin-bottom: 8px;
             font-weight: 600;
         }
+
         input,
         select,
         textarea {
             width: 100%;
-            background-color: var(--bg-input);
+            background: var(--bg-input);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 12px;
@@ -193,21 +195,23 @@
             font-size: 14px;
             outline: none;
             transition: border-color .2s;
-            pointer-events: auto !important;
         }
+
         input:focus,
         select:focus,
         textarea:focus {
             border-color: var(--accent-blue);
         }
+
         textarea {
             resize: vertical;
             min-height: 100px;
             font-family: monospace;
         }
+
         .btn-action {
             width: 100%;
-            background-color: var(--accent-blue);
+            background: var(--accent-blue);
             color: white;
             border: none;
             border-radius: 8px;
@@ -215,48 +219,49 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
             transition: background .2s;
         }
+
         .btn-action:hover {
-            background-color: #3b82f6;
+            background: #3b82f6;
         }
-        /* Product Offer Modules */
+
         .service-grid {
             display: grid;
             grid-template-columns: 1fr;
             gap: 16px;
         }
+
         @media (min-width: 480px) {
             .service-grid {
                 grid-template-columns: 1fr 1fr;
             }
         }
+
         .service-item {
-            background: linear-gradient(135deg, #0f1930 0%, #0a1122 100%);
+            background: linear-gradient(135deg, #0f1930, #0a1122);
             border: 1px solid var(--border-color);
             border-radius: 10px;
             padding: 20px;
             text-align: center;
         }
+
         .price-tag {
             color: var(--accent-green);
             font-weight: 700;
             margin: 6px 0 16px;
             font-size: 15px;
         }
-        /* Blockchain Refill Selectors */
+
         .crypto-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 8px;
             margin-bottom: 16px;
         }
+
         .crypto-box {
-            background-color: var(--bg-input);
+            background: var(--bg-input);
             border: 1px solid var(--border-color);
             padding: 10px;
             border-radius: 8px;
@@ -266,41 +271,64 @@
             color: var(--text-muted);
             cursor: pointer;
         }
+
         .crypto-box:hover,
         .crypto-box.selected {
             border-color: var(--accent-blue);
             color: var(--text-main);
         }
 
-        /* --- SALTA7 INTERACTIVE STYLING MATRIX --- */
         .stats-counter-strip {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
             margin-bottom: 20px;
         }
-        @media (min-width: 640px) { .stats-counter-strip { grid-template-columns: repeat(6, 1fr); } }
-        
+
+        @media (min-width: 640px) {
+            .stats-counter-strip {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+
         .stat-box {
-            background-color: var(--bg-input);
+            background: var(--bg-input);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             padding: 12px;
             text-align: center;
         }
-        .stat-box-val { font-size: 20px; font-weight: 700; color: #fff; }
-        .stat-box-lbl { font-size: 10px; text-transform: uppercase; color: var(--text-muted); margin-top: 4px; font-weight: 600; letter-spacing: 0.5px; }
-        
+
+        .stat-box-val {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .stat-box-lbl {
+            font-size: 10px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-weight: 600;
+            letter-spacing: .5px;
+        }
+
         .accounts-grid {
             display: grid;
             grid-template-columns: 1fr;
             gap: 12px;
             margin-top: 20px;
         }
-        @media (min-width: 768px) { .accounts-grid { grid-template-columns: 1fr 1fr; } }
-        
+
+        @media (min-width: 768px) {
+            .accounts-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
         .account-card {
-            background: linear-gradient(135deg, #0e1629 0%, #060b14 100%);
+            background: linear-gradient(135deg, #0e1629, #060b14);
             border: 1px solid var(--border-color);
             border-radius: 10px;
             padding: 14px;
@@ -309,299 +337,502 @@
             gap: 14px;
             position: relative;
         }
-        .account-card.card-valid { border-left: 3px solid var(--accent-green); }
-        .account-card.card-invalid { border-left: 3px solid var(--accent-red); opacity: 0.6; }
-        .account-card.card-locked { border-left: 3px solid var(--accent-yellow); }
+
+        .account-card.card-valid {
+            border-left: 3px solid var(--accent-green);
+        }
+
+        .account-card.card-invalid {
+            border-left: 3px solid var(--accent-red);
+            opacity: .6;
+        }
+
+        .account-card.card-locked {
+            border-left: 3px solid var(--accent-yellow);
+        }
 
         .account-avatar {
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            background-color: #16223f;
+            background: #16223f;
             display: flex;
             align-items: center;
             justify-content: center;
-Use code with caution.
-border: 1px solid var(--border-color);
-}
-.account-avatar i { font-size: 20px; color: var(--text-muted); }
-.account-info { flex-grow: 1; }
-.account-username { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
-.account-meta-row { display: flex; gap: 8px; flex-wrap: wrap; }
-.badge-status {
-font-size: 10px;
-font-weight: 700;
-padding: 2px 6px;
-border-radius: 4px;
-text-transform: uppercase;
-}
-.badge-status.b-valid { background: rgba(16,185,129,0.15); color: var(--accent-green); }
-.badge-status.b-invalid { background: rgba(239,68,68,0.15); color: var(--accent-red); }
-.badge-status.b-locked { background: rgba(251,191,36,0.15); color: var(--accent-yellow); }
-.badge-feature { font-size: 11px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 4px; }
-.badge-feature i { font-size: 12px; }
-.badge-feature.has-feature { color: #c084fc; }
+            border: 1px solid var(--border-color);
+        }
 
+        .account-info {
+            flex-grow: 1;
+        }
 
+        .account-username {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+        }
 
-Boostlora Hub
+        .account-meta-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
 
+        .badge-status {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
 
+        .badge-status.b-valid {
+            background: rgba(16, 185, 129, .15);
+            color: var(--accent-green);
+        }
 
-Dashboard
-Token Checker
-Boost Tool
-Server Joiner
+        .badge-status.b-invalid {
+            background: rgba(239, 68, 68, .15);
+            color: var(--accent-red);
+        }
 
- 0.00 USD
+        .badge-status.b-locked {
+            background: rgba(251, 191, 36, .15);
+            color: var(--accent-yellow);
+        }
 
-Connect
+        .badge-feature {
+            font-size: 11px;
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
 
+        .badge-feature.has-feature {
+            color: #c084fc;
+        }
 
-Active Infrastructure Modules
+        @media (max-width: 720px) {
+            .sidebar {
+                width: 76px;
+                padding: 20px 10px;
+            }
 
+            .brand-section span:not(.status-dot),
+            .nav-item span {
+                display: none;
+            }
 
-Discord Boost Module
-$0.18 / boost
-Open Tool
+            .nav-item {
+                justify-content: center;
+            }
 
+            .main-content {
+                margin-left: 76px;
+                width: calc(100% - 76px);
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="brand-section">
+            <span class="brand-icon">⚡</span>
+            <span>Boostlora Hub</span>
+            <span class="status-dot"></span>
+        </div>
 
-Automated Server Joiner
-$0.05 / join
-Open Tool
+        <div class="nav-menu">
+            <div id="tab-dashboard" class="nav-item active" onclick="switchView('dashboard', this)">▦ <span>Dashboard</span></div>
+            <div id="tab-checker" class="nav-item" onclick="switchView('checker', this)">◈ <span>Token Checker</span></div>
+            <div id="tab-booster" class="nav-item" onclick="switchView('booster', this)">🚀 <span>Boost Tool</span></div>
+            <div id="tab-joiner" class="nav-item" onclick="switchView('joiner', this)">↪ <span>Server Joiner</span></div>
+        </div>
+    </div>
 
+    <div class="main-content">
+        <div class="top-navbar">
+            <div class="user-balance">◉ 0.00 USD</div>
+            <div id="auth-buttons">
+                <button id="sign-in-btn" class="nav-item" style="padding:8px 14px;background:#16223f;border:none;">
+                    ● Connect
+                </button>
+            </div>
+            <div id="user-profile-slot"></div>
+        </div>
 
- Add Funds
+        <div id="view-dashboard" class="view-panel active">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>Active Infrastructure Modules</h3>
 
-BTC
-LTC
-DOGE
-SOL
+                    <div class="service-grid">
+                        <div class="service-item">
+                            <h4>Discord Boost Module</h4>
+                            <div class="price-tag">$0.18 / boost</div>
+                            <button class="btn-action" onclick="navigateToTab('booster')">Open Tool</button>
+                        </div>
 
-Amount ($ USD)
-Generate Invoice
+                        <div class="service-item">
+                            <h4>Automated Server Joiner</h4>
+                            <div class="price-tag">$0.05 / join</div>
+                            <button class="btn-action" onclick="navigateToTab('joiner')">Open Tool</button>
+                        </div>
+                    </div>
+                </div>
 
+                <div class="card">
+                    <h3>◉ Add Funds</h3>
 
- Automated Token Checker
+                    <div class="crypto-row">
+                        <div class="crypto-box selected" onclick="selectCoin(this)">BTC</div>
+                        <div class="crypto-box" onclick="selectCoin(this)">LTC</div>
+                        <div class="crypto-box" onclick="selectCoin(this)">DOGE</div>
+                        <div class="crypto-box" onclick="selectCoin(this)">SOL</div>
+                    </div>
 
-Input Auth Tokens (One per line)
-Start Verification Scan
-0s
-Elapsed
+                    <div class="form-group">
+                        <label>Amount ($ USD)</label>
+                        <input id="deposit-amount" type="number" value="25" min="1" step="1">
+                    </div>
 
+                    <button onclick="triggerPayment()" class="btn-action" style="background:#fff;color:#000;">
+                        Generate Invoice
+                    </button>
+                </div>
+            </div>
+        </div>
 
-0
-Total
+        <div id="view-checker" class="view-panel">
+            <div class="card" style="max-width:900px;">
+                <h3>◈ Automated Token Checker</h3>
 
+                <form id="checker-form" onsubmit="handleCheckerAction(event)">
+                    <div class="form-group">
+                        <label>Input Auth Tokens (One per line)</label>
+                        <textarea id="checker-input-field" placeholder="Paste accounts/tokens here..." required></textarea>
+                    </div>
 
-0
-Valid
+                    <button type="submit" class="btn-action">
+                        Start Verification Scan
+                    </button>
+                </form>
 
+                <div class="stats-counter-strip" style="margin-top:24px;">
+                    <div class="stat-box">
+                        <div class="stat-box-val" id="stat-elapsed">0s</div>
+                        <div class="stat-box-lbl">Elapsed</div>
+                    </div>
 
-0
-Locked
+                    <div class="stat-box">
+                        <div class="stat-box-val" id="stat-total">0</div>
+                        <div class="stat-box-lbl">Total</div>
+                    </div>
 
+                    <div class="stat-box">
+                        <div class="stat-box-val" id="stat-valid" style="color:var(--accent-green);">0</div>
+                        <div class="stat-box-lbl">Valid</div>
+                    </div>
 
-0
-Invalid
+                    <div class="stat-box">
+                        <div class="stat-box-val" id="stat-locked" style="color:var(--accent-yellow);">0</div>
+                        <div class="stat-box-lbl">Locked</div>
+                    </div>
 
+                    <div class="stat-box">
+                        <div class="stat-box-val" id="stat-invalid" style="color:var(--accent-red);">0</div>
+                        <div class="stat-box-lbl">Invalid</div>
+                    </div>
 
-0
-Avatar
+                    <div class="stat-box">
+                        <div class="stat-box-val" id="stat-avatar">0</div>
+                        <div class="stat-box-lbl">Avatar</div>
+                    </div>
+                </div>
 
- Server Booster Tool
+                <div class="accounts-grid" id="checked-accounts-display-container"></div>
+            </div>
+        </div>
 
-Invite Link or Server ID
-Token Source Strategy
-Use Premium Auto-Tokens ($0.18 per Boost)
-Provide My Own Tokens ($0.02 Captcha Fee per Boost)
+        <div id="view-booster" class="view-panel">
+            <div class="card" style="max-width:800px;">
+                <h3>🚀 Server Booster Tool</h3>
 
-Input User Tokens (One per line)
-Amount of Boosts
-Estimated Cost:
-$0.36 USD
-Execute Boosting Pipeline
+                <form id="booster-form" onsubmit="handleApiAction(event, '/api/booster')">
+                    <div class="form-group">
+                        <label>Invite Link or Server ID</label>
+                        <input type="text" placeholder="https://discord.gg" required>
+                    </div>
 
+                    <div class="form-group">
+                        <label>Token Source Strategy</label>
+                        <select id="token-source" onchange="toggleTokenInput();calculateBoostCost();">
+                            <option value="salta7">Use Premium Auto-Tokens ($0.18 per Boost)</option>
+                            <option value="custom">Provide My Own Tokens ($0.02 Captcha Fee per Boost)</option>
+                        </select>
+                    </div>
 
- Automated Member Joiner
+                    <div class="form-group" id="custom-tokens-wrapper">
+                        <label>Input User Tokens (One per line)</label>
+                        <textarea id="custom-tokens-field" placeholder="Paste your custom user tokens here..."></textarea>
+                    </div>
 
-Target Invite Code
-Amount to Join
-Inject Automation Workers
+                    <div class="form-group">
+                        <label>Amount of Boosts</label>
+                        <input id="boost-amount" type="number" value="2" min="1" oninput="calculateBoostCost()" required>
+                    </div>
 
+                    <div class="form-group" style="background:rgba(37,99,235,.1);border:1px solid var(--border-color);padding:12px;border-radius:8px;">
+                        <span>Estimated Cost:</span>
+                        <strong id="boost-cost-display" style="float:right;color:var(--accent-green);">$0.36 USD</strong>
+                    </div>
 
+                    <button type="submit" class="btn-action">
+                        Execute Boosting Pipeline
+                    </button>
+                </form>
+            </div>
+        </div>
 
-console.log("Boostlora Core: Operational engine loaded.");
-function switchView(viewName, element) {
-document.querySelectorAll('.view-panel').forEach(function(p) { p.classList.remove('active'); });
-document.querySelectorAll('.nav-item').forEach(function(i) { i.classList.remove('active'); });
-var targetView = document.getElementById('view-' + viewName);
-if (targetView) { targetView.classList.add('active'); }
-if (element) { element.classList.add('active'); }
-}
-function navigateToTab(tabName) {
-var sidebarBtn = document.getElementById('tab-' + tabName);
-switchView(tabName, sidebarBtn);
-}
-function toggleTokenInput() {
-var strategy = document.getElementById('token-source').value;
-var wrapper = document.getElementById('custom-tokens-wrapper');
-var field = document.getElementById('custom-tokens-field');
-if (strategy === 'custom') {
-wrapper.style.display = 'block';
-field.setAttribute('required', 'true');
-} else {
-wrapper.style.display = 'none';
-field.removeAttribute('required');
-}
-}
-function calculateBoostCost() {
-var strategy = document.getElementById('token-source').value;
-var amount = parseInt(document.getElementById('boost-amount').value) || 0;
-var totalCost = 0;
-if (strategy === 'salta7') { totalCost = amount * 0.18; }
-else if (strategy === 'custom') { totalCost = amount * 0.02; }
-document.getElementById('boost-cost-display').innerText = '$' + totalCost.toFixed(2) + ' USD';
-}
-function selectCoin(element) {
-document.querySelectorAll('.crypto-box').forEach(function(box) { box.classList.remove('selected'); });
-element.classList.add('selected');
-}
-// --- SALTA7 MULTI-CARD DESERIALIZATION FRONTEND PARSER ENGINE ---
-async function handleCheckerAction(event) {
-event.preventDefault();
-var inputField = document.getElementById('checker-input-field');
-var displayContainer = document.getElementById('checked-accounts-display-container');
-if (!inputField || !displayContainer) return;
-var rawInput = inputField.value;
-displayContainer.innerHTML = "";
-document.getElementById('stat-total').innerText = "0";
-document.getElementById('stat-valid').innerText = "0";
-document.getElementById('stat-locked').innerText = "0";
-document.getElementById('stat-invalid').innerText = "0";
-document.getElementById('stat-avatar').innerText = "0";
-document.getElementById('stat-elapsed').innerText = "0s";
-var startTime = Date.now();
-var timerInterval = setInterval(function() {
-var elapsedSecs = Math.floor((Date.now() - startTime) / 1000);
-document.getElementById('stat-elapsed').innerText = elapsedSecs + 's';
-}, 1000);
-try {
-var response = await fetch('/api/items', {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ input: rawInput, trigger: "active" })
-});
-var data = await response.json();
-clearInterval(timerInterval);
-if (data.status === "success" && Array.isArray(data.accounts)) {
-var total = data.accounts.length;
-var valid = 0, locked = 0, invalid = 0, avatars = 0;
-document.getElementById('stat-total').innerText = total;
-data.accounts.forEach(function(acc) {
-var cardClass = "card-invalid";
-var statusBadge = "Invalid";
-if (acc.status === "valid") {
-valid++;
-cardClass = "card-valid";
-statusBadge = "Valid";
-} else if (acc.status === "locked") {
-locked++;
-cardClass = "card-locked";
-statusBadge = "Locked";
-} else {
-invalid++;
-}
-var nitroBadge = " No Nitro";
-if (acc.nitro && acc.nitro !== "No Nitro") {
-nitroBadge = " Nitro";
-}
-var pfpIcon = "";
-if (acc.has_pfp) {
-avatars++;
-pfpIcon = "";
-}
-var cardHtml =
-'' +
-'' + pfpIcon + '' +
-'' +
-'' + acc.username + '' +
-'' +
-statusBadge +
-nitroBadge +
-' ' + acc.phone + '' +
-'' +
-'' +
-'';
-displayContainer.innerHTML += cardHtml;
-});
-document.getElementById('stat-valid').innerText = valid;
-document.getElementById('stat-locked').innerText = locked;
-document.getElementById('stat-invalid').innerText = invalid;
-document.getElementById('stat-avatar').innerText = avatars;
-} else if (data.message) {
-displayContainer.innerHTML = "" + data.message + "";
-}
-} catch (err) {
-clearInterval(timerInterval);
-console.error("API Checker Error: ", err);
-displayContainer.innerHTML = "[Error] Failed to connect or read profile data from server layer.";
-}
-}
-async function handleApiAction(event, endpoint) {
-event.preventDefault();
-var currentForm = event.target;
-var inputData = currentForm.querySelector('input[type="text"]')?.value || currentForm.querySelector('textarea')?.value || "";
-var amountData = currentForm.querySelector('input[type="number"]')?.value || "";
-var strategyData = document.getElementById('token-source')?.value || "salta7";
-let loggerBox = currentForm.querySelector('.live-logger-terminal');
-if (!loggerBox) {
-loggerBox = document.createElement('div');
-loggerBox.className = 'live-logger-terminal';
-loggerBox.style = "background:#020408; border:1px solid #1a2642; border-radius:8px; padding:12px; margin-top:16px; font-family:monospace; font-size:12px; color:#38bdf8; max-height:200px; overflow-y:auto; text-align:left; line-height:1.6;";
-currentForm.appendChild(loggerBox);
-}
-loggerBox.innerHTML = "[System] Dispatched connection payload to Vercel...";
-try {
-var response = await fetch(endpoint, {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({ input: inputData, amount: amountData, strategy: strategyData, trigger: "active" })
-});
-var data = await response.json();
-loggerBox.innerHTML = "";
-if (data.logs && Array.isArray(data.logs)) {
-data.logs.forEach(function(line) { loggerBox.innerHTML += '' + line + ''; });
-}
-loggerBox.innerHTML += "[Finished] All pipeline tasks handled completely.";
-} catch (err) {
-loggerBox.innerHTML += "[Error] Connection failed to parse backend response.";
-}
-}
-function triggerPayment() {
-var amount = parseFloat(document.getElementById('deposit-amount').value) || 0;
-if (isNaN(amount) || amount < 1.00) { alert("The minimum deposit requirement threshold is $1.00 USD."); return; }
-if (window.Clerk && !window.Clerk.user) { alert("Please connect an account profile to log this invoice securely."); window.Clerk.openSignIn(); return; }
-var userId = window.Clerk.user ? window.Clerk.user.id : "guest_session";
-var userEmail = window.Clerk.user ? window.Clerk.user.primaryEmailAddress.emailAddress : "no_email";
-var commerceUrl = 'coinbase.com' + amount + '&custom=' + userId + '&email=' + userEmail;
-window.open(commerceUrl, '_blank', 'width=500,height=700,status=yes,resizable=yes');
-}
-window.addEventListener('load', async function() {
-var script = document.getElementById('clerk-script');
-if (!script) return;
-script.addEventListener('load', async function() {
-if (!window.Clerk) return;
-await window.Clerk.load();
-var authButtons = document.getElementById('auth-buttons');
-var profileSlot = document.getElementById('user-profile-slot');
-var signInBtn = document.getElementById('sign-in-btn');
-if (window.Clerk.user) {
-window.Clerk.mountUserButton(profileSlot, { appearance: { baseTheme: 'dark' } });
-if (authButtons) authButtons.style.display = 'none';
-} else {
-if (authButtons) authButtons.style.display = 'block';
-if (signInBtn) { signInBtn.addEventListener('click', function() { window.Clerk.openSignIn(); }); }
-}
-});
-});
+        <div id="view-joiner" class="view-panel">
+            <div class="card" style="max-width:800px;">
+                <h3>↪ Automated Member Joiner</h3>
+
+                <form id="joiner-form" onsubmit="handleApiAction(event, '/api/submit')">
+                    <div class="form-group">
+                        <label>Target Invite Code</label>
+                        <input type="text" placeholder="discord.gg/your-code" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Amount to Join</label>
+                        <input type="number" value="50" step="10" min="1" required>
+                    </div>
+
+                    <button type="submit" class="btn-action">
+                        Inject Automation Workers
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchView(viewName, element) {
+            document.querySelectorAll('.view-panel').forEach(function (p) {
+                p.classList.remove('active');
+            });
+
+            document.querySelectorAll('.nav-item').forEach(function (i) {
+                i.classList.remove('active');
+            });
+
+            var targetView = document.getElementById('view-' + viewName);
+
+            if (targetView) {
+                targetView.classList.add('active');
+            }
+
+            if (element) {
+                element.classList.add('active');
+            }
+        }
+
+        function navigateToTab(tabName) {
+            switchView(tabName, document.getElementById('tab-' + tabName));
+        }
+
+        function toggleTokenInput() {
+            var strategy = document.getElementById('token-source').value;
+            var wrapper = document.getElementById('custom-tokens-wrapper');
+            var field = document.getElementById('custom-tokens-field');
+
+            wrapper.style.display = strategy === 'custom' ? 'block' : 'none';
+
+            if (strategy === 'custom') {
+                field.setAttribute('required', 'true');
+            } else {
+                field.removeAttribute('required');
+            }
+        }
+
+        function calculateBoostCost() {
+            var strategy = document.getElementById('token-source').value;
+            var amount = parseInt(document.getElementById('boost-amount').value, 10) || 0;
+            var rate = strategy === 'custom' ? 0.02 : 0.18;
+
+            document.getElementById('boost-cost-display').innerText =
+                '$' + (amount * rate).toFixed(2) + ' USD';
+        }
+
+        function selectCoin(element) {
+            document.querySelectorAll('.crypto-box').forEach(function (box) {
+                box.classList.remove('selected');
+            });
+
+            element.classList.add('selected');
+        }
+
+        async function handleCheckerAction(event) {
+            event.preventDefault();
+
+            var inputField = document.getElementById('checker-input-field');
+            var displayContainer = document.getElementById('checked-accounts-display-container');
+
+            if (!inputField || !displayContainer) {
+                return;
+            }
+
+            displayContainer.textContent = '';
+
+            ['total', 'valid', 'locked', 'invalid', 'avatar'].forEach(function (key) {
+                document.getElementById('stat-' + key).innerText = '0';
+            });
+
+            document.getElementById('stat-elapsed').innerText = '0s';
+
+            var startTime = Date.now();
+
+            var timerInterval = setInterval(function () {
+                document.getElementById('stat-elapsed').innerText =
+                    Math.floor((Date.now() - startTime) / 1000) + 's';
+            }, 1000);
+
+            try {
+                var response = await fetch('/api/items', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        input: inputField.value,
+                        trigger: 'active'
+                    })
+                });
+
+                var data = await response.json();
+
+                clearInterval(timerInterval);
+
+                if (data.status === 'success' && Array.isArray(data.accounts)) {
+                    var counts = {
+                        valid: 0,
+                        locked: 0,
+                        invalid: 0,
+                        avatar: 0
+                    };
+
+                    document.getElementById('stat-total').innerText = data.accounts.length;
+
+                    data.accounts.forEach(function (acc) {
+                        var status = ['valid', 'locked'].includes(acc.status)
+                            ? acc.status
+                            : 'invalid';
+
+                        counts[status]++;
+
+                        if (acc.has_pfp) {
+                            counts.avatar++;
+                        }
+
+                        var card = document.createElement('div');
+                        card.className = 'account-card card-' + status;
+
+                        card.innerHTML =
+                            '<div class="account-avatar">●</div>' +
+                            '<div class="account-info">' +
+                                '<div class="account-username"></div>' +
+                                '<div class="account-meta-row">' +
+                                    '<span class="badge-status b-' + status + '">' + status + '</span>' +
+                                    '<span class="badge-feature">' + (acc.nitro || 'No Nitro') + '</span>' +
+                                    '<span class="badge-feature">' + (acc.phone || '') + '</span>' +
+                                '</div>' +
+                            '</div>';
+
+                        card.querySelector('.account-username').textContent =
+                            acc.username || 'Unknown account';
+
+                        displayContainer.appendChild(card);
+                    });
+
+                    Object.keys(counts).forEach(function (key) {
+                        document.getElementById('stat-' + key).innerText = counts[key];
+                    });
+                } else if (data.message) {
+                    displayContainer.textContent = data.message;
+                }
+            } catch (err) {
+                clearInterval(timerInterval);
+
+                displayContainer.textContent =
+                    '[Error] Failed to connect or read profile data from server layer.';
+            }
+        }
+
+        async function handleApiAction(event, endpoint) {
+            event.preventDefault();
+
+            var form = event.target;
+            var logger = document.createElement('div');
+
+            logger.className = 'live-logger-terminal';
+
+            logger.style.cssText =
+                'background:#020408;' +
+                'border:1px solid #1a2642;' +
+                'border-radius:8px;' +
+                'padding:12px;' +
+                'margin-top:16px;' +
+                'font-family:monospace;' +
+                'font-size:12px;' +
+                'color:#38bdf8;';
+
+            logger.textContent =
+                '[System] Dispatched connection payload to server...';
+
+            form.appendChild(logger);
+
+            try {
+                var response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        input: form.querySelector('input[type="text"]')?.value ||
+                            form.querySelector('textarea')?.value ||
+                            '',
+                        amount: form.querySelector('input[type="number"]')?.value || '',
+                        strategy: document.getElementById('token-source')?.value || 'salta7',
+                        trigger: 'active'
+                    })
+                });
+
+                var data = await response.json();
+
+                logger.textContent = Array.isArray(data.logs)
+                    ? data.logs.join('\n')
+                    : '[Finished] All pipeline tasks handled completely.';
+            } catch (err) {
+                logger.textContent +=
+                    '\n[Error] Connection failed to parse backend response.';
+            }
+        }
+
+        function triggerPayment() {
+            var amount =
+                parseFloat(document.getElementById('deposit-amount').value) || 0;
+
+            if (amount < 1) {
+                alert('The minimum deposit requirement threshold is $1.00 USD.');
+                return;
+            }
+
+            alert('Invoice generation is ready to connect to your payment provider.');
+        }
+    </script>
+</body>
+</html>
