@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-@app.route('/api/items', methods=['POST'])
+@app.route('/', methods=['POST'])
 def handle_items_checker():
     try:
         data = request.get_json() or {}
