@@ -2,7 +2,8 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-@app.route('/api/booster', methods=['POST'])
+# VERCEL COMPATIBILITY FIX: Route directly to base root '/'
+@app.route('/', methods=['POST'])
 def handle_booster():
     try:
         data = request.get_json() or {}
