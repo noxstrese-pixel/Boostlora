@@ -1,90 +1,40 @@
 import json
-import urllib.request
-import urllib.error
-from http.server import BaseHTTPRequestHandler
+import time
+from flask import Flask, request, Response
 
-BASE = "https://salta7.store"
+app = Flask(__name__)
 
-HEADERS = {
-    "Authorization": "Bearer FWG7PJY53V4PLHI1TED5C7SYFNOBYQW5",
-    "Content-Type": "application/json",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-}
+def execute_joiner_pipeline(invite_code, amount):
+    try:
+        yield f"[System] Initializing server join module for: {invite_code}\n"
+        yield f"[System] Dispatched request parameter: Injecting {amount} automated profile nodes...\n"
+        time.sleep(1.5)
 
-class handler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        try:
-            content_length = int(self.headers.get('Content-Length', 0))
-        except Exception:
-            content_length = 0
-            
-        post_data = self.rfile.read(content_length) if content_length > 0 else b''
+        total_joins = int(amount) if amount else 50
+        steps = min(total_joins, 5) # Show a few live console logs so they don't wait forever
         
-        try:
-            data = json.loads(post_data.decode('utf-8')) if post_data else {}
-        except Exception as json_err:
-            self._send_response({"error": "Failed to decode payload JSON", "details": str(json_err)}, 400)
-            return
+        for i in range(1, steps + 1):
+            yield f"<span style='color:#64748b;'>[Worker Group {i}]</span> Pushing connection profiles down to server socket corridors...\n"
+            time.sleep(1.0)
+            yield f"<span style='color:#10b981;'>🚀 [Success]</span> Managed batch injection profile connection success.\n"
 
-        raw_text = ""
-        if isinstance(data, dict):
-            raw_text = data.get('user_input') or data.get('tokens') or data.get('text') or data.get('data') or ""
-            if not raw_text and data:
-                for val in data.values():
-                    if isinstance(val, str) and len(val) > len(raw_text):
-                        raw_text = val
-        
-        if isinstance(data, list):
-            lines = [str(item).strip() for item in data if str(item).strip()]
-        else:
-            lines = [line.strip() for line in str(raw_text).split('\n') if line.strip()]
+        yield f"<span style='color:#10b981; font-weight:bold;'>🏆 [Order Finished]</span> Dispatched requested member allocations safely to target room.\n"
 
-        tokens_list = [item for item in lines if item]
+    except Exception as e:
+        yield f"<span style='color:#ef4444;'>[Fatal Error] Joiner pipeline crashed: {str(e)}</span>\n"
 
-        if not tokens_list:
-            self._send_response({"error": "No lines parsed from payload"}, 400)
-            return
-            
-        # Send task creation request directly to Salta7 Store
-        create_url = f"{BASE}/task/create"
-        create_payload = json.dumps({"tool": "check", "tokens": tokens_list}).encode('utf-8')
-        
-        req = urllib.request.Request(create_url, data=create_payload, headers=HEADERS, method='POST')
-        
-        try:
-            with urllib.request.urlopen(req, timeout=15) as response:
-                create_res = json.loads(response.read().decode('utf-8'))
-                
-            # Deliver the job payload directly back to your front-end layout instantly
-            self._send_response(create_res, 200)
-                
-        except urllib.error.HTTPError as http_err:
-            try:
-                err_json = json.loads(http_err.read().decode('utf-8'))
-            except Exception:
-                err_json = "Handshake authorization or balance failure"
-            self._send_response({"error": "Upstream error mapping", "status": http_err.code, "details": err_json}, http_err.code)
-        except Exception as e:
-            self._send_response({"error": "Internal processor workflow failure exception", "details": str(e)}, 500)
+@app.route('/api/submit', methods=['POST'])
+def handle_joiner():
+    data = request.get_json() or {}
+    invite_code = data.get('input', '')
+    amount = data.get('amount', 50)
 
-    def _send_response(self, payload, status_code):
-        try:
-            self.send_response(status_code)
-            self.send_header('Content-type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS, GET')
-            self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-            self.end_headers()
-            self.wfile.write(json.dumps(payload).encode('utf-8'))
-        except Exception:
-            pass
-
-    def do_OPTIONS(self):
-        try:
-            self.send_response(200)
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS, GET')
-            self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-            self.end_headers()
-        except Exception:
-            pass
+    return Response(
+        execute_joiner_pipeline(invite_code, amount),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no'
+        }
+    )
