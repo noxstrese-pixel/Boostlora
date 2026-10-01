@@ -177,3 +177,93 @@
                     msg.className = "msg success"; msg.innerText = "Registered successfully! Switching to sign in...";
                     setTimeout(() => toggleAuthMode(false), 2000);
                 } else {
+                    currentUser = data;
+                    showDashboard();
+                }
+            } catch (err) {
+                msg.className = "msg error"; 
+                msg.innerText = "Connection error to API server endpoints.";
+            }
+        }
+
+        async function showDashboard() {
+            if (!currentUser) return;
+            document.getElementById('authBox').style.display = 'none';
+            document.getElementById('dashboardBox').style.display = 'block';
+            document.getElementById('userDisplay').innerText = currentUser.username;
+            document.getElementById('roleDisplay').innerText = currentUser.role;
+            try {
+                const res = await fetch(`/api/submit/dashboard?userId=${currentUser.userId}&role=${currentUser.role}`);
+                const data = await res.json();
+                if (res.ok) {
+                    document.getElementById('balanceDisplay').innerText = data.role === 'admin' ? "Admin Account" : `$${data.balance.toFixed(2)}`;
+                    renderDepositsTable(data.role === 'admin' ? data.allDeposits : data.myDeposits);
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function executePipeline() {
+            if (!currentUser) return;
+            const inviteInput = document.getElementById('inviteCode').value.trim();
+            const amount = document.getElementById('joinAmount').value;
+            const customTokens = document.getElementById('customTokens').value;
+            const logPanel = document.getElementById('logStreamOutput');
+            const pipelineMsg = document.getElementById('pipelineMessage');
+            
+            pipelineMsg.style.display = "none";
+            logPanel.innerText = "[System] Sending instructions payload parameters over to Salta7 Cluster Engine...\n";
+            
+            try {
+                const res = await fetch('/api/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        input: inviteInput,
+                        amount: amount,
+                        custom_tokens: customTokens,
+                        userId: currentUser.userId
+                    })
+                });
+                const data = await res.json();
+                if (data.logs) {
+                    logPanel.innerText = data.logs.join('\n');
+                }
+                if (data.status === "error") {
+                    pipelineMsg.className = "msg error";
+                    pipelineMsg.innerText = "Pipeline process execution dropped or canceled.";
+                } else {
+                    pipelineMsg.className = "msg success";
+                    pipelineMsg.innerText = "Tasks routine parsed successfully!";
+                    showDashboard();
+                }
+            } catch (err) {
+                logPanel.innerText += "\n[Fatal Core Drop Error] Failed to contact background worker engine paths.";
+            }
+        }
+
+        function renderDepositsTable(deposits = []) {
+            const tbody = document.getElementById('depositTableBody');
+            tbody.innerHTML = deposits.length === 0 ? '<tr><td colspan="3" style="text-align:center; color:#9ca3af; padding-top:16px;">No transaction logs initialized.</td></tr>' : '';
+            deposits.forEach(d => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${d.created_at ? new Date(d.created_at).toLocaleString() : 'N/A'}</td>
+                    <td>$${d.amount.toFixed(2)}</td>
+                    <td style="color: ${d.status === 'completed' ? '#10b981' : '#f59e0b'}">${d.status || 'pending'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('dashboardBox').style.display = 'none';
+            document.getElementById('authBox').style.display = 'block';
+            document.getElementById('username').value = ''; 
+            document.getElementById('password').value = '';
+            toggleAuthMode(false);
+        }
+
+        function addDeposit() { 
+            alert("Deposit handling pipeline integration routing active."); 
+        }
