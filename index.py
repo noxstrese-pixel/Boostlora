@@ -34,11 +34,11 @@ def get_db_connection():
 @app.route('/api/submit/register', methods=['POST'])
 def register():
     data = request.get_json() or {}
-    email = data.get('email')
+    username = data.get('username')
     password = data.get('password')
     
-    if not email or not password:
-        return jsonify({"error": "Missing email or password"}), 400
+    if not username or not password:
+        return jsonify({"error": "Missing username or password"}), 400
         
     conn = get_db_connection()
     cur = conn.cursor()
@@ -50,12 +50,14 @@ def register():
         hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         cur.execute(
             "INSERT INTO users (email, password_hash, role) VALUES (%s, %s, %s);",
-            (email, hashed, role)
+            (username, hashed, role)
         )
         conn.commit()
         return jsonify({"message": f"Account created. Assigned role: {role}"}), 201
     except psycopg2.errors.UniqueViolation:
-        return jsonify({"error": "User already exists"}), 400
+        if conn:
+            conn.rollback()
+        return jsonify({"error": "Username already exists"}), 400
     finally:
         cur.close()
         conn.close()
@@ -63,12 +65,15 @@ def register():
 @app.route('/api/submit/login', methods=['POST'])
 def login():
     data = request.get_json() or {}
-    email = data.get('email')
+    username = data.get('username')
     password = data.get('password')
     
+    if not username or not password:
+        return jsonify({"error": "Missing username or password"}), 400
+
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE email = %s;", (email,))
+    cur.execute("SELECT * FROM users WHERE email = %s;", (username,))
     user = cur.fetchone()
     cur.close()
     conn.close()
@@ -76,7 +81,7 @@ def login():
     if user and bcrypt.checkpw(password.encode('utf-8'), user['password_hash'].encode('utf-8')):
         return jsonify({
             "userId": user['id'],
-            "email": user['email'],
+            "username": user['email'],
             "role": user['role']
         }), 200
     return jsonify({"error": "Invalid login credentials"}), 401
@@ -207,5 +212,4 @@ def handle_joiner_pipeline():
     except Exception as e:
         return jsonify({"status": "error", "logs": [f"[Fatal Error]: {str(e)}"]}), 500
 
-# Expose 'app' cleanly for Vercel's Python Serverless Runtime
 wsgi_app = app
