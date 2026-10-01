@@ -1,23 +1,14 @@
 {
-  "version": 2,
   "builds": [
     {
-      "src": "index.py",
+      "src": "api/submit.py",
       "use": "@vercel/python"
-    },
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "source": "/api/submit/(.*)",
-      "destination": "index.py"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "index.html"
+      "src": "/api/submit/(.*)",
+      "dest": "api/submit.py"
     }
   ]
 }
