@@ -1,7 +1,5 @@
 import os
 import time
-import json
-import random
 import requests
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -10,23 +8,36 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
+# --- PREMIUM INTEGRATION PARAMETERS ---
 SALTA7_BASE_URL = "https://salta7.store"
 SALTA7_HEADERS = {
     "Authorization": "Bearer FWG7PJY53V4PLHI1TED5C7SYFNOBYQW5",
     "Content-Type": "application/json"
 }
 
+ADMIN_ADDRESSES = {
+    "BTC": "1YourBitcoinWalletAddressHere",
+    "LTC": "LYourLitecoinWalletAddressHere",
+    "DOGE": "DYourDogecoinWalletAddressHere",
+    "SOL": "SYourSolanaWalletAddressHere"
+}
+
 def get_db_connection():
     return psycopg2.connect(os.environ.get('DATABASE_URL'), cursor_factory=RealDictCursor)
+
+
+# =====================================================================
+# 1. CORE AUTHENTICATION PIPELINES
+# =====================================================================
 
 @app.route('/api/submit/register', methods=['POST'])
 def register():
     data = request.get_json() or {}
-    email = data.get('email')
+    username = data.get('username')
     password = data.get('password')
     
-    if not email or not password:
-        return jsonify({"error": "Missing email or password"}), 400
+    if not username or not password:
+        return jsonify({"error": "Missing username or password"}), 400
         
     conn = get_db_connection()
     cur = conn.cursor()
@@ -36,14 +47,17 @@ def register():
         role = 'admin' if count == 0 else 'user'
         
         hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        # Store username in the email database column cleanly
         cur.execute(
             "INSERT INTO users (email, password_hash, role) VALUES (%s, %s, %s);",
-            (email, hashed, role)
+            (username, hashed, role)
         )
         conn.commit()
         return jsonify({"message": f"Account created. Assigned role: {role}"}), 201
     except psycopg2.errors.UniqueViolation:
-        return jsonify({"error": "User already exists"}), 400
+        if conn:
+            conn.rollback()
+        return jsonify({"error": "Username already exists"}), 400
     finally:
         cur.close()
         conn.close()
@@ -51,12 +65,15 @@ def register():
 @app.route('/api/submit/login', methods=['POST'])
 def login():
     data = request.get_json() or {}
-    email = data.get('email')
+    username = data.get('username')
     password = data.get('password')
     
+    if not username or not password:
+        return jsonify({"error": "Missing username or password"}), 400
+
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE email = %s;", (email,))
+    cur.execute("SELECT * FROM users WHERE email = %s;", (username,))
     user = cur.fetchone()
     cur.close()
     conn.close()
@@ -64,7 +81,7 @@ def login():
     if user and bcrypt.checkpw(password.encode('utf-8'), user['password_hash'].encode('utf-8')):
         return jsonify({
             "userId": user['id'],
-            "email": user['email'],
+            "username": user['email'],
             "role": user['role']
         }), 200
     return jsonify({"error": "Invalid login credentials"}), 401
@@ -106,6 +123,11 @@ def dashboard():
         "balance": float(profile['balance']) if profile else 0.00,
         "myDeposits": my_deposits
     })
+
+
+# =====================================================================
+# 2. SALTA7 USER PIPELINES & WALLET DEDUCTION ENGINES
+# =====================================================================
 
 @app.route('/api/submit', methods=['POST'])
 def handle_joiner_pipeline():
@@ -189,3 +211,5 @@ def handle_joiner_pipeline():
         return jsonify({"status": "success", "logs": logs_output}), 200
     except Exception as e:
         return jsonify({"status": "error", "logs": [f"[Fatal Error]: {str(e)}"]}), 500
+
+wsgi_app = app
