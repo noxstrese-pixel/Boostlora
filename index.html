@@ -222,8 +222,8 @@
         <div class="message" id="authMessage"></div>
         
         <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" id="username" placeholder="Enter username">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" placeholder="Enter your email">
         </div>
         
         <div class="form-group">
@@ -281,237 +281,123 @@
             </tbody>
         </table>
     </div>
+
     <script>
         let isRegisterMode = false;
         let currentUser = null;
 
-        // --- SALTA7 INTEGRATION CONFIGURATION ---
-        const SALTA7_BASE_URL = "https://salta7.store";
-        const SALTA7_HEADERS = {
-            "Authorization": "Bearer FWG7PJY53V4PLHI1TED5C7SYFNOBYQW5",
-            "Content-Type": "application/json"
-        };
-
-        // Check if a session already exists on page load
-        window.onload = function() {
-            const loggedInUser = localStorage.getItem('logged_in_session');
-            if (loggedInUser) {
-                loadDashboard(loggedInUser);
-            }
-        };
-
-        function toggleAuthMode(toRegister) {
-            isRegisterMode = toRegister;
-            const title = document.getElementById('authTitle');
-            const btn = document.getElementById('authBtn');
-            const prompt = document.getElementById('switchPrompt');
-            const msg = document.getElementById('authMessage');
+        function toggleAuthMode(register) {
+            isRegisterMode = register;
+            const authTitle = document.getElementById('authTitle');
+            const authBtn = document.getElementById('authBtn');
+            const switchPrompt = document.getElementById('switchPrompt');
+            const authMessage = document.getElementById('authMessage');
             
-            msg.className = "message";
-            msg.innerText = "";
+            authMessage.className = "message";
+            authMessage.style.display = "none";
 
             if (isRegisterMode) {
-                title.innerText = "Create Your Account";
-                btn.innerText = "Register Account";
-                prompt.innerHTML = 'Already have an account? <span onclick="toggleAuthMode(false)">Sign In</span>';
+                authTitle.innerText = "Create Your Account";
+                authBtn.innerText = "Register";
+                switchPrompt.innerHTML = 'Already have an account? <span onclick="toggleAuthMode(false)">Sign In</span>';
             } else {
-                title.innerText = "Sign In to Boostlora";
-                btn.innerText = "Sign In";
-                prompt.innerHTML = 'Don\'t have an account? <span onclick="toggleAuthMode(true)">Register</span>';
+                authTitle.innerText = "Sign In to Boostlora";
+                authBtn.innerText = "Sign In";
+                switchPrompt.innerHTML = 'Don\'t have an account? <span onclick="toggleAuthMode(true)">Register</span>';
             }
         }
 
-        function handleAuth() {
-            const userInp = document.getElementById('username').value.trim();
-            const passInp = document.getElementById('password').value.trim();
-            const msg = document.getElementById('authMessage');
+        async function handleAuth() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const authMessage = document.getElementById('authMessage');
 
-            if (!userInp || !passInp) {
-                msg.className = "message error";
-                msg.innerText = "Please complete all validation fields.";
+            if (!email || !password) {
+                authMessage.className = "message error";
+                authMessage.innerText = "Please fill out all fields.";
                 return;
             }
 
-            let users = JSON.parse(localStorage.getItem('app_users')) || {};
-
-            if (isRegisterMode) {
-                if (users[userInp.toLowerCase()]) {
-                    msg.className = "message error";
-                    msg.innerText = "Username is already registered.";
-                    return;
-                }
-
-                const isFirstUser = Object.keys(users).length === 0;
-
-                users[userInp.toLowerCase()] = {
-                    username: userInp,
-                    password: passInp,
-                    role: isFirstUser ? 'admin' : 'user',
-                    balance: 0.00,
-                    deposits: []
-                };
-
-                localStorage.setItem('app_users', JSON.stringify(users));
-                msg.className = "message success";
-                msg.innerText = "Registration complete! Switching to login window...";
-                
-                setTimeout(() => {
-                    toggleAuthMode(false);
-                    document.getElementById('password').value = "";
-                }, 1500);
-
-            } else {
-                const matchedUser = users[userInp.toLowerCase()];
-                if (!matchedUser || matchedUser.password !== passInp) {
-                    msg.className = "message error";
-                    msg.innerText = "Invalid security credentials matched.";
-                    return;
-                }
-
-                localStorage.setItem('logged_in_session', userInp.toLowerCase());
-                loadDashboard(userInp.toLowerCase());
-            }
-        }
-
-        function loadDashboard(usernameKey) {
-            const users = JSON.parse(localStorage.getItem('app_users')) || {};
-            currentUser = users[usernameKey];
-
-            if (!currentUser) {
-                logout();
-                return;
-            }
-
-            document.getElementById('authBox').style.display = 'none';
-            document.getElementById('dashboardBox').style.display = 'block';
+            const endpoint = isRegisterMode ? '/api/submit/register' : '/api/submit/login';
             
-            document.getElementById('userDisplay').innerText = currentUser.username;
-            document.getElementById('roleDisplay').innerText = currentUser.role;
-            document.getElementById('balanceDisplay').innerText = `$${parseFloat(currentUser.balance).toFixed(2)}`;
-
-            renderDeposits();
-        }
-
-        function renderDeposits() {
-            const tbody = document.getElementById('depositTableBody');
-            tbody.innerHTML = "";
-
-            if (!currentUser.deposits || currentUser.deposits.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#6b7280;">No logged deposits recorded yet.</td></tr>`;
-                return;
-            }
-
-            const chronologicalList = [...currentUser.deposits].reverse();
-
-            chronologicalList.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${item.date}</td>
-                    <td style="font-weight:600; color: var(--success-color);">$${parseFloat(item.amount).toFixed(2)}</td>
-                    <td><span style="background-color: rgba(16, 185, 129, 0.1); color: var(--success-color); padding: 4px 8px; border-radius:4px; font-size:12px;">Completed</span></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function addDeposit() {
-            const amtInp = document.getElementById('depositAmount');
-            const val = parseFloat(amtInp.value);
-
-            if (isNaN(val) || val <= 0) {
-                alert("Please enter a valid currency value higher than 0.");
-                return;
-            }
-
-            const newTransaction = {
-                date: new Date().toLocaleString(),
-                amount: val
-            };
-
-            currentUser.deposits.push(newTransaction);
-            currentUser.balance = parseFloat(currentUser.balance) + val;
-
-            let users = JSON.parse(localStorage.getItem('app_users'));
-            users[localStorage.getItem('logged_in_session')] = currentUser;
-            localStorage.setItem('app_users', JSON.stringify(users));
-
-            document.getElementById('balanceDisplay').innerText = `$${parseFloat(currentUser.balance).toFixed(2)}`;
-            amtInp.value = "";
-            renderDeposits();
-        }
-
-        // =====================================================================
-        // CORE PIPELINES (JOINER / BOOSTER ACTIONS RUNNING DIRECTLY FROM CLIENT)
-        // =====================================================================
-        
-        async function runJoinerPipeline(inviteCode, joinAmount, customTokensRaw) {
             try {
-                if (!inviteCode) {
-                    return { status: "error", logs: ["[Error] Target server invite parameter code is missing."] };
-                }
-
-                const totalMembers = parseInt(joinAmount) || 50;
-                const costPerUnit = 0.09;
-                const totalCost = currentUser.role === 'admin' ? 0.00 : (totalMembers * costPerUnit);
-                let currentBalance = parseFloat(currentUser.balance);
-
-                if (currentBalance < totalCost) {
-                    return { status: "error", logs: [`❌ [Insufficient Funds] Balance: $${currentBalance.toFixed(2)} USD | Required: $${totalCost.toFixed(2)} USD`] };
-                }
-
-                // Build Salta7 Payload Configuration
-                let payload = { tool: "join", invite: inviteCode };
-                let tokensList = customTokensRaw ? customTokensRaw.split('\n').map(t => t.trim()).filter(Boolean) : [];
-                let logsInitial = "";
-
-                if (tokensList.length > 0) {
-                    payload.mode = "byot";
-                    payload.tokens = tokensList;
-                    logsInitial = `[System] Initializing BYOT Joiner: Injecting ${tokensList.length} custom profiles...`;
-                } else {
-                    payload.mode = "stock";
-                    payload.product = "discord";
-                    payload.quantity = totalMembers;
-                    logsInitial = `[System] Initializing Stock Joiner: Requesting ${payload.quantity} accounts...`;
-                }
-
-                // Send request out to Salta7 Store Endpoints via client fetch
-                const response = await fetch(`${SALTA7_BASE_URL}/task/create`, {
+                const response = await fetch(endpoint, {
                     method: 'POST',
-                    headers: SALTA7_HEADERS,
-                    body: JSON.stringify(payload)
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, password: password })
                 });
 
+                const data = await response.json();
+
                 if (!response.ok) {
-                    return { status: "error", logs: ["❌ [Salta7 Validation Failure] Connection Refused"] };
-                }
-
-                const responseData = await response.json();
-                const jobId = responseData.job_id;
-
-                // Deduct balance locally if not an admin account
-                if (totalCost > 0) {
-                    currentUser.balance = currentBalance - totalCost;
-                    let users = JSON.parse(localStorage.getItem('app_users'));
-                    users[localStorage.getItem('logged_in_session')] = currentUser;
-                    localStorage.setItem('app_users', JSON.stringify(users));
-                    document.getElementById('balanceDisplay').innerText = `$${currentUser.balance.toFixed(2)}`;
-                }
-
-                let outputLogs = [`[Ledger] Deducted: $${totalCost.toFixed(2)} USD.`, logsInitial, `✅ [Task Started] Job ID: ${jobId}`];
-                return { status: "success", logs: outputLogs, jobId: jobId };
-
-            } catch (err) {
-                return { status: "error", logs: [`[Fatal Error]: ${err.message}`] };
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem('logged_in_session');
-            currentUser = null;
-            document.getElementById('username').value = "";
-document.getElementById('password').value = "";
-document.getElementById('authBox').style.display = 'block';
-document.getElementById('dashboardBox').style.display = 'none';
+                    authMessage.className = "message error";
+authMessage.innerText = data.error || "Authentication failed.";
+return;
+}
+if (isRegisterMode) {
+authMessage.className = "message success";
+authMessage.innerText = "Account created successfully! Switching to sign in...";
+setTimeout(() => {
 toggleAuthMode(false);
+}, 2000);
+} else {
+currentUser = data;
+showDashboard();
+}
+} catch (err) {
+authMessage.className = "message error";
+authMessage.innerText = "Server error. Could not connect to API endpoints.";
+console.error(err);
+}
+}
+async function showDashboard() {
+if (!currentUser) return;
+document.getElementById('authBox').style.display = 'none';
+document.getElementById('dashboardBox').style.display = 'block';
+document.getElementById('userDisplay').innerText = currentUser.email;
+document.getElementById('roleDisplay').innerText = currentUser.role;
+try {
+const response = await fetch(/api/submit/dashboard?userId=${currentUser.userId}&role=${currentUser.role});
+const data = await response.json();
+if (response.ok) {
+if (data.role === 'admin') {
+document.getElementById('balanceDisplay').innerText = "Admin Account";
+renderDepositsTable(data.allDeposits || []);
+} else {
+document.getElementById('balanceDisplay').innerText = $${data.balance.toFixed(2)};
+renderDepositsTable(data.myDeposits || []);
+}
+}
+} catch (err) {
+console.error("Error pulling profile updates:", err);
+}
+}
+function renderDepositsTable(deposits) {
+const tbody = document.getElementById('depositTableBody');
+tbody.innerHTML = '';
+if (deposits.length === 0) {
+tbody.innerHTML = 'No deposits logged.';
+return;
+}
+deposits.forEach(d => {
+const row = document.createElement('tr');
+const date = d.created_at ? new Date(d.created_at).toLocaleString() : 'N/A';
+row.innerHTML = `
+${date}
+$${d.amount.toFixed(2)}
+${d.status || 'pending'}
+`;
+tbody.appendChild(row);
+});
+}
+function logout() {
+currentUser = null;
+document.getElementById('dashboardBox').style.display = 'none';
+document.getElementById('authBox').style.display = 'block';
+document.getElementById('email').value = '';
+document.getElementById('password').value = '';
+toggleAuthMode(false);
+}
+function addDeposit() {
+alert("Deposit configuration requires backend integration.");
 }
