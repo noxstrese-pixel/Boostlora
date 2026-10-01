@@ -1,7 +1,12 @@
 {
+  "version": 2,
   "builds": [
     {
       "src": "api/submit.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "index.py",
       "use": "@vercel/python"
     }
   ],
@@ -9,6 +14,10 @@
     {
       "src": "/api/submit/(.*)",
       "dest": "api/submit.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "index.html"
     }
   ]
 }
