@@ -222,8 +222,8 @@
         <div class="message" id="authMessage"></div>
         
         <div class="form-group">
-            <label for="email">Email Address</label>
-            <input type="email" id="email" placeholder="Enter your email">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Enter username">
         </div>
         
         <div class="form-group">
@@ -308,11 +308,11 @@
         }
 
         async function handleAuth() {
-            const email = document.getElementById('email').value.trim();
+            const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             const authMessage = document.getElementById('authMessage');
 
-            if (!email || !password) {
+            if (!username || !password) {
                 authMessage.className = "message error";
                 authMessage.innerText = "Please fill out all fields.";
                 return;
@@ -324,19 +324,19 @@
                 const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: email, password: password })
+                    body: JSON.stringify({ username: username, password: password })
                 });
 
                 const data = await response.json();
 
                 if (!response.ok) {
-                    authMessage.className = "message error";
+authMessage.className = "message error";
 authMessage.innerText = data.error || "Authentication failed.";
 return;
 }
 if (isRegisterMode) {
 authMessage.className = "message success";
-authMessage.innerText = "Account created successfully! Switching to sign in...";
+authMessage.innerText = "Account registered successfully! Switching to sign in...";
 setTimeout(() => {
 toggleAuthMode(false);
 }, 2000);
@@ -354,7 +354,7 @@ async function showDashboard() {
 if (!currentUser) return;
 document.getElementById('authBox').style.display = 'none';
 document.getElementById('dashboardBox').style.display = 'block';
-document.getElementById('userDisplay').innerText = currentUser.email;
+document.getElementById('userDisplay').innerText = currentUser.username;
 document.getElementById('roleDisplay').innerText = currentUser.role;
 try {
 const response = await fetch(/api/submit/dashboard?userId=${currentUser.userId}&role=${currentUser.role});
@@ -394,7 +394,7 @@ function logout() {
 currentUser = null;
 document.getElementById('dashboardBox').style.display = 'none';
 document.getElementById('authBox').style.display = 'block';
-document.getElementById('email').value = '';
+document.getElementById('username').value = '';
 document.getElementById('password').value = '';
 toggleAuthMode(false);
 }
