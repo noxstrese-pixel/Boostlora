@@ -4,66 +4,86 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boostlora Dashboard</title>
-    <!-- Tailwind CSS CDN for compact layout rules -->
-    <script src="https://tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: { extend: { colors: { darkbg: '#0b0f19', boxbg: '#111827', accent: '#3b82f6', bordercl: '#1f2937' } } }
-        }
-    </script>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #0b0f19; color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .box { background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 30px; w-full; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
+        .dash-box { max-width: 750px; width: 100%; display: none; }
+        h2, h3 { margin-top: 0; text-align: center; }
+        .input-group { margin-bottom: 16px; }
+        label { display: block; font-size: 14px; color: #9ca3af; margin-bottom: 6px; }
+        input { width: 100%; padding: 12px; background: #0b0f19; border: 1px solid #1f2937; border-radius: 6px; color: white; box-sizing: border-box; font-size: 16px; }
+        input:focus { outline: none; border-color: #3b82f6; }
+        button { width: 100%; padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        button:hover { background: #2563eb; }
+        .btn-alt { background: transparent; border: 1px solid #ef4444; color: #ef4444; width: auto; padding: 6px 12px; }
+        .btn-alt:hover { background: rgba(239, 68, 68, 0.1); }
+        .prompt { text-align: center; font-size: 14px; color: #9ca3af; margin-top: 16px; }
+        .prompt span { color: #3b82f6; cursor: pointer; }
+        .msg { padding: 10px; border-radius: 6px; font-size: 14px; margin-bottom: 16px; text-align: center; display: none; }
+        .error { background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); display: block; }
+        .success { background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2); display: block; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+        .card { background: #0b0f19; border: 1px solid #1f2937; padding: 15px; border-radius: 8px; text-align: center; }
+        .val { font-size: 24px; font-weight: bold; color: #3b82f6; margin-top: 6px; }
+        .flex-row { display: flex; gap: 12px; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; padding-bottom: 12px; margin-bottom: 20px; }
+        .inline-form { display: flex; gap: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #1f2937; font-size: 14px; }
+        th { color: #9ca3af; }
+    </style>
 </head>
-<body class="bg-darkbg text-gray-100 font-sans min-h-screen flex items-center justify-center p-4">
+<body>
 
-    <!-- AUTHENTICATION BOX (LOGIN / REGISTER) -->
-    <div id="authBox" class="bg-boxbg border border-bordercl rounded-xl p-8 w-full max-w-md shadow-2xl">
-        <h2 id="authTitle" class="text-2xl font-bold text-center mb-6">Sign In to Boostlora</h2>
-        <div id="authMessage" class="hidden p-3 rounded mb-4 text-sm text-center"></div>
+    <!-- AUTHENTICATION FORM -->
+    <div id="authBox" class="box">
+        <h2 id="authTitle">Sign In to Boostlora</h2>
+        <div id="authMessage" class="msg"></div>
         
-        <div class="mb-4">
-            <label class="block text-gray-400 text-sm mb-2">Username</label>
-            <input type="text" id="username" placeholder="Enter username" class="w-full p-3 bg-darkbg border border-bordercl rounded text-white focus:outline-none focus:border-accent">
+        <div class="input-group">
+            <label>Username</label>
+            <input type="text" id="username" placeholder="Enter username">
         </div>
-        <div class="mb-6">
-            <label class="block text-gray-400 text-sm mb-2">Password</label>
-            <input type="password" id="password" placeholder="Enter password" class="w-full p-3 bg-darkbg border border-bordercl rounded text-white focus:outline-none focus:border-accent">
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Enter password">
         </div>
         
-        <button id="authBtn" onclick="handleAuth()" class="w-full p-3 bg-accent hover:bg-blue-600 font-semibold rounded transition">Sign In</button>
-        <div id="switchPrompt" class="text-center text-gray-400 text-sm mt-4">
-            Don't have an account? <span onclick="toggleAuthMode(true)" class="text-accent cursor-pointer">Register</span>
+        <button id="authBtn" onclick="handleAuth()">Sign In</button>
+        <div id="switchPrompt" class="prompt">
+            Don't have an account? <span onclick="toggleAuthMode(true)">Register</span>
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD -->
-    <div id="dashboardBox" class="hidden bg-boxbg border border-bordercl rounded-xl p-8 w-full max-w-3xl shadow-2xl">
-        <div class="flex justify-between items-center border-b border-bordercl pb-4 mb-6">
-            <div>Welcome back, <strong id="userDisplay" class="text-accent">User</strong>!</div>
-            <button onclick="logout()" class="border border-red-500 text-red-500 hover:bg-red-500/10 px-3 py-1 text-sm rounded transition">Logout</button>
+    <!-- DASHBOARD PANEL -->
+    <div id="dashboardBox" class="box dash-box">
+        <div class="flex-row">
+            <div>Welcome back, <strong id="userDisplay" style="color:#3b82f6;">User</strong>!</div>
+            <button class="btn-alt" onclick="logout()">Logout</button>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 mb-8">
-            <div class="bg-darkbg border border-bordercl rounded p-5 text-center">
-                <label class="text-gray-400 text-sm">Account Status</label>
-                <div id="roleDisplay" class="text-xl font-bold text-accent uppercase mt-2">User</div>
+        <div class="grid">
+            <div class="card">
+                <label>Account Status</label>
+                <div id="roleDisplay" class="val" style="text-transform: uppercase; font-size: 18px;">User</div>
             </div>
-            <div class="bg-darkbg border border-bordercl rounded p-5 text-center">
-                <label class="text-gray-400 text-sm">Available Balance</label>
-                <div id="balanceDisplay" class="text-2xl font-bold text-accent mt-2">\$0.00</div>
-            </div>
-        </div>
-
-        <div class="bg-darkbg border border-bordercl rounded p-5 mb-6">
-            <h3 class="text-lg mb-4">Log a New Deposit</h3>
-            <div class="flex gap-3">
-                <input type="number" id="depositAmount" placeholder="Amount in USD (\$)" min="1" step="any" class="flex-1 p-3 bg-boxbg border border-bordercl rounded text-white focus:outline-none focus:border-accent">
-                <button onclick="addDeposit()" class="bg-accent hover:bg-blue-600 px-6 rounded font-semibold transition">Submit</button>
+            <div class="card">
+                <label>Available Balance</label>
+                <div id="balanceDisplay" class="val">\$0.00</div>
             </div>
         </div>
 
-        <h3 class="text-lg mb-4">Your Deposit History</h3>
-        <table class="w-full text-left border-collapse">
+        <div class="card" style="text-align: left; margin-bottom: 20px;">
+            <h3 style="text-align: left; font-size: 16px; margin-bottom: 12px;">Log a New Deposit</h3>
+            <div class="inline-form">
+                <input type="number" id="depositAmount" placeholder="Amount in USD (\$)" min="1" step="any" style="flex:1;">
+                <button onclick="addDeposit()" style="width: auto; padding: 0 20px;">Submit</button>
+            </div>
+        </div>
+
+        <h3 style="text-align: left; font-size: 16px;">Your Deposit History</h3>
+        <table>
             <thead>
-                <tr class="text-gray-400 border-b border-bordercl"><th class="pb-3">Date / Time</th><th class="pb-3">Amount</th><th class="pb-3">Status</th></tr>
+                <tr><th>Date / Time</th><th>Amount</th><th>Status</th></tr>
             </thead>
             <tbody id="depositTableBody"></tbody>
         </table>
@@ -75,13 +95,13 @@
         function toggleAuthMode(register) {
             isRegisterMode = register;
             const msg = document.getElementById('authMessage');
-            msg.className = "hidden p-3 rounded mb-4 text-sm text-center";
+            msg.style.display = "none";
             
             document.getElementById('authTitle').innerText = register ? "Create Your Account" : "Sign In to Boostlora";
             document.getElementById('authBtn').innerText = register ? "Register" : "Sign In";
             document.getElementById('switchPrompt').innerHTML = register ? 
-                'Already have an account? <span onclick="toggleAuthMode(false)" class="text-accent cursor-pointer">Sign In</span>' :
-                'Don\'t have an account? <span onclick="toggleAuthMode(true)" class="text-accent cursor-pointer">Register</span>';
+                'Already have an account? <span onclick="toggleAuthMode(false)">Sign In</span>' :
+                'Don\'t have an account? <span onclick="toggleAuthMode(true)">Register</span>';
         }
 
         async function handleAuth() {
@@ -90,7 +110,7 @@
             const msg = document.getElementById('authMessage');
 
             if (!username || !password) {
-                msg.className = "p-3 rounded mb-4 text-sm text-center bg-red-500/10 text-red-400 border border-red-500/20";
+                msg.className = "msg error";
                 msg.innerText = "Please fill out all fields.";
                 return;
             }
@@ -104,13 +124,13 @@
                 const data = await res.json();
 
                 if (!res.ok) {
-                    msg.className = "p-3 rounded mb-4 text-sm text-center bg-red-500/10 text-red-400 border border-red-500/20";
+                    msg.className = "msg error";
                     msg.innerText = data.error || "Authentication failed.";
                     return;
                 }
 
                 if (isRegisterMode) {
-                    msg.className = "p-3 rounded mb-4 text-sm text-center bg-green-500/10 text-green-400 border border-green-500/20";
+                    msg.className = "msg success";
                     msg.innerText = "Registered successfully! Switching to sign in...";
                     setTimeout(() => toggleAuthMode(false), 2000);
                 } else {
@@ -118,15 +138,15 @@
                     showDashboard();
                 }
             } catch (err) {
-                msg.className = "p-3 rounded mb-4 text-sm text-center bg-red-500/10 text-red-400 border border-red-500/20";
+                msg.className = "msg error";
                 msg.innerText = "Connection error to API server endpoints.";
             }
         }
 
         async function showDashboard() {
             if (!currentUser) return;
-            document.getElementById('authBox').classList.add('hidden');
-            document.getElementById('dashboardBox').classList.remove('hidden');
+            document.getElementById('authBox').style.display = 'none';
+            document.getElementById('dashboardBox').style.display = 'block';
             document.getElementById('userDisplay').innerText = currentUser.username;
             document.getElementById('roleDisplay').innerText = currentUser.role;
 
@@ -142,15 +162,14 @@
 
         function renderDepositsTable(deposits = []) {
             const tbody = document.getElementById('depositTableBody');
-            tbody.innerHTML = deposits.length === 0 ? '<tr><td colspan="3" class="text-center text-gray-500 pt-4">No deposits found.</td></tr>' : '';
+            tbody.innerHTML = deposits.length === 0 ? '<tr><td colspan="3" style="text-align:center; color:#9ca3af; pt-4">No deposits found.</td></tr>' : '';
             
             deposits.forEach(d => {
                 const tr = document.createElement('tr');
-                tr.className = "border-b border-bordercl text-sm";
                 tr.innerHTML = `
                     <td class="py-3">${d.created_at ? new Date(d.created_at).toLocaleString() : 'N/A'}</td>
                     <td class="py-3">$${d.amount.toFixed(2)}</td>
-                    <td class="py-3 ${d.status === 'completed' ? 'text-green-400' : 'text-orange-400'}">${d.status || 'pending'}</td>
+                    <td class="py-3" style="color: ${d.status === 'completed' ? '#10b981' : '#f59e0b'}">${d.status || 'pending'}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -158,8 +177,8 @@
 
         function logout() {
             currentUser = null;
-            document.getElementById('dashboardBox').classList.add('hidden');
-            document.getElementById('authBox').classList.remove('hidden');
+            document.getElementById('dashboardBox').style.display = 'none';
+            document.getElementById('authBox').style.display = 'block';
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
             toggleAuthMode(false);
